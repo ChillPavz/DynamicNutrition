@@ -68,21 +68,29 @@ public record NutritionSyncPayload(List<String> nutrientNames,
     private static final StreamCodec<RegistryFriendlyByteBuf, Item> ITEM =
             ByteBufCodecs.registry(Registries.ITEM);
 
+    // THE THREE ARGUMENT FORM, NOT `x.apply(collection(factory, max))`. The CodecOperation overload
+    // `collection(IntFunction, int)` was ADDED IN 26.2 and does not exist at 26.1, so a jar built
+    // against 26.2 and installed on 26.1 throws NoSuchMethodError while registering its payload,
+    // before the main menu. This form takes the element codec directly and exists in both.
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<String>> NAMES =
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8, MAX_NUTRIENTS);
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<Integer>> VALUES =
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT, MAX_NUTRIENTS);
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<Item>> FROM =
+            ByteBufCodecs.collection(ArrayList::new, ITEM, NutritionOrigin.MAX_FROM);
+
     private static final StreamCodec<RegistryFriendlyByteBuf, Entry> ENTRY =
             StreamCodec.composite(
-                    ByteBufCodecs.VAR_INT.apply(
-                            ByteBufCodecs.collection(ArrayList::new, MAX_NUTRIENTS)),
-                    Entry::values,
+                    VALUES, Entry::values,
                     ByteBufCodecs.VAR_INT, Entry::source,
-                    ITEM.apply(ByteBufCodecs.collection(ArrayList::new, NutritionOrigin.MAX_FROM)),
-                    Entry::from,
+                    FROM, Entry::from,
                     Entry::new);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, NutritionSyncPayload> STREAM_CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.STRING_UTF8.apply(
-                            ByteBufCodecs.collection(ArrayList::new, MAX_NUTRIENTS)),
-                    NutritionSyncPayload::nutrientNames,
+                    NAMES, NutritionSyncPayload::nutrientNames,
                     ByteBufCodecs.map(HashMap::new, ITEM, ENTRY, MAX_FOODS),
                     NutritionSyncPayload::entries,
                     NutritionSyncPayload::new);
