@@ -1,5 +1,9 @@
 package com.chillpavz.dynamicnutrition.client;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.function.BooleanSupplier;
+
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -69,7 +73,66 @@ public final class NutritionHud {
      */
     private static final int ROW_GAP = 2;
 
+    /**
+     * How to ask whether the player has hidden the HUD with F1, resolved once.
+     *
+     * <p><b>The two versions in this jar's range answer it differently</b>, which is why this is
+     * reflective rather than a call. At 26.1 it is the public field {@code Options.hideGui}. At 26.2
+     * that field is gone: the old {@code Gui} class was renamed {@code Hud}, a new {@code Gui} was
+     * introduced to own it, and the state became {@code Hud.isHidden()}. One jar cannot name both.
+     *
+     * <p>Resolved once and cached, and if neither shape is found the answer is "not hidden", so the
+     * worst case is the strip staying visible rather than the HUD throwing every frame.
+     */
+    private static volatile BooleanSupplier hiddenTest;
+
     private NutritionHud() {
+    }
+
+    private static boolean hudHidden(Minecraft client) {
+        BooleanSupplier test = hiddenTest;
+        if (test == null) {
+            test = resolveHiddenTest(client);
+            hiddenTest = test;
+        }
+        try {
+            return test.getAsBoolean();
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private static BooleanSupplier resolveHiddenTest(Minecraft client) {
+        try {                                   // 26.2: Minecraft.gui.hud.isHidden()
+            Field hudField = client.gui.getClass().getField("hud");
+            Object hud = hudField.get(client.gui);
+            Method isHidden = hud.getClass().getMethod("isHidden");
+            return () -> {
+                try {
+                    return Boolean.TRUE.equals(isHidden.invoke(hudField.get(
+                            Minecraft.getInstance().gui)));
+                } catch (Throwable t) {
+                    return false;
+                }
+            };
+        } catch (Throwable ignored) {
+            // Not 26.2. Fall through.
+        }
+        try {                                   // 26.1: Options.hideGui
+            Field hideGui = client.options.getClass().getField("hideGui");
+            return () -> {
+                try {
+                    return hideGui.getBoolean(Minecraft.getInstance().options);
+                } catch (Throwable t) {
+                    return false;
+                }
+            };
+        } catch (Throwable ignored) {
+            // Neither shape. Degrade to always visible rather than failing on a render path.
+        }
+        Constants.LOG.warn("Could not find the hidden HUD flag on this Minecraft version, so the "
+                + "nutrient strip will stay visible when the HUD is hidden with F1.");
+        return () -> false;
     }
 
     public static void render(GuiGraphicsExtractor gfx, DeltaTracker delta) {
@@ -81,9 +144,12 @@ public final class NutritionHud {
         if (player == null) {
             return;
         }
-        // Match the hunger bar: it is not drawn in creative or spectator, so neither is this. There
-        // is no hideGui test because Options.hideGui no longer exists at 26.2 and none is needed,
-        // since a hidden HUD does not visit its elements at all.
+        // F1. A hidden HUD DOES still visit third party elements, on both 26.1 and 26.2, so this
+        // has to be tested rather than assumed. See hudHidden.
+        if (hudHidden(client)) {
+            return;
+        }
+        // Match the hunger bar: it is not drawn in creative or spectator, so neither is this.
         if (player.isCreative() || player.isSpectator()) {
             return;
         }
