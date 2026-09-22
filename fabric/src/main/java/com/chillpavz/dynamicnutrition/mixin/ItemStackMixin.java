@@ -30,7 +30,7 @@ import com.chillpavz.dynamicnutrition.event.NutritionEvents;
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
 
-    @Inject(method = "finishUsingItem", at = @At("HEAD"), require = 0)
+    @Inject(method = "finishUsingItem", at = @At("HEAD"), require = 1)
     private void dynamicnutrition$onFinishUsing(Level level, LivingEntity user,
                                                 CallbackInfoReturnable<ItemStack> info) {
         EatHookState.markApplied();

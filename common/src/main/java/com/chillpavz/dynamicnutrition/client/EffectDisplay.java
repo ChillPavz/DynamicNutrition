@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
@@ -109,7 +109,7 @@ public final class EffectDisplay {
      * vanilla's own hover box. Set BEFORE vanilla sets its own (only when the name is cut off), so
      * ours is the one kept: a later tooltip in the same frame does not replace an earlier one.
      */
-    public static void hover(GuiGraphicsExtractor graphics, Font font, MobEffectInstance instance,
+    public static void hover(GuiGraphics graphics, Font font, MobEffectInstance instance,
                              Component name, int x, int y, int width, int height,
                              int mouseX, int mouseY) {
         if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {

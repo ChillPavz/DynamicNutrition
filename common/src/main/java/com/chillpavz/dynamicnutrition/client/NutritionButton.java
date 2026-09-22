@@ -1,7 +1,7 @@
 package com.chillpavz.dynamicnutrition.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -97,13 +97,13 @@ public class NutritionButton extends Button {
     }
 
     /**
-     * The whole render. {@code extractWidgetRenderState} is final on {@code AbstractButton}, and
-     * this is the hook it leaves open; not calling {@code extractDefaultSprite} is what makes the
+     * The whole render. {@code renderWidget} is final on {@code AbstractButton}, and
+     * this is the hook it leaves open; not calling {@code renderDefaultSprite} is what makes the
      * button icon-only, because at nine pixels square a bevelled button frame would leave no room
      * for anything inside it. Vanilla's own recipe book button is built the same way.
      */
     @Override
-    protected void extractContents(GuiGraphicsExtractor gfx, int mouseX, int mouseY,
+    protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY,
                                    float partialTick) {
         GuiBlit.sprite(gfx, ICON, getX(), getY(), SIZE, SIZE);
         if (isHoveredOrFocused()) {

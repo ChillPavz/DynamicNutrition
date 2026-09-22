@@ -24,7 +24,7 @@ import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityResistanceMixin {
 
-    @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"), cancellable = true, require = 0)
+    @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"), cancellable = true, require = 1)
     private void dynamicnutrition$resist(DamageSource source, float amount,
                                          CallbackInfoReturnable<Float> info) {
         info.setReturnValue(NutrientEffects.resist((LivingEntity) (Object) this, source,

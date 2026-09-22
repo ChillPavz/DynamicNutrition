@@ -3,7 +3,7 @@ package com.chillpavz.dynamicnutrition.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -134,8 +134,8 @@ public class NutritionScreen extends Screen {
     /**
      * The back arrow.
      *
-     * <p>Icon only, so it overrides {@code extractContents} and does not call
-     * {@code extractDefaultSprite}: {@code extractWidgetRenderState} is final on
+     * <p>Icon only, so it overrides {@code renderContents} and does not call
+     * {@code renderDefaultSprite}: {@code renderWidget} is final on
      * {@code AbstractButton}, and a bevelled button frame around a ten by eight arrow would leave no
      * room for the arrow. Vanilla's own recipe book button is built the same way.
      *
@@ -151,7 +151,7 @@ public class NutritionScreen extends Screen {
         }
 
         @Override
-        protected void extractContents(GuiGraphicsExtractor gfx, int mouseX, int mouseY,
+        protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY,
                                        float partialTick) {
             // The hover arrow is the second one on the sheet. Both keep the dark outline, so
             // contrast never drops on hover; only the interior lights up.
@@ -166,9 +166,9 @@ public class NutritionScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         // The panel and the rows FIRST, then super, which is the only thing that draws the widgets.
-        // Screen.extractRenderState does nothing but iterate the renderables, so calling it first
+        // Screen.render does nothing but iterate the renderables, so calling it first
         // and then painting the panel drew the back arrow and immediately covered it. It still took
         // clicks and still showed its tooltip, because hit testing does not care about draw order,
         // which is a convincing way for a widget to look like it was never added.
@@ -176,7 +176,7 @@ public class NutritionScreen extends Screen {
                 PANEL_SPRITE, PANEL_SPRITE, PANEL_BORDER);
 
         int titleX = left + (panelW - this.font.width(this.title)) / 2;
-        gfx.text(this.font, this.title, titleX, top + PAD, TEXT, false);
+        gfx.drawString(this.font, this.title, titleX, top + PAD, TEXT, false);
 
         PlayerNutrition nutrition = this.minecraft == null || this.minecraft.player == null
                 ? null : Services.STORAGE.get(this.minecraft.player);
@@ -187,10 +187,10 @@ public class NutritionScreen extends Screen {
             int rowY = y + index * ROW_H;
             int barY = rowY + (ROW_H - BAR_H) / 2;
 
-            gfx.item(iconFor(nutrient), left + PAD, rowY + (ROW_H - ICON) / 2);
+            gfx.renderItem(iconFor(nutrient), left + PAD, rowY + (ROW_H - ICON) / 2);
 
             Component label = Component.translatable(nutrient.translationKey());
-            gfx.text(this.font, label, left + PAD + ICON + GAP,
+            gfx.drawString(this.font, label, left + PAD + ICON + GAP,
                     rowY + (ROW_H - this.font.lineHeight) / 2, TEXT, false);
 
             int value = nutrition == null ? 0 : nutrition.display(nutrient);
@@ -203,7 +203,7 @@ public class NutritionScreen extends Screen {
             // Right-aligned against the measured width, which is what makes the forced-unicode font
             // a non-event rather than the visible dislocation it otherwise causes.
             int vx = valueX + (this.font.width(valueText(100)) - this.font.width(valueLabel));
-            gfx.text(this.font, valueLabel, vx, rowY + (ROW_H - this.font.lineHeight) / 2,
+            gfx.drawString(this.font, valueLabel, vx, rowY + (ROW_H - this.font.lineHeight) / 2,
                     status == NutrientStatus.MALNOURISHED ? TEXT_WARN : TEXT, false);
 
             if (mouseX >= barX && mouseX < barX + BAR_W && mouseY >= barY && mouseY < barY + BAR_H) {
@@ -216,7 +216,7 @@ public class NutritionScreen extends Screen {
             index++;
         }
 
-        super.extractRenderState(gfx, mouseX, mouseY, partialTick);
+        super.render(gfx, mouseX, mouseY, partialTick);
     }
 
     /**
@@ -225,7 +225,7 @@ public class NutritionScreen extends Screen {
      * <p>Both halves come out of the same sheet, ten rows per nutrient, track above fill. A source
      * pixel outside the fill width is simply not drawn, which is how the rounded end caps survive.
      */
-    private void drawBar(GuiGraphicsExtractor gfx, int index, Nutrient nutrient, int x, int y,
+    private void drawBar(GuiGraphics gfx, int index, Nutrient nutrient, int x, int y,
                          int value) {
         int trackV = index * BAR_PITCH;
         int fillV = trackV + BAR_H;
@@ -253,7 +253,7 @@ public class NutritionScreen extends Screen {
      * the mark reads as a division of the bar rather than as something sitting inside it. It stops
      * exactly at the bar's edge: overhanging onto the panel made the bar look taller than it is.
      */
-    private void drawThreshold(GuiGraphicsExtractor gfx, int x, int y, float at, int value,
+    private void drawThreshold(GuiGraphics gfx, int x, int y, float at, int value,
                                int colour) {
         int tick = x + Math.round(BAR_W * at / PlayerNutrition.MAX);
         gfx.fill(tick, y, tick + 1, y + BAR_H, value >= at ? MARK_PASSED : colour);

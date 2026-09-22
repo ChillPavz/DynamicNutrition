@@ -90,7 +90,9 @@ public final class RecipeIndex {
         if (display instanceof SlotDisplay.ItemSlotDisplay item) {
             sink.add(item.item().value());
         } else if (display instanceof SlotDisplay.ItemStackSlotDisplay stack) {
-            sink.add(stack.stack().item().value());
+            // ItemStack is not a record here: 26.x's item() accessor returning Holder<Item>
+            // arrived later, so this band asks the stack for the Item directly.
+            sink.add(stack.stack().getItem());
         } else if (display instanceof SlotDisplay.Composite composite) {
             for (SlotDisplay inner : composite.contents()) {
                 collectOutputs(inner, sink);

@@ -1,4 +1,4 @@
-accessWidener v2 official
+accessWidener v2 named
 
 # The inventory panel position, so the nutrition button can sit at a fixed spot on the panel
 # rather than at a fixed spot on the screen. Vanilla shifts leftPos when the recipe book opens, so

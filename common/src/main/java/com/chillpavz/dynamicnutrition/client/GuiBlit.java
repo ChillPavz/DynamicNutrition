@@ -1,7 +1,7 @@
 package com.chillpavz.dynamicnutrition.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
@@ -26,7 +26,7 @@ import com.chillpavz.dynamicnutrition.Constants;
  * the atlas texture.
  *
  * <h2>The lookup is vanilla's own, not {@code getSprite(SpriteId)}</h2>
- * {@code GuiGraphicsExtractor.getSprite(SpriteId)} goes through a table keyed by the atlas TEXTURE
+ * {@code GuiGraphics.getSprite(SpriteId)} goes through a table keyed by the atlas TEXTURE
  * id and throws for anything else, so building the key from {@code AtlasIds.GUI} (the atlas id)
  * crashed the inventory on every version. Vanilla's own GUI sprite draw takes the atlas by id from
  * the atlas manager and asks it for the sprite by name, which is what {@link #lookup} does.
@@ -44,7 +44,7 @@ public final class GuiBlit {
      * {@code blit}: {@code (u, v)} is the region's top left in pixels on a sheet of
      * {@code texW} by {@code texH}.
      */
-    public static void texture(GuiGraphicsExtractor gfx, Identifier texture, int x, int y,
+    public static void texture(GuiGraphics gfx, Identifier texture, int x, int y,
                                int u, int v, int w, int h, int texW, int texH) {
         gfx.blit(texture, x, y, x + w, y + h,
                 (float) u / texW, (float) (u + w) / texW,
@@ -52,7 +52,7 @@ public final class GuiBlit {
     }
 
     /** A whole GUI sprite stretched to the given size. Missing sprites draw as vanilla's missing texture. */
-    public static void sprite(GuiGraphicsExtractor gfx, Identifier sprite, int x, int y, int w, int h) {
+    public static void sprite(GuiGraphics gfx, Identifier sprite, int x, int y, int w, int h) {
         TextureAtlasSprite s = lookup(sprite);
         if (s == null) {
             return;
@@ -67,7 +67,7 @@ public final class GuiBlit {
      * pixel identical for a sprite whose edges and centre are one colour along their length, which
      * is true of the panel this is used for. Do not reuse it for a patterned border.
      */
-    public static void nineSlice(GuiGraphicsExtractor gfx, Identifier sprite, int x, int y, int w,
+    public static void nineSlice(GuiGraphics gfx, Identifier sprite, int x, int y, int w,
                                  int h, int spriteW, int spriteH, int border) {
         if (w <= 0 || h <= 0) {
             return;

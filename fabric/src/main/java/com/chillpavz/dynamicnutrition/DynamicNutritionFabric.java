@@ -44,7 +44,7 @@ public class DynamicNutritionFabric implements ModInitializer {
         // registerLarge, not register: a custom payload is capped at 32767 bytes in the play phase,
         // and the whole food table of a large modpack is bigger than that. NeoForge splits an
         // oversized payload itself (GenericPacketSplitter); on Fabric it has to be asked for.
-        PayloadTypeRegistry.clientboundPlay().registerLarge(
+        PayloadTypeRegistry.playS2C().registerLarge(
                 NutritionSyncPayload.TYPE, NutritionSyncPayload.STREAM_CODEC, MAX_TABLE_BYTES);
 
         ResourceManagerHelper.get(PackType.SERVER_DATA)

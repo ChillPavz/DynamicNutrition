@@ -3,7 +3,6 @@ package com.chillpavz.dynamicnutrition.effect;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.fabricmc.fabric.api.entity.event.v1.effect.ServerMobEffectEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,17 +25,9 @@ public final class FabricNutritionEffects {
         }
         NutrientEffects.bind(holders);
 
-        // Fires for milk, a totem, /effect clear AND a plain removeEffect, so the guard has to let
-        // this mod's own removals through; NutrientEffects.mayRemove knows which is which.
-        // A refusal here does NOT stop the client being told: for removeAllEffects, Fabric API puts
-        // the effect back after vanilla has already copied it for the remove packets. So every
-        // refusal is reported, and the player is sent the effects again on their next tick.
-        ServerMobEffectEvents.ALLOW_EARLY_REMOVE.register((instance, entity, context) -> {
-            boolean allowed = NutrientEffects.mayRemove(instance.getEffect());
-            if (!allowed) {
-                NutrientEffects.refused(entity);
-            }
-            return allowed;
-        });
+        // Milk, a totem and /effect clear must not take these away. Fabric API has no effect event
+        // on this band, so LivingEntityEffectRemovalMixin intercepts the two removal paths itself
+        // and calls the same NutrientEffects.mayRemove / refused pair the 26.x band's event
+        // handler calls. Nothing else in the mod differs between the two bands because of it.
     }
 }

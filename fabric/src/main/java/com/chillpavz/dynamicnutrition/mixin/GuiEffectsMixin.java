@@ -23,7 +23,7 @@ import com.chillpavz.dynamicnutrition.client.EffectDisplay;
 @Mixin(targets = "net.minecraft.client.gui.Gui")
 public abstract class GuiEffectsMixin {
 
-    @Redirect(method = "extractEffects", require = 0, at = @At(value = "INVOKE",
+    @Redirect(method = "renderEffects", require = 1, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/player/LocalPlayer;getActiveEffects()Ljava/util/Collection;"))
     private Collection<MobEffectInstance> dynamicnutrition$effects(LocalPlayer player) {
         return EffectDisplay.forHud(player.getActiveEffects());

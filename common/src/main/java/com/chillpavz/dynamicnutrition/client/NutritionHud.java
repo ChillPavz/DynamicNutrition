@@ -6,7 +6,7 @@ import java.util.function.BooleanSupplier;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
 
@@ -134,7 +134,7 @@ public final class NutritionHud {
         return () -> false;
     }
 
-    public static void render(GuiGraphicsExtractor gfx, DeltaTracker delta) {
+    public static void render(GuiGraphics gfx, DeltaTracker delta) {
         if (!NutritionConfig.hudEnabled) {
             return;
         }

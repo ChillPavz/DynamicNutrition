@@ -3,7 +3,7 @@ package com.chillpavz.dynamicnutrition.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
@@ -20,9 +20,10 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // At 26.2 this is keymapping.v1.KeyMappingHelper. The older keybinding.v1.KeyBindingHelper
-        // no longer exists, and the class name is the only thing that changed.
-        KeyMappingHelper.registerKeyMapping(DynamicNutritionKeys.OPEN_SCREEN);
+        // keybinding.v1.KeyBindingHelper on this band. From 26.1 it is keymapping.v1
+        // .KeyMappingHelper.registerKeyMapping, and the class and method names are the only
+        // things that changed.
+        KeyBindingHelper.registerKeyBinding(DynamicNutritionKeys.OPEN_SCREEN);
 
         NutrientBlindnessFog.install();
 
@@ -47,7 +48,7 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
             if (!NutritionButton.enabled() || !(screen instanceof InventoryScreen inventory)) {
                 return;
             }
-            Screens.getWidgets(screen).add(new NutritionButton(
+            Screens.getButtons(screen).add(new NutritionButton(
                     NutritionButton.x(inventory.leftPos),
                     NutritionButton.y(inventory.topPos), screen));
         });

@@ -315,16 +315,32 @@ public final class PlayerNutrition {
      */
     public PlayerNutrition copy() {
         PlayerNutrition out = new PlayerNutrition();
-        out.values.putAll(this.values);
-        out.savedFoodPoints = this.savedFoodPoints;
-        out.lastStatus = this.lastStatus;
-        out.sustainedTicks = this.sustainedTicks;
-        out.wasMalnourished = this.wasMalnourished;
-        out.meals.addAll(this.meals);
-        out.mealRevision = this.mealRevision;
-        out.effectStatus.putAll(this.effectStatus);
-        out.effectFormat = this.effectFormat;
+        out.copyFrom(this);
         return out;
+    }
+
+    /**
+     * Take every value from another instance, in place.
+     *
+     * <p>Needed where the object itself cannot be replaced: a Forge capability is created with the
+     * player and handed out by reference, so loading a save and copying across a death both have
+     * to fill the existing instance rather than swap it. {@link #copy()} delegates here so there is
+     * exactly ONE list of fields to keep up to date; a field added to the class and forgotten here
+     * would otherwise be dropped on death on one loader and survive on the others.
+     */
+    public void copyFrom(PlayerNutrition other) {
+        this.values.clear();
+        this.values.putAll(other.values);
+        this.savedFoodPoints = other.savedFoodPoints;
+        this.lastStatus = other.lastStatus;
+        this.sustainedTicks = other.sustainedTicks;
+        this.wasMalnourished = other.wasMalnourished;
+        this.meals.clear();
+        this.meals.addAll(other.meals);
+        this.mealRevision = other.mealRevision;
+        this.effectStatus.clear();
+        this.effectStatus.putAll(other.effectStatus);
+        this.effectFormat = other.effectFormat;
     }
 
     // ---------------------------------------------------------------- status
