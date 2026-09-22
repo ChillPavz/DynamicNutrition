@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import com.chillpavz.dynamicnutrition.Constants;
+import com.chillpavz.dynamicnutrition.config.NutritionConfig;
 import com.chillpavz.dynamicnutrition.DynamicNutrition;
 import com.chillpavz.dynamicnutrition.platform.Services;
 
@@ -25,15 +26,23 @@ import com.chillpavz.dynamicnutrition.platform.Services;
  */
 public final class NutritionSync {
 
-    private static final Map<ServerPlayer, Integer> SENT = new WeakHashMap<>();
+    private static final Map<ServerPlayer, Long> SENT = new WeakHashMap<>();
+
+    /**
+     * What a player's copy is keyed on: the table's generation AND the config's revision, so a change
+     * to the effect settings resends as surely as a {@code /reload} does.
+     */
+    private static long version() {
+        return ((long) NutritionConfig.revision << 32) | (DynamicNutrition.table().generation() & 0xFFFFFFFFL);
+    }
 
     private NutritionSync() {
     }
 
     /** Send the table to this player if their copy is missing or stale. Cheap when it is not. */
     public static void syncIfStale(ServerPlayer player) {
-        int generation = DynamicNutrition.table().generation();
-        Integer had;
+        long generation = version();
+        Long had;
         synchronized (SENT) {
             had = SENT.get(player);
         }
@@ -45,10 +54,10 @@ public final class NutritionSync {
 
     /** Send unconditionally. Used on join, so the table is there before the first tooltip. */
     public static void sendNow(ServerPlayer player) {
-        send(player, DynamicNutrition.table().generation());
+        send(player, version());
     }
 
-    private static void send(ServerPlayer player, int generation) {
+    private static void send(ServerPlayer player, long generation) {
         ServerLevel level = player.level() instanceof ServerLevel server ? server : null;
         if (level == null) {
             return;

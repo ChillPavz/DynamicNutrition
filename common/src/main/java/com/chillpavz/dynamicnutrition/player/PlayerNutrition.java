@@ -82,7 +82,11 @@ public final class PlayerNutrition {
             Codec.STRING.listOf().optionalFieldOf("meals", List.of())
                     .forGetter(p -> p.meals),
             Codec.INT.optionalFieldOf("meal_revision", 0)
-                    .forGetter(p -> p.mealRevision)
+                    .forGetter(p -> p.mealRevision),
+            Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("effect_status", Map.of())
+                    .forGetter(p -> new LinkedHashMap<>(p.effectStatus)),
+            Codec.INT.optionalFieldOf("effect_format", 0)
+                    .forGetter(p -> p.effectFormat)
     ).apply(i, PlayerNutrition::new));
 
     public static final Codec<PlayerNutrition> CODEC = MAP_CODEC.codec();
@@ -142,13 +146,35 @@ public final class PlayerNutrition {
      */
     private int mealRevision;
 
+    /**
+     * Per nutrient, the side of it whose effects this player currently holds: ON_TARGET or
+     * MALNOURISHED by nutrient name, absent for neither.
+     *
+     * <p>This is the memory the hysteresis needs. Until 1.5.0 each nutrient's effect instance was
+     * that memory; the effects are now one pair of display effects for all five, so the status
+     * held has to be remembered here. It is SYNCED with the rest of the attachment, which is how
+     * the client knows which effects are on (the hover list, the Blindness fog) without a packet
+     * of its own. Optional in the codec, so an older save reads as "nothing held" and the first
+     * second's check fills it in.
+     */
+    private final Map<String, String> effectStatus = new HashMap<>();
+
+    /**
+     * Which shape of effects this player's save was last brought up to. 0 is anything before 1.5,
+     * including the unreleased builds that gave vanilla effects; see
+     * {@code NutrientEffects.migrate}. Stored so that migration runs once per player, never again.
+     */
+    private int effectFormat;
+
     public PlayerNutrition() {
-        this(Map.of(), 0.0F, NutrientStatus.SAFE.name(), 0, false, List.of(), 0);
+        this(Map.of(), 0.0F, NutrientStatus.SAFE.name(), 0, false, List.of(), 0, Map.of(), 0);
     }
 
     private PlayerNutrition(Map<String, Float> stored, float savedFoodPoints, String lastStatus,
                             int sustainedTicks, boolean wasMalnourished, List<String> meals,
-                            int mealRevision) {
+                            int mealRevision, Map<String, String> effectStatus, int effectFormat) {
+        this.effectStatus.putAll(effectStatus);
+        this.effectFormat = effectFormat;
         this.savedFoodPoints = savedFoodPoints;
         this.lastStatus = statusByName(lastStatus);
         this.sustainedTicks = sustainedTicks;
@@ -296,6 +322,8 @@ public final class PlayerNutrition {
         out.wasMalnourished = this.wasMalnourished;
         out.meals.addAll(this.meals);
         out.mealRevision = this.mealRevision;
+        out.effectStatus.putAll(this.effectStatus);
+        out.effectFormat = this.effectFormat;
         return out;
     }
 
@@ -347,6 +375,39 @@ public final class PlayerNutrition {
     public void forgetMeals() {
         meals.clear();
         mealRevision++;
+    }
+
+    /**
+     * The side of this nutrient whose effects are held: ON_TARGET, MALNOURISHED, or null for
+     * neither. An unknown name in a save reads as null.
+     */
+    public NutrientStatus heldStatus(Nutrient nutrient) {
+        String name = effectStatus.get(nutrient.name());
+        if (NutrientStatus.ON_TARGET.name().equals(name)) {
+            return NutrientStatus.ON_TARGET;
+        }
+        return NutrientStatus.MALNOURISHED.name().equals(name) ? NutrientStatus.MALNOURISHED : null;
+    }
+
+    /**
+     * Remember the side held for one nutrient. SAFE and null both mean neither.
+     *
+     * @return true if it changed, so the caller marks the attachment dirty and the client hears
+     */
+    public boolean setHeldStatus(Nutrient nutrient, NutrientStatus status) {
+        String wanted = status == NutrientStatus.ON_TARGET || status == NutrientStatus.MALNOURISHED
+                ? status.name() : null;
+        String old = wanted == null ? effectStatus.remove(nutrient.name())
+                : effectStatus.put(nutrient.name(), wanted);
+        return !java.util.Objects.equals(old, wanted);
+    }
+
+    public int effectFormat() {
+        return effectFormat;
+    }
+
+    public void setEffectFormat(int format) {
+        this.effectFormat = format;
     }
 
     public int sustainedTicks() {

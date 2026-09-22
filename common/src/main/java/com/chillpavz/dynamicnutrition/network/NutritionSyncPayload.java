@@ -15,6 +15,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import com.chillpavz.dynamicnutrition.Constants;
+import com.chillpavz.dynamicnutrition.config.NutritionConfig;
+import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.nutrition.NutritionOrigin;
@@ -37,11 +39,19 @@ import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
  * <p>Foods that resolve to nothing are omitted. Absent therefore means "no nutrients", which is what
  * the client wants to render anyway, and on a large modpack it is most of the item registry.
  *
- * @param nutrientNames the server's nutrients, in its own order
- * @param entries       per item, its values and where they came from
+ * <p>It also carries the server's nutrient effect settings, which are tiny and change with the same
+ * rarity: the client needs them to say in a bar's tooltip which effects are on, and to draw the
+ * Blindness fog at the server's strength rather than at whatever its own config says.
+ *
+ * @param nutrientNames  the server's nutrients, in its own order
+ * @param entries        per item, its values and where they came from
+ * @param effectsEnabled whether the server applies the nutrient effects at all
+ * @param effectPercents each effect's strength by id, 0 to 100
  */
 public record NutritionSyncPayload(List<String> nutrientNames,
-                                   Map<Item, NutritionSyncPayload.Entry> entries)
+                                   Map<Item, NutritionSyncPayload.Entry> entries,
+                                   boolean effectsEnabled,
+                                   Map<String, Integer> effectPercents)
         implements CustomPacketPayload {
 
     /**
@@ -88,11 +98,17 @@ public record NutritionSyncPayload(List<String> nutrientNames,
                     FROM, Entry::from,
                     Entry::new);
 
+    private static final int MAX_EFFECTS = 64;
+
     public static final StreamCodec<RegistryFriendlyByteBuf, NutritionSyncPayload> STREAM_CODEC =
             StreamCodec.composite(
                     NAMES, NutritionSyncPayload::nutrientNames,
                     ByteBufCodecs.map(HashMap::new, ITEM, ENTRY, MAX_FOODS),
                     NutritionSyncPayload::entries,
+                    ByteBufCodecs.BOOL, NutritionSyncPayload::effectsEnabled,
+                    ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.VAR_INT,
+                            MAX_EFFECTS),
+                    NutritionSyncPayload::effectPercents,
                     NutritionSyncPayload::new);
 
     @Override
@@ -123,7 +139,11 @@ public record NutritionSyncPayload(List<String> nutrientNames,
             NutritionOrigin origin = origins.getOrDefault(entry.getKey(), NutritionOrigin.NONE);
             out.put(entry.getKey(), new Entry(row, origin.source().ordinal(), origin.from()));
         }
-        return new NutritionSyncPayload(names, out);
+        Map<String, Integer> percents = new HashMap<>();
+        for (NutrientEffects.Spec spec : NutrientEffects.ALL) {
+            percents.put(spec.id(), NutritionConfig.effectPercent(spec.id()));
+        }
+        return new NutritionSyncPayload(names, out, NutritionConfig.effectsEnabled, percents);
     }
 
     // ---------------------------------------------------------------- reading

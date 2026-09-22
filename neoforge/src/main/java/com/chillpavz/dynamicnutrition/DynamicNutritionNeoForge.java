@@ -46,7 +46,8 @@ public class DynamicNutritionNeoForge {
         modBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
             // optional() so a client without this mod is not disconnected for failing to know the
             // channel; it simply never receives the table, which costs it tooltips and nothing else.
-            var registrar = event.registrar("1").optional();
+            // "2" since 1.5.0, when the payload started carrying the effect settings.
+            var registrar = event.registrar("2").optional();
             registrar.playToClient(NutritionSyncPayload.TYPE, NutritionSyncPayload.STREAM_CODEC,
                     // NutritionClient is dist safe: it touches the table, the payload and the
                     // tooltip cache, and no client-only Minecraft class. Pointing this at the

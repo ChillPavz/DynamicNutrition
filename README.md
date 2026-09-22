@@ -1,7 +1,7 @@
 # Dynamic Nutrition
 
 Five nutrients, tracked from everything you eat, with values modelled on real nutritional data.
-For Minecraft **26.1** and **26.2** on **Fabric** and **NeoForge**.
+For Minecraft **26.1**, **26.2** and **26.3** on **Fabric** and **NeoForge**.
 
 Hunger tells you how long since you last ate. It says nothing about what you ate. Dynamic Nutrition
 adds the other half: carbohydrates, protein, fat, vitamins and minerals, each filled by different
@@ -17,9 +17,17 @@ foods and each drained at its own rate.
 - **Eating the same thing over and over is worth less.** Of your last several meals, each repeat of
   a food costs part of its value, down to a floor it never drops below. Variety is the mechanic, and
   it affects nutrition only, never hunger.
-- **A balanced diet is rewarded and a poor one is not.** Keep everything up and you get extra
-  maximum health; run short of something and you lose some, along with a little speed and damage.
-  The effect names the nutrient you are short of, so there is never a mystery debuff.
+- **Each nutrient has its own effect.** Above its green line it gives one and below its red line
+  another: carbs give Speed or Slowness, protein Strength or Weakness, fat Resistance or Hunger,
+  vitamins Regeneration or Blindness, and minerals Haste or Mining Fatigue. Each works at half the
+  strength of the vanilla level I effect by default, and each can be set anywhere from 0 to 100% in
+  the config. Milk does not clear them: the cure for a deficiency is food.
+- **Two icons, not ten.** Every buff your diet earns shows as **Well Nourished** and every debuff as
+  **Malnourished**, both at once if you are doing well on one nutrient and badly on another. Hover
+  either one beside your inventory to see exactly which effects it stands for, each coloured like
+  its nutrient. A potion or beacon that gives the same vanilla effect keeps its own icon, and you
+  never see an effect twice. Hovering a bar on the nutrition screen names the two effects that bar
+  controls.
 
 ## Where to look
 
@@ -41,9 +49,10 @@ patch for still feeds you something sensible.
 
 ## Configuration
 
-Cloth Config is **optional**. Install it for a settings screen covering the HUD strip, the inventory
-button, tooltips, the variety mechanic and the status effects, including how many hearts they are
-worth. Without it the mod runs on its defaults.
+Cloth Config is **optional**. Install it for a settings screen in four tabs: the HUD strip, the
+inventory button and tooltips, the variety mechanic, and the nutrient effects, where each of the
+ten effects has its own strength and you can hide Well Nourished and Malnourished from the top of
+the screen, from beside the inventory, or both. Hidden, they still work. Without it the mod runs on its defaults.
 
 ## Commands
 

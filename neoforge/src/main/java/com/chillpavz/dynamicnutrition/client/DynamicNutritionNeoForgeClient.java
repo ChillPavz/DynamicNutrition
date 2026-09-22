@@ -14,6 +14,13 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.neoforged.neoforge.client.event.GatherEffectScreenTooltipsEvent;
+import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
+import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.config.ClothCompat;
@@ -28,7 +35,35 @@ public final class DynamicNutritionNeoForgeClient {
     }
 
     public static void init(IEventBus modBus, ModContainer container) {
-        NutritionEffectDetails.install();
+        NutrientBlindnessFog.install();
+
+        // NeoForge asks each effect's client extension whether to draw it. The two display effects
+        // answer with this player's preferences; the ten 1.5.0 ids are never drawn, as the server
+        // takes them off within a second. Fabric has no such hook and uses mixins for the same thing.
+        modBus.addListener(RegisterClientExtensionsEvent.class, event -> {
+            IClientMobEffectExtensions display = new IClientMobEffectExtensions() {
+                @Override
+                public boolean isVisibleInInventory(MobEffectInstance instance) {
+                    return EffectDisplay.visible(instance.getEffect(), SyncedEffectSettings.showInInventory());
+                }
+
+                @Override
+                public boolean isVisibleInGui(MobEffectInstance instance) {
+                    return EffectDisplay.visible(instance.getEffect(), SyncedEffectSettings.showOnHud());
+                }
+            };
+            for (MobEffect effect : NutrientEffects.displayEffects()) {
+                event.registerMobEffect(display, effect);
+            }
+            for (NutrientEffects.Spec spec : NutrientEffects.ALL) {
+                event.registerMobEffect(display, spec.legacyEffect());
+            }
+        });
+
+        // Hovering Well Nourished or Malnourished beside the inventory lists what it stands for.
+        // Fired by NeoForge for every hovered effect, whether or not its name is cut off.
+        NeoForge.EVENT_BUS.addListener(GatherEffectScreenTooltipsEvent.class, event ->
+                EffectDisplay.addHover(event.getEffectInstance(), event.getTooltip()));
 
         // Keybind registration is a MOD bus event; the tick is a GAME bus event. Same split as
         // everywhere else in this mod, and getting it wrong fails silently.

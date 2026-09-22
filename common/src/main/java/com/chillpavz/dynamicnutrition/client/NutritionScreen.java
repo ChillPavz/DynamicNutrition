@@ -3,8 +3,6 @@ package com.chillpavz.dynamicnutrition.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.renderer.RenderPipelines;
-
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -17,6 +15,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import com.chillpavz.dynamicnutrition.Constants;
+import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
+import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.platform.Services;
@@ -46,6 +46,10 @@ public class NutritionScreen extends Screen {
 
     private static final Identifier PANEL =
             Identifier.fromNamespaceAndPath(Constants.MOD_ID, "panel");
+
+    /** The panel sprite's size and nine slice border. These MUST match panel.png.mcmeta. */
+    private static final int PANEL_SPRITE = 8;
+    private static final int PANEL_BORDER = 3;
     private static final Identifier BARS =
             Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/bars.png");
     private static final Identifier ARROWS =
@@ -152,7 +156,7 @@ public class NutritionScreen extends Screen {
             // The hover arrow is the second one on the sheet. Both keep the dark outline, so
             // contrast never drops on hover; only the interior lights up.
             int u = isHoveredOrFocused() ? ARROW_W + 1 : 0;
-            gfx.blit(RenderPipelines.GUI_TEXTURED, ARROWS, getX(), getY(), u, 0,
+            GuiBlit.texture(gfx, ARROWS, getX(), getY(), u, 0,
                     ARROW_W, ARROW_H, ARROWS_TEX_W, ARROWS_TEX_H);
         }
     }
@@ -168,7 +172,8 @@ public class NutritionScreen extends Screen {
         // and then painting the panel drew the back arrow and immediately covered it. It still took
         // clicks and still showed its tooltip, because hit testing does not care about draw order,
         // which is a convincing way for a widget to look like it was never added.
-        gfx.blitSprite(RenderPipelines.GUI_TEXTURED, PANEL, left, top, panelW, panelH);
+        GuiBlit.nineSlice(gfx, PANEL, left, top, panelW, panelH,
+                PANEL_SPRITE, PANEL_SPRITE, PANEL_BORDER);
 
         int titleX = left + (panelW - this.font.width(this.title)) / 2;
         gfx.text(this.font, this.title, titleX, top + PAD, TEXT, false);
@@ -202,8 +207,11 @@ public class NutritionScreen extends Screen {
                     status == NutrientStatus.MALNOURISHED ? TEXT_WARN : TEXT, false);
 
             if (mouseX >= barX && mouseX < barX + BAR_W && mouseY >= barY && mouseY < barY + BAR_H) {
-                gfx.setTooltipForNextFrame(this.font, tooltipFor(nutrient, status), java.util.Optional.empty(),
-                        mouseX, mouseY);
+                List<Component> tip = tooltipFor(nutrient);
+                if (!tip.isEmpty()) {
+                    gfx.setTooltipForNextFrame(this.font, tip, java.util.Optional.empty(),
+                            mouseX, mouseY);
+                }
             }
             index++;
         }
@@ -221,12 +229,12 @@ public class NutritionScreen extends Screen {
                          int value) {
         int trackV = index * BAR_PITCH;
         int fillV = trackV + BAR_H;
-        gfx.blit(RenderPipelines.GUI_TEXTURED, BARS, x, y, 0, trackV, BAR_W, BAR_H,
+        GuiBlit.texture(gfx, BARS, x, y, 0, trackV, BAR_W, BAR_H,
                 BARS_TEX_W, BARS_TEX_H);
 
         int filled = Math.round(BAR_W * Math.min(value, PlayerNutrition.MAX) / PlayerNutrition.MAX);
         if (filled > 0) {
-            gfx.blit(RenderPipelines.GUI_TEXTURED, BARS, x, y, 0, fillV, filled, BAR_H,
+            GuiBlit.texture(gfx, BARS, x, y, 0, fillV, filled, BAR_H,
                     BARS_TEX_W, BARS_TEX_H);
         }
 
@@ -252,20 +260,26 @@ public class NutritionScreen extends Screen {
     }
 
     /**
-     * The tooltip says what the state MEANS, in words.
+     * What the two marks on this bar EARN: "Above 64: Speed" and "Below 22: Slowness".
      *
-     * <p>The same report turns up again and again for mods of this kind: a player carrying a debuff
-     * for days with no idea it was food. A coloured bar does not answer that; a sentence does.
+     * <p>Nothing else. The status in words and a line restating both thresholds were in it before,
+     * and with the effect lines beside them they said the same thing three times. The effect names
+     * are vanilla's own translated names, the same ones the hover over Well Nourished and
+     * Malnourished lists, so what a player reads there can be traced back to a bar. An effect the server has switched off (0%) gets no line, and a bar with neither has
+     * no tooltip at all.
      */
-    private List<Component> tooltipFor(Nutrient nutrient, NutrientStatus status) {
+    private List<Component> tooltipFor(Nutrient nutrient) {
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable(nutrient.translationKey()));
-        lines.add(Component.translatable(
-                "screen." + Constants.MOD_ID + ".status." + status.name().toLowerCase()));
-        // What the two marks on this bar mean, in numbers. They differ per nutrient, so there is no
-        // single figure a player could learn once, and an unexplained mark is just decoration.
-        lines.add(Component.translatable("screen." + Constants.MOD_ID + ".thresholds",
-                Math.round(nutrient.malnourishedBelow()), Math.round(nutrient.targetLow())));
+        NutrientEffects.Spec above = NutrientEffects.forNutrient(nutrient, true);
+        NutrientEffects.Spec below = NutrientEffects.forNutrient(nutrient, false);
+        if (above != null && SyncedEffectSettings.fraction(above) > 0) {
+            lines.add(Component.translatable("screen." + Constants.MOD_ID + ".effect_above",
+                    Math.round(nutrient.targetLow()), above.displayName()));
+        }
+        if (below != null && SyncedEffectSettings.fraction(below) > 0) {
+            lines.add(Component.translatable("screen." + Constants.MOD_ID + ".effect_below",
+                    Math.round(nutrient.malnourishedBelow()), below.displayName()));
+        }
         return lines;
     }
 

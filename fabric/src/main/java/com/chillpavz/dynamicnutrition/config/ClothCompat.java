@@ -104,8 +104,20 @@ public final class ClothCompat {
         NutritionConfig.varietyPenaltyPercent = data.varietyPenaltyPercent;
         NutritionConfig.varietyFloorPercent = data.varietyFloorPercent;
         NutritionConfig.effectsEnabled = data.effectsEnabled;
-        NutritionConfig.malnourishedHeartsLost = data.malnourishedHeartsLost;
-        NutritionConfig.wellNourishedHeartsGained = data.wellNourishedHeartsGained;
+        NutritionConfig.showEffectsOnHud = data.showEffectsOnHud;
+        NutritionConfig.showEffectsInInventory = data.showEffectsInInventory;
+        NutritionConfig.speedPercent = data.speedPercent;
+        NutritionConfig.slownessPercent = data.slownessPercent;
+        NutritionConfig.strengthPercent = data.strengthPercent;
+        NutritionConfig.weaknessPercent = data.weaknessPercent;
+        NutritionConfig.resistancePercent = data.resistancePercent;
+        NutritionConfig.hungerPercent = data.hungerPercent;
+        NutritionConfig.regenerationPercent = data.regenerationPercent;
+        NutritionConfig.blindnessPercent = data.blindnessPercent;
+        NutritionConfig.hastePercent = data.hastePercent;
+        NutritionConfig.miningFatiguePercent = data.miningFatiguePercent;
         NutritionConfig.announceStatusChanges = data.announceStatusChanges;
+        // Last, so the server resends the effect settings to everyone after the new values are in.
+        NutritionConfig.revision++;
     }
 }

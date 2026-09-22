@@ -4,9 +4,14 @@
   "package": "com.chillpavz.dynamicnutrition.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "LivingEntityResistanceMixin"
   ],
-  "client": [],
+  "client": [
+    "GuiEffectsMixin",
+    "HudEffectsMixin",
+    "EffectsInInventoryMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 0

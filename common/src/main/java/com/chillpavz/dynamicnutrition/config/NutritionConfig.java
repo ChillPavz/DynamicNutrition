@@ -98,30 +98,60 @@ public final class NutritionConfig {
 
     // ---------------------------------------------------------------- gameplay
 
-    /** Whether the status effects are applied. */
+    /** Whether the nutrient effects are applied at all. Off takes every one of them away. */
     public static boolean effectsEnabled = true;
 
     /**
-     * Hearts taken away by the Malnourished effect, and given by Well Nourished.
-     *
-     * <p>Hearts rather than health points, because that is the unit a player sees. Zero switches
-     * the health part off while leaving the rest of the effect, which is the setting somebody who
-     * finds a permanent maximum-health change too harsh actually wants; five is there for the
-     * opposite kind of player and is still survivable, since it leaves ten health.
-     *
-     * <p>These are the reason the health modifier is applied by hand rather than attached to the
-     * {@code MobEffect}: a modifier baked into the effect is fixed when the class loads and cannot
-     * follow a config value. See {@code NutritionEffects}.
+     * Whether this player sees Well Nourished and Malnourished among the effect icons at the top
+     * right. CLIENT preference: it hides only those two, only from the one who turned it off, and
+     * the effects they stand for keep working.
      */
-    public static int malnourishedHeartsLost = 1;
+    public static boolean showEffectsOnHud = true;
 
     /**
-     * Two by default, against one lost when malnourished.
-     *
-     * <p>Asymmetric on purpose. The penalty is a nudge and the reward is the reason to bother, and
-     * the two are not doing the same job.
+     * Whether this player sees Well Nourished and Malnourished in the list beside the inventory,
+     * where hovering one lists what it stands for. Client preference, as above.
      */
-    public static int wellNourishedHeartsGained = 2;
+    public static boolean showEffectsInInventory = true;
+
+    // Each nutrient effect's strength, as a percentage of the vanilla level I effect it is named
+    // after. 100 is exactly level I, the default 50 is half, 0 switches that effect off. Half,
+    // because a varied diet holds all five buffs all the time and level I of Resistance and
+    // Regeneration held permanently is a lot. See NutrientEffects for what each one does.
+    public static int speedPercent = 50;
+    public static int slownessPercent = 50;
+    public static int strengthPercent = 50;
+    public static int weaknessPercent = 50;
+    public static int resistancePercent = 50;
+    public static int hungerPercent = 50;
+    public static int regenerationPercent = 50;
+    public static int blindnessPercent = 50;
+    public static int hastePercent = 50;
+    public static int miningFatiguePercent = 50;
+
+    /** The percentage for one effect by its id, CLAMPED to 0 to 100 whatever the file says. */
+    public static int effectPercent(String id) {
+        int value = switch (id) {
+            case "speed" -> speedPercent;
+            case "slowness" -> slownessPercent;
+            case "strength" -> strengthPercent;
+            case "weakness" -> weaknessPercent;
+            case "resistance" -> resistancePercent;
+            case "hunger" -> hungerPercent;
+            case "regeneration" -> regenerationPercent;
+            case "blindness" -> blindnessPercent;
+            case "haste" -> hastePercent;
+            case "mining_fatigue" -> miningFatiguePercent;
+            default -> 0;
+        };
+        return Math.max(0, Math.min(100, value));
+    }
+
+    /**
+     * Bumped every time the config is applied, so the server resends the effect settings to every
+     * player (the client needs them for the bar tooltips and the Blindness fog).
+     */
+    public static volatile int revision;
 
     /** Whether a status change is announced on the action bar. */
     public static boolean announceStatusChanges = true;

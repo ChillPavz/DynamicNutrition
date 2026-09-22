@@ -2,6 +2,7 @@ package com.chillpavz.dynamicnutrition.client;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.DynamicNutrition;
+import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 import com.chillpavz.dynamicnutrition.network.NutritionSyncPayload;
 
 /**
@@ -20,6 +21,7 @@ public final class NutritionClient {
     public static void acceptTable(NutritionSyncPayload payload) {
         DynamicNutrition.table().acceptSynced(payload.unpackValues(), payload.unpackOrigins());
         FoodTooltip.invalidate();
+        SyncedEffectSettings.accept(payload.effectsEnabled(), payload.effectPercents());
         Constants.LOG.debug("Client table now holds {} foods", payload.entries().size());
     }
 }

@@ -8,7 +8,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -170,7 +169,7 @@ public final class NutritionHud {
         int y = clamp(gfx.guiHeight() - rowUp - ROW_GAP - STRIP_H + NutritionConfig.hudOffsetY,
                 0, gfx.guiHeight() - STRIP_H);
 
-        gfx.blit(RenderPipelines.GUI_TEXTURED, STRIP, left, y, 0, 0, STRIP_W, STRIP_H,
+        GuiBlit.texture(gfx, STRIP, left, y, 0, 0, STRIP_W, STRIP_H,
                 TEX_W, TEX_H);
 
         int index = 0;
@@ -181,7 +180,7 @@ public final class NutritionHud {
             if (filled > 0) {
                 // The filled blocks carry the same frame as the empty one, so a clipped fill can
                 // never disturb the border; the generator asserts that.
-                gfx.blit(RenderPipelines.GUI_TEXTURED, STRIP, left + sectionX, y,
+                GuiBlit.texture(gfx, STRIP, left + sectionX, y,
                         sectionX, (index + 1) * STRIP_H, filled, STRIP_H, TEX_W, TEX_H);
             }
             index++;

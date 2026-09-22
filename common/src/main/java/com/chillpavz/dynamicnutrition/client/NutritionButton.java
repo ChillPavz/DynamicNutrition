@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -106,7 +105,7 @@ public class NutritionButton extends Button {
     @Override
     protected void extractContents(GuiGraphicsExtractor gfx, int mouseX, int mouseY,
                                    float partialTick) {
-        gfx.blitSprite(RenderPipelines.GUI_TEXTURED, ICON, getX(), getY(), SIZE, SIZE);
+        GuiBlit.sprite(gfx, ICON, getX(), getY(), SIZE, SIZE);
         if (isHoveredOrFocused()) {
             gfx.fill(getX(), getY(), getX() + SIZE, getY() + SIZE, HOVER);
         }

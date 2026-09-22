@@ -23,11 +23,35 @@ public final class DynamicNutritionKeys {
     public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(
             Identifier.fromNamespaceAndPath(Constants.MOD_ID, "main"));
 
+    /**
+     * The constructor WITHOUT an input type, on purpose. 26.3 merged {@code InputConstants.Type}'s
+     * KEYSYM and SCANCODE into KEYBOARD, so naming either one throws on the other side of the
+     * change before the main menu. This constructor exists unchanged from 26.1 to 26.3 and picks the
+     * keyboard type itself.
+     */
     public static final KeyMapping OPEN_SCREEN = new KeyMapping(
             "key." + Constants.MOD_ID + ".open_screen",
-            InputConstants.Type.KEYSYM,
-            InputConstants.KEY_N,
+            defaultKey(),
             CATEGORY);
+
+    /**
+     * N, resolved BY NAME when the game is running, never as {@code InputConstants.KEY_N}.
+     *
+     * <p>{@code KEY_N} is a compile time constant, so its value is baked into this jar, and 26.3
+     * renumbered every key (N went from 78 to 17). A jar built against 26.2 therefore bound the
+     * default to whatever 78 means at 26.3, which is Page Down. The key's NAME did not change, and
+     * asking the running game for it gives that version's own number. If the lookup fails the key
+     * starts unbound, which a player can fix in Controls, rather than stopping the client.
+     */
+    private static int defaultKey() {
+        try {
+            return InputConstants.getKey("key.keyboard.n").getValue();
+        } catch (RuntimeException | LinkageError e) {
+            Constants.LOG.warn("Could not resolve the default key for the nutrition screen, so it "
+                    + "starts unbound. Set it in Controls.", e);
+            return InputConstants.UNKNOWN.getValue();
+        }
+    }
 
     private DynamicNutritionKeys() {
     }

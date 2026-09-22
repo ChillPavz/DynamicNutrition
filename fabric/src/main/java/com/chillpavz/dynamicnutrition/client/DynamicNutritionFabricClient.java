@@ -24,7 +24,7 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
         // no longer exists, and the class name is the only thing that changed.
         KeyMappingHelper.registerKeyMapping(DynamicNutritionKeys.OPEN_SCREEN);
 
-        NutritionEffectDetails.install();
+        NutrientBlindnessFog.install();
 
         ClientPlayNetworking.registerGlobalReceiver(NutritionSyncPayload.TYPE,
                 (payload, context) -> NutritionClient.acceptTable(payload));

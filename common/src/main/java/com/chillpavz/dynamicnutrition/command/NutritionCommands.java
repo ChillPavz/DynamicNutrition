@@ -64,9 +64,9 @@ public final class NutritionCommands {
                 .then(Commands.literal("report").executes(NutritionCommands::report))
                 .then(Commands.literal("variety").executes(NutritionCommands::variety))
                 // Writing a file to the server directory is not "reading", so it needs an operator.
-                // Everything below CHANGES a player's values, so it is operator only. nourish
-                // shipped its setter open to everyone (their #5), which on a server is a creative
-                // mode switch for the whole player list.
+                // Everything below CHANGES a player's values, so it is operator only. A setter
+                // open to everyone is, on a server, a creative mode switch for the whole player
+                // list; that has been shipped in this field before and reported as such.
                 .then(Commands.literal("set")
                         .requires(NutritionCommands::isOperator)
                         .then(Commands.argument("nutrient", StringArgumentType.word())

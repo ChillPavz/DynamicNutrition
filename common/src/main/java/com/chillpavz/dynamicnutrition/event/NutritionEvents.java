@@ -11,7 +11,7 @@ import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.DynamicNutrition;
 import com.chillpavz.dynamicnutrition.advancement.NutritionAdvancements;
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
-import com.chillpavz.dynamicnutrition.effect.NutritionEffects;
+import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
 import com.chillpavz.dynamicnutrition.network.NutritionSync;
 import com.chillpavz.dynamicnutrition.nutrition.MealHistory;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
@@ -75,6 +75,9 @@ public final class NutritionEvents {
      * the player is working without needing an access widener for exhaustion.
      */
     public static void onPlayerTick(ServerPlayer player) {
+        // Every tick, not every second: after milk the client must get the effects back at once,
+        // not a second later. A set lookup that is empty almost always.
+        NutrientEffects.resendIfRefused(player);
         if (player.tickCount % DECAY_INTERVAL_TICKS != 0) {
             return;
         }
@@ -82,10 +85,14 @@ public final class NutritionEvents {
         // also the path that catches a datapack reload, which neither loader offers a usable hook
         // for. It is an integer compare in the common case.
         NutritionSync.syncIfStale(player);
+        PlayerNutrition nutrition = Services.STORAGE.get(player);
+        // Also before the gamemode check: a creative player can carry leftover effects too.
+        if (NutrientEffects.tidy(player, nutrition)) {
+            Services.STORAGE.markDirty(player);
+        }
         if (player.isCreative() || player.isSpectator()) {
             return;
         }
-        PlayerNutrition nutrition = Services.STORAGE.get(player);
         float foodPoints = player.getFoodData().getFoodLevel()
                 + player.getFoodData().getSaturationLevel();
         float dropped = nutrition.takeFoodPointDrop(foodPoints);
@@ -115,10 +122,13 @@ public final class NutritionEvents {
         // serialized from its current value at save time rather than from the dirty flag.
         nutrition.trackSustained(now, DECAY_INTERVAL_TICKS);
         NutritionAdvancements.onStatus(player, nutrition, now);
-        if (NutritionConfig.effectsEnabled) {
-            NutritionEffects.apply(player, now);
-        } else {
-            NutritionEffects.clear(player);
+        // The side each nutrient holds is stored and synced: the client reads it for the hover list
+        // and the fog, so a change must reach it.
+        boolean held = NutritionConfig.effectsEnabled
+                ? NutrientEffects.apply(player, nutrition)
+                : NutrientEffects.clear(player, nutrition);
+        if (held) {
+            Services.STORAGE.markDirty(player);
         }
         if (now == nutrition.lastStatus()) {
             return;
