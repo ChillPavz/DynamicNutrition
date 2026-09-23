@@ -123,7 +123,11 @@ public class DynamicNutritionForge {
             event.getOriginal().invalidateCaps();
             if (event.getEntity() instanceof ServerPlayer player) {
                 NutritionEvents.onRespawn(player, event.isWasDeath());
-                ForgeNutritionSync.sendNow(player);
+                // FLAGGED, not sent: Clone fires before the client is told about its new player
+                // entity, so a payload sent now lands on the old one and the new one shows the
+                // defaults (seen on Forge 52). The flag is drained at the end of the new player's
+                // first tick, after the respawn packet.
+                ForgeNutritionSync.markDirty(player);
             }
         });
 

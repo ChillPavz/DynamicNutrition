@@ -34,7 +34,7 @@ public final class ForgeNutritionSync {
         }
     }
 
-    /** Send if anything moved. Called at the end of the player's tick, and on join and respawn. */
+    /** Send if anything moved. Called at the end of the player's tick. */
     public static void flush(ServerPlayer player) {
         if (DIRTY.remove(player.getUUID())) {
             sendNow(player);
@@ -44,8 +44,9 @@ public final class ForgeNutritionSync {
     /**
      * Send unconditionally, and clear the flag.
      *
-     * <p>Used where the client is known to have nothing: a fresh login, a respawn and a dimension
-     * change all give the player a new client-side entity whose capability is at its defaults.
+     * <p>Used where the client is known to have nothing: a fresh login and a dimension change both
+     * give the player a new client-side entity whose capability is at its defaults. NOT a respawn:
+     * Clone fires before the client has its new entity, so a respawn only raises the flag.
      */
     public static void sendNow(ServerPlayer player) {
         DIRTY.remove(player.getUUID());
