@@ -33,7 +33,7 @@ public final class FoodTagHeuristic {
     }
 
     private static TagKey<Item> c(String path) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
+        return TagKey.create(Registries.ITEM, new ResourceLocation("c", path));
     }
 
     private static final List<Rule> RULES = List.of(

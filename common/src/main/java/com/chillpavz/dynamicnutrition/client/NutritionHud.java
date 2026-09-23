@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.BooleanSupplier;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -41,7 +40,7 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
 public final class NutritionHud {
 
     private static final ResourceLocation STRIP =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/strip.png");
+            new ResourceLocation(Constants.MOD_ID, "textures/gui/strip.png");
 
     // Must match art/gen_art.py. The generator asserts the source art has this exact geometry, so
     // the two cannot drift without the art build failing first.
@@ -134,7 +133,7 @@ public final class NutritionHud {
         return () -> false;
     }
 
-    public static void render(GuiGraphics gfx, DeltaTracker delta) {
+    public static void render(GuiGraphics gfx, float partialTick) {
         if (!NutritionConfig.hudEnabled) {
             return;
         }

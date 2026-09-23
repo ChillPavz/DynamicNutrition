@@ -138,7 +138,7 @@ public final class FoodTooltip {
             summary.append(Component
                     .translatable("tooltip." + Constants.MOD_ID + ".short." + nutrient.name())
                     .append(Component.literal(" " + value))
-                    .withColor(nutrient.textColor()));
+                    .withStyle(style -> style.withColor(nutrient.textColor())));
         }
 
         List<Component> lines = new ArrayList<>(3);

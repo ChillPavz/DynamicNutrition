@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -253,7 +252,7 @@ public final class NutritionTable {
     private Set<Nutrient> recipeNutrients(ServerLevel level, Item item, int depth,
                                           List<Item> contributors) {
         Set<Nutrient> found = new LinkedHashSet<>();
-        for (RecipeHolder<?> holder : recipes.recipesFor(level, item)) {
+        for (Recipe<?> holder : recipes.recipesFor(level, item)) {
             List<Ingredient> ingredients = ingredientsOf(holder);
             if (ingredients == null) {
                 continue;
@@ -289,20 +288,24 @@ public final class NutritionTable {
         if (nutrientCount <= 0) {
             return 0;
         }
-        FoodProperties food = item.getDefaultInstance().get(DataComponents.FOOD);
+        // No FOOD component before 1.20.5: the item carries its properties itself.
+        FoodProperties food = item.getFoodProperties();
         if (food == null) {
             // Not food. It still resolves a nutrient SET, which is what the recipe walk needs from
             // an ingredient like wheat, but it is worth nothing to eat.
             return 0;
         }
-        float total = Math.max(food.nutrition() + food.saturation(), MIN_MAGNITUDE);
+        // Saturation here is a MODIFIER; the newer bands store the absolute amount, which vanilla
+        // derives as nutrition * modifier * 2. Worked out the same way so a food is worth the same.
+        float saturation = food.getNutrition() * food.getSaturationModifier() * 2.0F;
+        float total = Math.max(food.getNutrition() + saturation, MIN_MAGNITUDE);
         return Math.min(total, (float) MAX_PER_NUTRIENT * nutrientCount);
     }
 
     /** True if a cooking recipe produces this item from something that is itself a food. */
     private boolean isCooked(ServerLevel level, Item item) {
-        for (RecipeHolder<?> holder : recipes.recipesFor(level, item)) {
-            RecipeType<?> type = holder.value().getType();
+        for (Recipe<?> holder : recipes.recipesFor(level, item)) {
+            RecipeType<?> type = holder.getType();
             if (type != RecipeType.SMELTING && type != RecipeType.SMOKING
                     && type != RecipeType.CAMPFIRE_COOKING) {
                 continue;
@@ -313,7 +316,7 @@ public final class NutritionTable {
             }
             for (Ingredient ingredient : ingredients) {
                 Item first = firstItem(ingredient);
-                if (first != null && first.getDefaultInstance().has(DataComponents.FOOD)) {
+                if (first != null && first.isEdible()) {
                     return true;
                 }
             }
@@ -326,9 +329,9 @@ public final class NutritionTable {
      * driven) recipe, one with an empty ingredient, or one that throws. This band's stand-in for
      * 26.x's {@code PlacementInfo}, which arrived at 1.21.2.
      */
-    private static List<Ingredient> ingredientsOf(RecipeHolder<?> holder) {
+    private static List<Ingredient> ingredientsOf(Recipe<?> holder) {
         try {
-            var recipe = holder.value();
+            var recipe = holder;
             if (recipe.isSpecial() || recipe.isIncomplete()) {
                 return null;
             }
@@ -406,9 +409,9 @@ public final class NutritionTable {
      * pipeline rather than items that are not food.
      */
     public static boolean isEdible(Item item) {
-        // No CONSUMABLE component before 1.21.2, and nothing here carries FOOD without being
-        // edible: the fish buckets that do on 26.x are plain buckets on this band.
-        return item.getDefaultInstance().has(DataComponents.FOOD);
+        // No food components before 1.20.5; an item is edible when it carries food properties,
+        // and the fish buckets that carry FOOD on 26.x are plain buckets on this band.
+        return item.isEdible();
     }
 
     public boolean isPrewarmed() {

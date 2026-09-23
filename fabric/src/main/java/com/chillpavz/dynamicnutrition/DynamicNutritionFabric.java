@@ -1,15 +1,13 @@
 package com.chillpavz.dynamicnutrition;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
 import com.chillpavz.dynamicnutrition.command.NutritionCommands;
@@ -19,32 +17,21 @@ import com.chillpavz.dynamicnutrition.event.NutritionEvents;
 import com.chillpavz.dynamicnutrition.network.NutritionSyncPayload;
 import com.chillpavz.dynamicnutrition.nutrition.FabricNutritionDataLoader;
 import com.chillpavz.dynamicnutrition.platform.FabricNutritionStorage;
+import com.chillpavz.dynamicnutrition.platform.FabricNutritionSync;
 
 public class DynamicNutritionFabric implements ModInitializer {
 
-    /** The respawn phase that runs after Fabric API has copied the attachment. See onInitialize. */
-    private static final ResourceLocation AFTER_ATTACHMENT_COPY =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "after_attachment_copy");
+    private static final FabricNutritionStorage STORAGE = new FabricNutritionStorage();
 
     @Override
     public void onInitialize() {
         DynamicNutrition.init();
         ClothCompat.init();
 
-        // Touching the class is what registers the attachment type.
-        FabricNutritionStorage.TYPE.identifier();
-
         FabricNutritionEffects.register();
 
-        // The payload type has to be registered on BOTH sides, and this is the common initializer,
-        // so it belongs here rather than in the client one. Registering it only client side would
-        // make canSend answer false on an integrated server and the table would never be sent.
-        //
-        // Plain register: Fabric API has no registerLarge on this band. A clientbound custom
-        // payload may be 1 MiB here, and the table is roughly ten bytes a food, so a pack would
-        // need about a hundred thousand foods to reach it.
-        PayloadTypeRegistry.playS2C().register(
-                NutritionSyncPayload.TYPE, NutritionSyncPayload.STREAM_CODEC);
+        // No payload types to register on this band: a channel is a plain id, and the client
+        // announces the ones it listens on, which is what canSend checks before every send.
 
         ResourceManagerHelper.get(PackType.SERVER_DATA)
                 .registerReloadListener(new FabricNutritionDataLoader(DynamicNutrition.table()));
@@ -58,19 +45,33 @@ public class DynamicNutritionFabric implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (var player : server.getPlayerList().getPlayers()) {
                 NutritionEvents.onPlayerTick(player);
+                // Drained once per tick, after everything that could have set it.
+                FabricNutritionSync.flush(player);
             }
         });
 
-        // Fabric API copies copyOnDeath attachments in its OWN AFTER_RESPAWN listener, in the
-        // default phase. Registered alongside it, ours can run first, charge the death to the fresh
-        // defaults (which the floor then ignores) and have the copy overwrite the result, so a death
-        // silently costs nothing. A phase ordered after the default makes the copy land first.
-        ServerPlayerEvents.AFTER_RESPAWN.addPhaseOrdering(Event.DEFAULT_PHASE, AFTER_ATTACHMENT_COPY);
-        ServerPlayerEvents.AFTER_RESPAWN.register(AFTER_ATTACHMENT_COPY, (oldPlayer, newPlayer, alive) ->
-                NutritionEvents.onRespawn(newPlayer, !alive));
+        // No attachment to copy itself on this band, so the values are copied here. COPY_FROM runs
+        // inside the respawn, before AFTER_RESPAWN, so the death is charged to the copied values.
+        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
+                STORAGE.get(newPlayer).copyFrom(STORAGE.get(oldPlayer)));
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            NutritionEvents.onRespawn(newPlayer, !alive);
+            // FLAGGED, not sent: drained at the end of the server tick, after the client has its
+            // new player entity. Sent now, it could land on the old one.
+            FabricNutritionSync.markDirty(newPlayer);
+        });
 
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                NutritionEvents.onPlayerJoin(handler.getPlayer()));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            NutritionEvents.onPlayerJoin(handler.getPlayer());
+            // The client entity is new and holds the defaults.
+            FabricNutritionSync.sendNow(handler.getPlayer());
+        });
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
+                FabricNutritionSync.forget(handler.getPlayer()));
+
+        // A dimension change gives the client a fresh entity too, and this fires after it has one.
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
+                FabricNutritionSync.sendNow(player));
 
         // NOTE: nothing here may reference the mixin class. Doing so throws
         // IllegalClassLoadError and kills the server thread; EatHookState exists for exactly that

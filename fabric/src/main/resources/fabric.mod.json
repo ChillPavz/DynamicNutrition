@@ -34,10 +34,10 @@
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
         "minecraft": "${fabric_minecraft_version_range}",
-        "java": ">=${java_version}",
-        "cloth-config2": "*"
+        "java": ">=${java_version}"
     },
     "recommends": {
+        "cloth-config2": "*",
         "modmenu": "*"
     }
 }

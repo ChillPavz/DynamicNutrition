@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -40,7 +39,7 @@ public class ForgeNutritionStorage implements INutritionStorage {
             CapabilityManager.get(new CapabilityToken<PlayerNutrition>() { });
 
     public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
+            new ResourceLocation(Constants.MOD_ID, "nutrition");
 
     /**
      * The provider Forge attaches, and the thing that saves the values into the player's own NBT.
@@ -66,17 +65,17 @@ public class ForgeNutritionStorage implements INutritionStorage {
         }
 
         @Override
-        public Tag serializeNBT(HolderLookup.Provider registries) {
+        public Tag serializeNBT() {
             return PlayerNutrition.CODEC
-                    .encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this.nutrition)
+                    .encodeStart(NbtOps.INSTANCE, this.nutrition)
                     .resultOrPartial(Constants.LOG::error)
                     .orElseGet(CompoundTag::new);
         }
 
         @Override
-        public void deserializeNBT(HolderLookup.Provider registries, Tag tag) {
+        public void deserializeNBT(Tag tag) {
             PlayerNutrition.CODEC
-                    .parse(registries.createSerializationContext(NbtOps.INSTANCE), tag)
+                    .parse(NbtOps.INSTANCE, tag)
                     .resultOrPartial(Constants.LOG::error)
                     .ifPresent(this.nutrition::copyFrom);
         }

@@ -2,7 +2,7 @@ package com.chillpavz.dynamicnutrition.mixin;
 
 import java.util.Iterator;
 
-import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,7 +42,8 @@ public abstract class LivingEntityEffectRemovalMixin {
     @Redirect(method = "removeAllEffects", require = 1, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;onEffectRemoved(Lnet/minecraft/world/effect/MobEffectInstance;)V"))
     private void dynamicnutrition$announceUnlessOurs(LivingEntity self, MobEffectInstance instance) {
-        this.dynamicnutrition$keeping = !NutrientEffects.mayRemove(instance.getEffect());
+        this.dynamicnutrition$keeping = !NutrientEffects.mayRemove(
+                BuiltInRegistries.MOB_EFFECT.wrapAsHolder(instance.getEffect()));
         if (this.dynamicnutrition$keeping) {
             NutrientEffects.refused(self);
         } else {
@@ -65,9 +66,9 @@ public abstract class LivingEntityEffectRemovalMixin {
      * which knows to allow them.
      */
     @Inject(method = "removeEffect", require = 1, at = @At("HEAD"), cancellable = true)
-    private void dynamicnutrition$refuseSingleRemoval(Holder<MobEffect> effect,
+    private void dynamicnutrition$refuseSingleRemoval(MobEffect effect,
                                                       CallbackInfoReturnable<Boolean> cir) {
-        if (!NutrientEffects.mayRemove(effect)) {
+        if (!NutrientEffects.mayRemove(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect))) {
             NutrientEffects.refused((LivingEntity) (Object) this);
             cir.setReturnValue(false);
         }

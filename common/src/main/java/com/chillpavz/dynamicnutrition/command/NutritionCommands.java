@@ -19,7 +19,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -245,7 +244,7 @@ public final class NutritionCommands {
 
         Path out = ctx.getSource().getServer().getFile(Constants.MOD_ID + "-"
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
-                + ".csv");
+                + ".csv").toPath();
         int written = 0;
         try {
             Files.createDirectories(out.getParent());
@@ -259,10 +258,12 @@ public final class NutritionCommands {
                 for (Map.Entry<String, Item> entry : foods.entrySet()) {
                     NutritionValues values = DynamicNutrition.table().resolve(level, entry.getValue());
                     NutritionOrigin origin = DynamicNutrition.table().origin(entry.getValue());
-                    var food = entry.getValue().getDefaultInstance().get(DataComponents.FOOD);
+                    var food = entry.getValue().getFoodProperties();
                     StringBuilder row = new StringBuilder(entry.getKey());
-                    row.append(',').append(food == null ? 0 : food.nutrition());
-                    row.append(',').append(food == null ? 0.0F : food.saturation());
+                    row.append(',').append(food == null ? 0 : food.getNutrition());
+                    // The absolute saturation, as the newer bands report it: a modifier here.
+                    row.append(',').append(food == null ? 0.0F
+                            : food.getNutrition() * food.getSaturationModifier() * 2.0F);
                     for (Nutrient nutrient : Nutrients.all()) {
                         row.append(',').append(values.get(nutrient));
                     }

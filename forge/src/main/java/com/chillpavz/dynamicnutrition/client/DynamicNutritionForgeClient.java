@@ -6,7 +6,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraft.client.renderer.FogRenderer;
@@ -62,7 +64,13 @@ public final class DynamicNutritionForgeClient {
         modBus.addListener((RegisterKeyMappingsEvent event) ->
                 event.register(DynamicNutritionKeys.OPEN_SCREEN));
 
-        // The HUD strip is drawn by GuiHudMixin: Forge 52 has no HUD event to register it with.
+        // The HUD strip, as an overlay just above vanilla's food level, so it draws over the region
+        // the hunger bar owns rather than under it. A MOD bus event, and Forge 47's flat overlay
+        // list (the target first, then the new id). The strip computes its own position, so this
+        // decides z-order and nothing else.
+        modBus.addListener((RegisterGuiOverlaysEvent event) -> event.registerAbove(
+                VanillaGuiOverlay.FOOD_LEVEL.id(), "nutrients",
+                (gui, graphics, partialTick, width, height) -> NutritionHud.render(graphics, partialTick)));
 
         // Init.Post fires again whenever the screen re-inits, which the inventory does when the
         // recipe book is toggled and the panel moves.
@@ -83,7 +91,11 @@ public final class DynamicNutritionForgeClient {
                 FoodTooltip.appendTo(event.getItemStack(), event.getToolTip(),
                         event.getFlags().isAdvanced(), event.getEntity()));
 
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent.Post event) -> {
+        // Forge 47 fires one tick event with a phase rather than Pre and Post classes.
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
+            if (event.phase != TickEvent.Phase.END) {
+                return;
+            }
             Minecraft client = Minecraft.getInstance();
             // No "is a screen open" guard: vanilla only dispatches keybinds while no screen is open.
             while (DynamicNutritionKeys.OPEN_SCREEN.consumeClick()) {

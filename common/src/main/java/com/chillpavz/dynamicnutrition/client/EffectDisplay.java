@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -56,7 +57,7 @@ public final class EffectDisplay {
         try {
             List<MobEffectInstance> out = new ArrayList<>(effects.size());
             for (MobEffectInstance instance : effects) {
-                if (visible(instance.getEffect(), showOurs)) {
+                if (visible(holder(instance), showOurs)) {
                     out.add(instance);
                 }
             }
@@ -75,11 +76,11 @@ public final class EffectDisplay {
         try {
             Minecraft client = Minecraft.getInstance();
             if (instance == null || client.player == null
-                    || !NutrientEffects.isDisplay(instance.getEffect())) {
+                    || !NutrientEffects.isDisplay(holder(instance))) {
                 return List.of();
             }
             PlayerNutrition nutrition = Services.STORAGE.get(client.player);
-            return NutrientEffects.describe(instance.getEffect(), nutrition::heldStatus,
+            return NutrientEffects.describe(holder(instance), nutrition::heldStatus,
                     SyncedEffectSettings::fraction);
         } catch (Throwable t) {
             return List.of();
@@ -97,7 +98,7 @@ public final class EffectDisplay {
         }
         try {
             if (tooltip.isEmpty()) {
-                tooltip.add(instance.getEffect().value().getDisplayName());
+                tooltip.add(instance.getEffect().getDisplayName());
             }
             tooltip.addAll(lines);
         } catch (Throwable t) {
@@ -156,11 +157,20 @@ public final class EffectDisplay {
                 return;
             }
             List<Component> tooltip = new ArrayList<>(lines.size() + 1);
-            tooltip.add(hit.getEffect().value().getDisplayName());
+            tooltip.add(hit.getEffect().getDisplayName());
             tooltip.addAll(lines);
             graphics.renderTooltip(font, tooltip, Optional.empty(), mouseX, mouseY);
         } catch (Throwable t) {
             // On the render path: no tooltip rather than an exception every frame.
         }
+    }
+
+    /**
+     * An instance's effect as the registry's own holder. {@code getEffect()} returns the bare
+     * {@code MobEffect} on this band; the mod's rules are written against holders, which is what
+     * the newer bands hand out, so the conversion happens here, once.
+     */
+    public static Holder<MobEffect> holder(MobEffectInstance instance) {
+        return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(instance.getEffect());
     }
 }

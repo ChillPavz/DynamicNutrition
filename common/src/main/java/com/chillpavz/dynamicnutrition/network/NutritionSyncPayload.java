@@ -6,11 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -52,7 +49,7 @@ public record NutritionSyncPayload(List<String> nutrientNames,
                                    Map<Item, NutritionSyncPayload.Entry> entries,
                                    boolean effectsEnabled,
                                    Map<String, Integer> effectPercents)
-        implements CustomPacketPayload {
+{
 
     /**
      * One food on the wire.
@@ -64,59 +61,87 @@ public record NutritionSyncPayload(List<String> nutrientNames,
     public record Entry(List<Integer> values, int source, List<Item> from) {
     }
 
-    public static final CustomPacketPayload.Type<NutritionSyncPayload> TYPE =
-            new CustomPacketPayload.Type<>(
-                    ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition_sync"));
+    /** The channel this travels on. A plain id on this band: the payload type object is newer. */
+    public static final ResourceLocation ID =
+            new ResourceLocation(Constants.MOD_ID, "nutrition_sync");
 
-    /**
-     * Generous ceilings. A large modpack can carry several thousand foods, and the default
-     * collection limits are sized for ordinary gameplay packets rather than a one-off table.
-     */
+    // Hard caps on every length read off the wire, so a malformed or hostile packet cannot make the
+    // client allocate without limit.
     private static final int MAX_NUTRIENTS = 256;
     private static final int MAX_FOODS = 65536;
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, Item> ITEM =
-            ByteBufCodecs.registry(Registries.ITEM);
-
-    // THE THREE ARGUMENT FORM, NOT `x.apply(collection(factory, max))`. The CodecOperation overload
-    // `collection(IntFunction, int)` was ADDED IN 26.2 and does not exist at 26.1, so a jar built
-    // against 26.2 and installed on 26.1 throws NoSuchMethodError while registering its payload,
-    // before the main menu. This form takes the element codec directly and exists in both.
-    private static final StreamCodec<RegistryFriendlyByteBuf, List<String>> NAMES =
-            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8, MAX_NUTRIENTS);
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, List<Integer>> VALUES =
-            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT, MAX_NUTRIENTS);
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, List<Item>> FROM =
-            ByteBufCodecs.collection(ArrayList::new, ITEM, NutritionOrigin.MAX_FROM);
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, Entry> ENTRY =
-            StreamCodec.composite(
-                    VALUES, Entry::values,
-                    ByteBufCodecs.VAR_INT, Entry::source,
-                    FROM, Entry::from,
-                    Entry::new);
-
     private static final int MAX_EFFECTS = 64;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, NutritionSyncPayload> STREAM_CODEC =
-            StreamCodec.composite(
-                    NAMES, NutritionSyncPayload::nutrientNames,
-                    ByteBufCodecs.map(HashMap::new, ITEM, ENTRY, MAX_FOODS),
-                    NutritionSyncPayload::entries,
-                    ByteBufCodecs.BOOL, NutritionSyncPayload::effectsEnabled,
-                    ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.VAR_INT,
-                            MAX_EFFECTS),
-                    NutritionSyncPayload::effectPercents,
-                    NutritionSyncPayload::new);
-
-    @Override
-    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    /**
+     * Written by hand on this band: {@code StreamCodec} arrived at 1.20.5. The same fields in the
+     * same order as the newer bands, with the same caps.
+     */
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(nutrientNames.size());
+        for (String name : nutrientNames) {
+            buf.writeUtf(name);
+        }
+        buf.writeVarInt(entries.size());
+        for (Map.Entry<Item, Entry> entry : entries.entrySet()) {
+            buf.writeId(BuiltInRegistries.ITEM, entry.getKey());
+            Entry value = entry.getValue();
+            buf.writeVarInt(value.values().size());
+            for (int v : value.values()) {
+                buf.writeVarInt(v);
+            }
+            buf.writeVarInt(value.source());
+            buf.writeVarInt(value.from().size());
+            for (Item from : value.from()) {
+                buf.writeId(BuiltInRegistries.ITEM, from);
+            }
+        }
+        buf.writeBoolean(effectsEnabled);
+        buf.writeVarInt(effectPercents.size());
+        for (Map.Entry<String, Integer> entry : effectPercents.entrySet()) {
+            buf.writeUtf(entry.getKey());
+            buf.writeVarInt(entry.getValue());
+        }
     }
 
-    // ---------------------------------------------------------------- building
+    public static NutritionSyncPayload read(FriendlyByteBuf buf) {
+        int nameCount = capped(buf.readVarInt(), MAX_NUTRIENTS);
+        List<String> names = new ArrayList<>(nameCount);
+        for (int i = 0; i < nameCount; i++) {
+            names.add(buf.readUtf());
+        }
+        int foodCount = capped(buf.readVarInt(), MAX_FOODS);
+        Map<Item, Entry> entries = new HashMap<>();
+        for (int i = 0; i < foodCount; i++) {
+            Item item = buf.readById(BuiltInRegistries.ITEM);
+            int valueCount = capped(buf.readVarInt(), MAX_NUTRIENTS);
+            List<Integer> values = new ArrayList<>(valueCount);
+            for (int v = 0; v < valueCount; v++) {
+                values.add(buf.readVarInt());
+            }
+            int source = buf.readVarInt();
+            int fromCount = capped(buf.readVarInt(), NutritionOrigin.MAX_FROM);
+            List<Item> from = new ArrayList<>(fromCount);
+            for (int f = 0; f < fromCount; f++) {
+                from.add(buf.readById(BuiltInRegistries.ITEM));
+            }
+            if (item != null) {
+                entries.put(item, new Entry(values, source, from));
+            }
+        }
+        boolean enabled = buf.readBoolean();
+        int effectCount = capped(buf.readVarInt(), MAX_EFFECTS);
+        Map<String, Integer> percents = new HashMap<>();
+        for (int i = 0; i < effectCount; i++) {
+            percents.put(buf.readUtf(), buf.readVarInt());
+        }
+        return new NutritionSyncPayload(names, entries, enabled, percents);
+    }
+
+    private static int capped(int size, int max) {
+        if (size < 0 || size > max) {
+            throw new IllegalArgumentException("list of " + size + " is over the cap of " + max);
+        }
+        return size;
+    }
 
     /** Pack a resolved table for the wire, dropping everything that feeds nothing. */
     public static NutritionSyncPayload of(Map<Item, NutritionValues> table,

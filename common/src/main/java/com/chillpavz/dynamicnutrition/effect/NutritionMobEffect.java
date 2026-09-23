@@ -11,7 +11,7 @@ import net.minecraft.world.effect.MobEffectCategory;
  * so saves naming them load, and should one ever be drawn in the moment before it is taken off, it
  * carries the vanilla name it imitates ("Haste", "Slowness") by answering with vanilla's own
  * translation key, and vanilla's icon through the atlas entry in
- * {@code assets/minecraft/atlases/gui.json}, so no vanilla pixels are copied into this jar. Well
+ * {@code assets/minecraft/atlases/mob_effects.json}, so no vanilla pixels are copied into this jar. Well
  * Nourished and Malnourished use their own names and icons.
  */
 public class NutritionMobEffect extends MobEffect {

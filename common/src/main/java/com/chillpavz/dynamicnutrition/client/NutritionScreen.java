@@ -42,16 +42,17 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  */
 public class NutritionScreen extends Screen {
 
+    /** A plain texture on this band, which has no GUI sprite atlas. */
     private static final ResourceLocation PANEL =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "panel");
+            new ResourceLocation(Constants.MOD_ID, "textures/gui/sprites/panel.png");
 
     /** The panel sprite's size and nine slice border. These MUST match panel.png.mcmeta. */
     private static final int PANEL_SPRITE = 8;
     private static final int PANEL_BORDER = 3;
     private static final ResourceLocation BARS =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/bars.png");
+            new ResourceLocation(Constants.MOD_ID, "textures/gui/bars.png");
     private static final ResourceLocation ARROWS =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/arrows.png");
+            new ResourceLocation(Constants.MOD_ID, "textures/gui/arrows.png");
 
     /** The back arrow sheet: two 10x8 arrows side by side, normal then hover, with a 1px gap. */
     private static final int ARROW_W = 10;
@@ -290,7 +291,7 @@ public class NutritionScreen extends Screen {
             case "minerals" -> "minecraft:dried_kelp";
             default -> "minecraft:apple";
         };
-        ResourceLocation key = ResourceLocation.parse(id);
+        ResourceLocation key = new ResourceLocation(id);
         // Defaulted registry: an absent id resolves to AIR rather than null, so ask before taking.
         return BuiltInRegistries.ITEM.containsKey(key)
                 ? new ItemStack(BuiltInRegistries.ITEM.get(key))

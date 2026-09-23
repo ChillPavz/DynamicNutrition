@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -36,31 +36,31 @@ import com.chillpavz.dynamicnutrition.Constants;
  */
 public final class RecipeIndex {
 
-    private Map<Item, List<RecipeHolder<?>>> byOutput = null;
+    private Map<Item, List<Recipe<?>>> byOutput = null;
     private Object builtFrom = null;
 
     /** Recipes producing this item, empty if none. Builds or rebuilds the index as needed. */
-    public List<RecipeHolder<?>> recipesFor(ServerLevel level, Item item) {
+    public List<Recipe<?>> recipesFor(ServerLevel level, Item item) {
         RecipeManager manager = level.getRecipeManager();
         if (byOutput == null || builtFrom != manager) {
             build(manager, level.registryAccess());
         }
-        List<RecipeHolder<?>> found = byOutput.get(item);
+        List<Recipe<?>> found = byOutput.get(item);
         return found != null ? found : Collections.emptyList();
     }
 
-    private void build(RecipeManager manager, HolderLookup.Provider registries) {
+    private void build(RecipeManager manager, RegistryAccess registries) {
         long start = System.currentTimeMillis();
-        Map<Item, List<RecipeHolder<?>>> index = new HashMap<>();
+        Map<Item, List<Recipe<?>>> index = new HashMap<>();
         Set<Item> outputs = new HashSet<>();
         int skipped = 0;
 
-        for (RecipeHolder<?> holder : manager.getRecipes()) {
+        for (Recipe<?> holder : manager.getRecipes()) {
             outputs.clear();
             try {
                 // One result per recipe on this band. The 26.x recipe display tree, with several
                 // possible results, arrived at 1.21.2.
-                ItemStack result = holder.value().getResultItem(registries);
+                ItemStack result = holder.getResultItem(registries);
                 if (result != null && !result.isEmpty()) {
                     outputs.add(result.getItem());
                 }

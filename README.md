@@ -1,7 +1,7 @@
 # Dynamic Nutrition
 
 Five nutrients, tracked from everything you eat, with values modelled on real nutritional data.
-For Minecraft **1.21** and **1.21.1** on **Fabric**, **NeoForge** and **Forge**.
+For Minecraft **1.20** and **1.20.1** on **Fabric** and **Forge**. The Forge jar also runs on NeoForge 47.1.
 
 Hunger tells you how long since you last ate. It says nothing about what you ate. Dynamic Nutrition
 adds the other half: carbohydrates, protein, fat, vitamins and minerals, each filled by different
@@ -49,13 +49,13 @@ patch for still feeds you something sensible.
 
 ## Configuration
 
-Cloth Config is **required**. It supplies a settings screen in four tabs: the HUD strip, the
+Cloth Config is **optional** on this version. With it installed there is a settings screen in four tabs: the HUD strip, the
 inventory button and tooltips, the variety mechanic, and the nutrient effects, where each of the
 ten effects has its own strength and you can hide Well Nourished and Malnourished from the top of
 the screen, from beside the inventory, or both. Hidden, they still work.
 
-On Forge this is the official Cloth Config Forge build, which still exists at this Minecraft
-version.
+Without it the mod runs on its defaults and there is no settings screen. On Forge and NeoForge it
+is the official Cloth Config Forge build.
 
 ## Commands
 
@@ -68,15 +68,13 @@ version.
 
 ## Building
 
-JDK 22. The toolchain compiles against Java 21, which is what this Minecraft version requires;
-this branch builds with Gradle 8.10, which newer JDKs cannot run, and ForgeGradle 6 cannot run on
-Gradle 9.
+JDK 22. The toolchain compiles against Java 17, which is what this Minecraft version requires.
 
 ```
 ./gradlew build
 ```
 
-Jars land in `fabric/build/libs`, `neoforge/build/libs` and `forge/build/libs`.
+Jars land in `fabric/build/libs` and `forge/build/libs`.
 
 ## Licence
 

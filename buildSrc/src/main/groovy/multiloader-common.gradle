@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    archivesName = "${mod_id}-${project.name}-${minecraft_version_label}"
 }
 
 java {
@@ -39,14 +39,6 @@ repositories {
         filter { includeGroup('org.parchmentmc.data') }
     }
     maven {
-        name = 'Shedaniel'          // Cloth Config
-        url = 'https://maven.shedaniel.me/'
-    }
-    maven {
-        name = 'TerraformersMC'     // Mod Menu
-        url = 'https://maven.terraformersmc.com/'
-    }
-    maven {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
@@ -56,6 +48,7 @@ repositories {
 // Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
 ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
     configurations."$variant".outgoing {
+        capability("$group:${project.name}:$version")
         capability("$group:${base.archivesName.get()}:$version")
         capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
         capability("$group:$mod_id:$version")
@@ -63,6 +56,22 @@ repositories {
     publishing.publications.configureEach {
         suppressPomMetadataWarningsFor(variant)
     }
+}
+
+// THE SOURCES ARE UTF-8 AND THE TOOLS MUST BE TOLD SO.
+//
+// TitleArt declares the two private-use codepoints the glyphs are mapped to as literal
+// characters. javac has defaulted to UTF-8 since JDK 18 and reads them, but JAVADOC still
+// falls back to the platform encoding, which on this machine is windows-1252 - so `build`
+// failed on the javadoc task alone with "unmappable character (0x90)" and "unclosed
+// character literal" while compileJava was perfectly happy. Setting both explicitly is
+// the fix, and it also makes the build independent of the machine's locale.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
 }
 
 sourcesJar {
@@ -91,41 +100,34 @@ jar {
 
 processResources {
     var expandProps = [
-            'version'                      : version,
-            'group'                        : project.group, //Else we target the task's group.
-            'minecraft_version'            : minecraft_version,
-            'minecraft_version_range'      : minecraft_version_range,
+            'version'                       : version,
+            'group'                         : project.group, //Else we target the task's group.
+            'minecraft_version'             : minecraft_version,
+            'minecraft_version_range'       : minecraft_version_range,
             'fabric_minecraft_version_range': fabric_minecraft_version_range,
-            'fabric_version'               : fabric_version,
-            'fabric_loader_version'        : fabric_loader_version,
-            'mod_name'                     : mod_name,
-            'mod_author'                   : mod_author,
-            'mod_id'                       : mod_id,
-            'license'                      : license,
-            'description'                  : project.description,
-            'neoforge_version'             : neoforge_version,
-            'neoforge_version_range'       : neoforge_version_range,
-            'neoforge_loader_version_range': neoforge_loader_version_range,
-            "forge_version": forge_version,
-            "forge_version_range": forge_version_range,
-            "forge_loader_version_range": forge_loader_version_range,
-            'cloth_config_version'         : cloth_config_version,
-            'modmenu_version'              : modmenu_version,
-            'credits'                      : credits,
-            'java_version'                 : java_version
+            'minecraft_version_label'       : minecraft_version_label,
+            'fabric_version'                : fabric_version,
+            'fabric_loader_version'         : fabric_loader_version,
+            'mod_name'                      : mod_name,
+            'mod_author'                    : mod_author,
+            'mod_id'                        : mod_id,
+            'license'                       : license,
+            'description'                   : project.description,
+            'credits'                       : credits,
+            'java_version'                  : java_version,
+            'forge_version'                 : forge_version,
+            'forge_version_range'           : forge_version_range,
+            'forge_loader_version_range'    : forge_loader_version_range,
+            'cloth_config_version'          : cloth_config_version,
+            'mod_menu_version'              : mod_menu_version,
+            'pack_format'                   : pack_format
     ]
 
-    // JSON forbids a raw newline inside a string, and `description` contains one (java.util.Properties
-    // turns the \n in gradle.properties into a real line break). Left unescaped it produces an invalid
-    // fabric.mod.json: the game's lenient parser accepts it, but strict ones do not: Modrinth silently
-    // fails to read the metadata and asks for the loader and game versions by hand on upload.
-    // The TOMLs take the description in a ''' literal block, which handles the newline as-is, so they
-    // keep the raw values. Newer revisions of this template split it the same way.
     var jsonExpandProps = expandProps.collectEntries {
         key, value -> [(key): value instanceof String ? value.replace("\n", "\\n") : value]
     }
 
-    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
+    filesMatching(['META-INF/mods.toml']) {
         expand expandProps
     }
 

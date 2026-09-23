@@ -35,7 +35,7 @@ public record Nutrient(String name, int order, float decayRate, float malnourish
     /** The item tag that assigns this nutrient directly, {@code #dynamicnutrition:nutrient/<name>}. */
     public TagKey<Item> tag() {
         return TagKey.create(Registries.ITEM,
-                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrient/" + name));
+                new ResourceLocation(Constants.MOD_ID, "nutrient/" + name));
     }
 
     /** Translation key for the screen and the tooltip. */

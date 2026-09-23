@@ -1,6 +1,8 @@
 package com.chillpavz.dynamicnutrition.platform;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
 import com.chillpavz.dynamicnutrition.network.NutritionSyncPayload;
@@ -12,9 +14,11 @@ public class FabricNetworkSender implements INetworkSender {
     public void sendTable(ServerPlayer player, NutritionSyncPayload payload) {
         // A client without this mod has not registered the channel, and sending anyway is a
         // disconnect rather than a warning. Fabric will happily let you do it, so the check is ours.
-        if (!ServerPlayNetworking.canSend(player, NutritionSyncPayload.TYPE)) {
+        if (!ServerPlayNetworking.canSend(player, NutritionSyncPayload.ID)) {
             return;
         }
-        ServerPlayNetworking.send(player, payload);
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        payload.write(buf);
+        ServerPlayNetworking.send(player, NutritionSyncPayload.ID, buf);
     }
 }

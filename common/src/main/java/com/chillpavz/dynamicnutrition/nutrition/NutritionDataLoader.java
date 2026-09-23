@@ -38,7 +38,7 @@ import com.chillpavz.dynamicnutrition.Constants;
 public class NutritionDataLoader extends SimpleJsonResourceReloadListener {
 
     public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
+            new ResourceLocation(Constants.MOD_ID, "nutrition");
 
     private static final Codec<Map<String, Map<String, Integer>>> CODEC =
             Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, Codec.INT));

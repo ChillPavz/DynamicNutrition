@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import com.chillpavz.dynamicnutrition.Constants;
 
 import com.chillpavz.dynamicnutrition.network.NutritionSyncPayload;
+import com.chillpavz.dynamicnutrition.network.PlayerNutritionPayload;
 
 public class DynamicNutritionFabricClient implements ClientModInitializer {
 
@@ -24,12 +25,24 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
         // things that changed.
         KeyBindingHelper.registerKeyBinding(DynamicNutritionKeys.OPEN_SCREEN);
 
-        ClientPlayNetworking.registerGlobalReceiver(NutritionSyncPayload.TYPE,
-                (payload, context) -> NutritionClient.acceptTable(payload));
+        // Received on the network thread on this band, so the payload is decoded there and applied
+        // on the client thread. Registering a receiver is also what announces the channel, which
+        // is what the server's canSend asks about.
+        ClientPlayNetworking.registerGlobalReceiver(NutritionSyncPayload.ID,
+                (client, handler, buf, responseSender) -> {
+                    NutritionSyncPayload payload = NutritionSyncPayload.read(buf);
+                    client.execute(() -> NutritionClient.acceptTable(payload));
+                });
+        // The player's own values: no attachment sync on this band, so they travel here.
+        ClientPlayNetworking.registerGlobalReceiver(PlayerNutritionPayload.ID,
+                (client, handler, buf, responseSender) -> {
+                    PlayerNutritionPayload payload = PlayerNutritionPayload.read(buf);
+                    client.execute(() -> OwnValuesClient.accept(payload.nutrition()));
+                });
 
         // Fabric's callback carries no player, so the local one is read HERE rather than inside
         // FoodTooltip, which keeps that class free of any client-only Minecraft reference.
-        ItemTooltipCallback.EVENT.register((stack, context, flag, lines) ->
+        ItemTooltipCallback.EVENT.register((stack, flag, lines) ->
                 FoodTooltip.appendTo(stack, lines, flag.isAdvanced(),
                         net.minecraft.client.Minecraft.getInstance().player));
 

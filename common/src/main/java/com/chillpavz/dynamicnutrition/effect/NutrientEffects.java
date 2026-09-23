@@ -1,5 +1,8 @@
 package com.chillpavz.dynamicnutrition.effect;
 
+import net.minecraft.world.entity.player.Player;
+import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,8 +94,20 @@ public final class NutrientEffects {
     /** How a spec does its job. */
     public enum Kind { ATTRIBUTES, REGENERATION, HUNGER, RESISTANCE, BLINDNESS }
 
-    /** One vanilla attribute modifier, at its full, level I amount. */
-    public record Modifier(Holder<Attribute> attribute, double full, AttributeModifier.Operation operation) {
+    /**
+     * One vanilla attribute modifier, at its full, level I amount. A null attribute is MINING
+     * speed, which is not an attribute on this band (it arrived at 1.20.5): it is applied instead
+     * by {@link #breakSpeedFactor}, which each loader multiplies into the dig speed.
+     */
+    public record Modifier(Attribute attribute, double full, AttributeModifier.Operation operation) {
+
+        public boolean isBreakSpeed() {
+            return attribute == null;
+        }
+    }
+
+    private static Modifier breakSpeed(double full) {
+        return new Modifier(null, full, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
     /**
@@ -109,7 +124,7 @@ public final class NutrientEffects {
 
         /** The id 1.5.0 registered this effect under. */
         public ResourceKey<MobEffect> legacyKey() {
-            return ResourceKey.create(Registries.MOB_EFFECT, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, id));
+            return ResourceKey.create(Registries.MOB_EFFECT, new ResourceLocation(Constants.MOD_ID, id));
         }
 
         /** Vanilla's name for the effect this imitates, in the player's language. */
@@ -126,23 +141,23 @@ public final class NutrientEffects {
 
     public static final List<Spec> ALL = List.of(
             spec("speed", Nutrients.CARBOHYDRATES, true, 3402751, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.MOVEMENT_SPEED, 0.2, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    new Modifier(Attributes.MOVEMENT_SPEED, 0.2, AttributeModifier.Operation.MULTIPLY_TOTAL)),
             spec("slowness", Nutrients.CARBOHYDRATES, false, 9154528, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.MOVEMENT_SPEED, -0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    new Modifier(Attributes.MOVEMENT_SPEED, -0.15, AttributeModifier.Operation.MULTIPLY_TOTAL)),
             spec("strength", Nutrients.PROTEIN, true, 16762624, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.ATTACK_DAMAGE, 3.0, AttributeModifier.Operation.ADD_VALUE)),
+                    new Modifier(Attributes.ATTACK_DAMAGE, 3.0, AttributeModifier.Operation.ADDITION)),
             spec("weakness", Nutrients.PROTEIN, false, 4738376, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.ATTACK_DAMAGE, -4.0, AttributeModifier.Operation.ADD_VALUE)),
+                    new Modifier(Attributes.ATTACK_DAMAGE, -4.0, AttributeModifier.Operation.ADDITION)),
             spec("resistance", Nutrients.FAT, true, 9520880, Kind.RESISTANCE),
             spec("hunger", Nutrients.FAT, false, 5797459, Kind.HUNGER),
             spec("regeneration", Nutrients.VITAMINS, true, 13458603, Kind.REGENERATION),
             spec("blindness", Nutrients.VITAMINS, false, 2039587, Kind.BLINDNESS),
             spec("haste", Nutrients.MINERALS, true, 14270531, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.BLOCK_BREAK_SPEED, 0.2, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                    new Modifier(Attributes.ATTACK_SPEED, 0.1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    breakSpeed(0.2),
+                    new Modifier(Attributes.ATTACK_SPEED, 0.1, AttributeModifier.Operation.MULTIPLY_TOTAL)),
             spec("mining_fatigue", Nutrients.MINERALS, false, 4866583, Kind.ATTRIBUTES,
-                    new Modifier(Attributes.BLOCK_BREAK_SPEED, -0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                    new Modifier(Attributes.ATTACK_SPEED, -0.1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+                    breakSpeed(-0.7),
+                    new Modifier(Attributes.ATTACK_SPEED, -0.1, AttributeModifier.Operation.MULTIPLY_TOTAL)));
 
     /**
      * The two effects a player actually sees: Well Nourished while any nutrient buff is on,
@@ -161,7 +176,7 @@ public final class NutrientEffects {
      * that shape: a potion is never infinite, a beacon shows particles and runs out, and
      * {@code /effect give} is never ambient.
      */
-    private static final List<Holder<MobEffect>> TEST_BUILD_VANILLA = List.of(
+    private static final List<MobEffect> TEST_BUILD_VANILLA = List.of(
             MobEffects.MOVEMENT_SPEED, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DAMAGE_BOOST, MobEffects.WEAKNESS,
             MobEffects.DAMAGE_RESISTANCE, MobEffects.HUNGER, MobEffects.REGENERATION, MobEffects.DARKNESS,
             MobEffects.DIG_SPEED, MobEffects.DIG_SLOWDOWN);
@@ -184,7 +199,7 @@ public final class NutrientEffects {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
+        return new ResourceLocation(Constants.MOD_ID, path);
     }
 
     private static Spec spec(String id, Nutrient nutrient, boolean above, int color, Kind kind,
@@ -303,10 +318,10 @@ public final class NutrientEffects {
         }
         try {
             for (Holder<MobEffect> holder : List.of(wellNourished, malnourished)) {
-                MobEffectInstance instance = player.getEffect(holder);
+                MobEffectInstance instance = holder == null ? null : player.getEffect(holder.value());
                 if (instance != null) {
                     player.connection.send(new ClientboundUpdateMobEffectPacket(player.getId(),
-                            instance, false));
+                            instance));
                 }
             }
         } catch (Throwable t) {
@@ -353,7 +368,7 @@ public final class NutrientEffects {
         for (Nutrient nutrient : Nutrients.all()) {
             Spec spec = forNutrient(nutrient, buffs);
             if (spec != null && isActive(spec, held.apply(nutrient), (float) strength.applyAsDouble(spec))) {
-                out.add(spec.displayName().withColor(nutrient.textColor()));
+                out.add(spec.displayName().withStyle(style -> style.withColor(nutrient.textColor())));
             }
         }
         return out;
@@ -433,18 +448,18 @@ public final class NutrientEffects {
         if (effect == null) {
             return;
         }
-        boolean has = player.hasEffect(effect);
+        boolean has = player.hasEffect(effect.value());
         if (wanted && !has) {
             // Infinite, level I, AMBIENT (the pale beacon frame, a standing condition rather than a
             // potion), NO particles, icon shown.
-            player.addEffect(new MobEffectInstance(effect, MobEffectInstance.INFINITE_DURATION, 0,
+            player.addEffect(new MobEffectInstance(effect.value(), MobEffectInstance.INFINITE_DURATION, 0,
                     true, false, true));
         } else if (!wanted && has) {
-            removeOwn(player, effect);
+            removeOwn(player, effect.value());
         }
     }
 
-    private static void removeOwn(ServerPlayer player, Holder<MobEffect> effect) {
+    private static void removeOwn(ServerPlayer player, MobEffect effect) {
         removingOwn = true;
         try {
             player.removeEffect(effect);
@@ -464,8 +479,8 @@ public final class NutrientEffects {
             legacy = List.copyOf(LEGACY.values());
         }
         for (Holder<MobEffect> holder : legacy) {
-            if (player.hasEffect(holder)) {
-                removeOwn(player, holder);
+            if (player.hasEffect(holder.value())) {
+                removeOwn(player, holder.value());
             }
         }
     }
@@ -485,7 +500,7 @@ public final class NutrientEffects {
             return false;
         }
         int removed = 0;
-        for (Holder<MobEffect> vanilla : TEST_BUILD_VANILLA) {
+        for (MobEffect vanilla : TEST_BUILD_VANILLA) {
             MobEffectInstance instance = player.getEffect(vanilla);
             if (instance != null && isTestBuildShape(instance)) {
                 removeOwn(player, vanilla);
@@ -504,6 +519,9 @@ public final class NutrientEffects {
     private static void run(ServerPlayer player, Spec spec, float fraction) {
         for (int i = 0; i < spec.modifiers().size(); i++) {
             Modifier modifier = spec.modifiers().get(i);
+            if (modifier.isBreakSpeed()) {
+                continue;
+            }
             setModifier(player, modifier, id("effect." + spec.id() + "." + i),
                     modifier.full() * fraction);
         }
@@ -527,17 +545,50 @@ public final class NutrientEffects {
         if (attribute == null) {
             return;
         }
-        AttributeModifier existing = attribute.getModifier(id);
+        // Modifiers are keyed by UUID on this band; one derived from the id stays the same across
+        // restarts, so a modifier left on a saved player is found and replaced rather than stacked.
+        UUID uuid = UUID.nameUUIDFromBytes(id.toString().getBytes(StandardCharsets.UTF_8));
+        AttributeModifier existing = attribute.getModifier(uuid);
         if (amount == 0.0) {
             if (existing != null) {
-                attribute.removeModifier(id);
+                attribute.removeModifier(uuid);
             }
             return;
         }
-        if (existing != null && existing.amount() == amount) {
+        if (existing != null && existing.getAmount() == amount) {
             return;
         }
-        attribute.addOrUpdateTransientModifier(new AttributeModifier(id, amount, modifier.operation()));
+        attribute.removeModifier(uuid);
+        attribute.addTransientModifier(new AttributeModifier(uuid, id.toString(), amount, modifier.operation()));
+    }
+
+    /**
+     * What to multiply a player's dig speed by, for the Haste and Mining Fatigue specs. Mining speed
+     * is not an attribute on this band, so each loader asks this from its own dig speed hook. The
+     * same rule and the same numbers as the attribute on the newer bands: MULTIPLY_TOTAL, so the
+     * factors multiply. Runs on BOTH sides (the client predicts mining progress), reading the synced
+     * sides held and, on the client, the synced strengths. Never throws; 1 on any failure.
+     */
+    public static float breakSpeedFactor(Player player) {
+        try {
+            PlayerNutrition nutrition = Services.STORAGE.get(player);
+            float factor = 1.0F;
+            for (Spec spec : ALL) {
+                for (Modifier modifier : spec.modifiers()) {
+                    if (!modifier.isBreakSpeed()) {
+                        continue;
+                    }
+                    float fraction = player.level().isClientSide
+                            ? SyncedEffectSettings.fraction(spec) : fraction(spec);
+                    if (isActive(spec, nutrition.heldStatus(spec.nutrient()), fraction)) {
+                        factor *= (float) (1.0 + modifier.full() * fraction);
+                    }
+                }
+            }
+            return Math.max(0.0F, factor);
+        } catch (Throwable t) {
+            return 1.0F;
+        }
     }
 
     // ---------------------------------------------------------------- Resistance

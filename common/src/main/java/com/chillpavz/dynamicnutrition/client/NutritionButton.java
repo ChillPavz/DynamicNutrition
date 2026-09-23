@@ -49,7 +49,8 @@ public class NutritionButton extends Button {
      */
     public static final int DEFAULT_Y = 4;
 
-    private static final ResourceLocation ICON = ResourceLocation.withDefaultNamespace("hud/food_full");
+    /** The full food icon, from vanilla's own HUD sheet: 9 pixels at (52, 27) on this band. */
+    private static final ResourceLocation ICON = new ResourceLocation("textures/gui/icons.png");
     private static final int HOVER = 0x50FFFFFF;
 
     public NutritionButton(int x, int y, Screen parent) {
@@ -105,7 +106,7 @@ public class NutritionButton extends Button {
     @Override
     protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY,
                                 float partialTick) {
-        GuiBlit.sprite(gfx, ICON, getX(), getY(), SIZE, SIZE);
+        GuiBlit.texture(gfx, ICON, getX(), getY(), 52, 27, SIZE, SIZE, 256, 256);
         if (isHoveredOrFocused()) {
             gfx.fill(getX(), getY(), getX() + SIZE, getY() + SIZE, HOVER);
         }

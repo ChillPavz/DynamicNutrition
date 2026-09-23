@@ -3,6 +3,7 @@ package com.chillpavz.dynamicnutrition.event;
 import java.util.List;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -160,7 +161,7 @@ public final class NutritionEvents {
                     names.append(Component.literal(", "));
                 }
                 names.append(Component.translatable(low.get(i).translationKey())
-                        .withColor(low.get(i).textColor()));
+                        .withStyle(Style.EMPTY.withColor(low.get(i).textColor())));
             }
             message = Component.translatable(key + ".detail", names);
         } else {

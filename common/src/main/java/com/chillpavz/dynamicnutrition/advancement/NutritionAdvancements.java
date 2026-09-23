@@ -1,6 +1,6 @@
 package com.chillpavz.dynamicnutrition.advancement;
 
-import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -53,13 +53,13 @@ public final class NutritionAdvancements {
      * convention tag means a modded stew qualifies with no work from us.
      */
     private static final TagKey<Item> SOUPS =
-            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "foods/soup"));
+            TagKey.create(Registries.ITEM, new ResourceLocation("c", "foods/soup"));
 
     private NutritionAdvancements() {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
+        return new ResourceLocation(Constants.MOD_ID, path);
     }
 
     /**
@@ -74,9 +74,9 @@ public final class NutritionAdvancements {
             if (server == null) {
                 return;
             }
-            AdvancementHolder holder = server.getAdvancements().get(advancement);
-            if (holder != null) {
-                player.getAdvancements().award(holder, CRITERION);
+            Advancement found = server.getAdvancements().getAdvancement(advancement);
+            if (found != null) {
+                player.getAdvancements().award(found, CRITERION);
             }
         } catch (Throwable t) {
             Constants.LOG.debug("Could not award {}: {}", advancement, t.toString());

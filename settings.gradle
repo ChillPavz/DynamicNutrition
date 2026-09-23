@@ -48,5 +48,4 @@ plugins {
 rootProject.name = 'dynamicnutrition'
 include('common')
 include('fabric')
-include('neoforge')
 include('forge')

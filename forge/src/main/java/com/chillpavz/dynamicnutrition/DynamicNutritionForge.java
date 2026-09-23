@@ -92,9 +92,10 @@ public class DynamicNutritionForge {
             }
         });
 
-        // A plain field on EventBus 6; it became a record accessor at EventBus 8.
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.PlayerTickEvent.Post event) -> {
-            if (event.player instanceof ServerPlayer player) {
+        // A plain field on EventBus 6; it became a record accessor at EventBus 8. Forge 47 fires
+        // one event with a phase rather than Pre and Post classes, so END is picked here.
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.PlayerTickEvent event) -> {
+            if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer player) {
                 NutritionEvents.onPlayerTick(player);
                 // Drain the dirty flag once per tick, after everything that could have set it.
                 // This is the loader's sync on the other two; here it is ours.

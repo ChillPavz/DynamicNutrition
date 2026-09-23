@@ -1,15 +1,15 @@
 {
   "display": {
     "icon": {
-      "id": "minecraft:rotten_flesh"
+      "item": "minecraft:cooked_beef"
     },
     "title": {
-      "translate": "advancement.dynamicnutrition.deficient"
+      "translate": "advancement.dynamicnutrition.recovered"
     },
     "description": {
-      "translate": "advancement.dynamicnutrition.deficient.desc"
+      "translate": "advancement.dynamicnutrition.recovered.desc"
     },
-    "frame": "task",
+    "frame": "challenge",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
@@ -19,5 +19,5 @@
       "trigger": "minecraft:impossible"
     }
   },
-  "parent": "dynamicnutrition:root"
+  "parent": "dynamicnutrition:deficient"
 }

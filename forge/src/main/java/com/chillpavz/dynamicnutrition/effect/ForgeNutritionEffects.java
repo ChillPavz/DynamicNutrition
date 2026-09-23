@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -50,6 +51,13 @@ public final class ForgeNutritionEffects {
         MinecraftForge.EVENT_BUS.addListener((LivingDamageEvent event) ->
                 event.setAmount(NutrientEffects.resist(event.getEntity(), event.getSource(),
                         event.getAmount())));
+
+        // The mining half of the minerals effects. Mining speed is not an attribute on this band
+        // (it arrived at 1.20.5), so the factor goes into Forge's break speed event, which fires
+        // on both sides, where Fabric multiplies it into getDestroySpeed.
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.BreakSpeed event) ->
+                event.setNewSpeed(event.getNewSpeed()
+                        * NutrientEffects.breakSpeedFactor(event.getEntity())));
     }
 
     /**

@@ -10,9 +10,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
@@ -91,8 +90,17 @@ public final class PlayerNutrition {
 
     public static final Codec<PlayerNutrition> CODEC = MAP_CODEC.codec();
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerNutrition> STREAM_CODEC =
-            ByteBufCodecs.fromCodecWithRegistriesTrusted(CODEC);
+    /**
+     * The wire form: the SAVED form, as NBT. {@code StreamCodec} is newer than this band; writing
+     * through CODEC keeps one list of fields for saving and syncing alike.
+     */
+    public static void write(FriendlyByteBuf buf, PlayerNutrition nutrition) {
+        buf.writeWithCodec(NbtOps.INSTANCE, CODEC, nutrition);
+    }
+
+    public static PlayerNutrition read(FriendlyByteBuf buf) {
+        return buf.readWithCodec(NbtOps.INSTANCE, CODEC);
+    }
 
     private final Map<String, Float> values = new HashMap<>();
 
