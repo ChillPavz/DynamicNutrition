@@ -53,10 +53,9 @@ public final class ClothCompat {
             }
         }
         if (!available) {
-            // Declared required in mods.toml, so reaching here means the loader let a jar through
-            // without it. Say so plainly rather than pretending this is a supported shape.
-            Constants.LOG.warn("Cloth Config is required on this version but was not found. "
-                    + "There is no config screen; everything else works on the defaults.");
+            // Optional on this version (mods.toml says mandatory = false): this is a supported shape.
+            Constants.LOG.info("Cloth Config is not installed, so there is no config screen. "
+                    + "Everything else works on the defaults.");
             return;
         }
         try {
