@@ -29,10 +29,8 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-# Cloth Config, REQUIRED on this band. Official cloth ships no Forge build at this Minecraft
-# version, so Forge players need the unofficial cloth-config-forge port, which carries the same mod
-# id and the same version number. Name it on the store page: the launcher cannot install it from
-# this dependency alone, because the two are separate projects on Modrinth.
+# Cloth Config, REQUIRED on this band. Official cloth still ships a Forge build at this Minecraft
+# version, under the same mod id.
 [[dependencies.${mod_id}]]
 modId = "cloth_config"
 mandatory = true
