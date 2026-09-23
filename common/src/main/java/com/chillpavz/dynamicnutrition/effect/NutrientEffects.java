@@ -15,7 +15,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -109,7 +109,7 @@ public final class NutrientEffects {
 
         /** The id 1.5.0 registered this effect under. */
         public ResourceKey<MobEffect> legacyKey() {
-            return ResourceKey.create(Registries.MOB_EFFECT, Identifier.fromNamespaceAndPath(Constants.MOD_ID, id));
+            return ResourceKey.create(Registries.MOB_EFFECT, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, id));
         }
 
         /** Vanilla's name for the effect this imitates, in the player's language. */
@@ -162,9 +162,9 @@ public final class NutrientEffects {
      * {@code /effect give} is never ambient.
      */
     private static final List<Holder<MobEffect>> TEST_BUILD_VANILLA = List.of(
-            MobEffects.SPEED, MobEffects.SLOWNESS, MobEffects.STRENGTH, MobEffects.WEAKNESS,
-            MobEffects.RESISTANCE, MobEffects.HUNGER, MobEffects.REGENERATION, MobEffects.DARKNESS,
-            MobEffects.HASTE, MobEffects.MINING_FATIGUE);
+            MobEffects.MOVEMENT_SPEED, MobEffects.MOVEMENT_SLOWDOWN, MobEffects.DAMAGE_BOOST, MobEffects.WEAKNESS,
+            MobEffects.DAMAGE_RESISTANCE, MobEffects.HUNGER, MobEffects.REGENERATION, MobEffects.DARKNESS,
+            MobEffects.DIG_SPEED, MobEffects.DIG_SLOWDOWN);
 
     /** The effect shape a player's save is brought up to. See {@code PlayerNutrition.effectFormat}. */
     public static final int EFFECT_FORMAT = 2;
@@ -183,8 +183,8 @@ public final class NutrientEffects {
     private NutrientEffects() {
     }
 
-    private static Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, path);
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
     }
 
     private static Spec spec(String id, Nutrient nutrient, boolean above, int color, Kind kind,
@@ -260,7 +260,7 @@ public final class NutrientEffects {
     /** Whether an effect belongs to this mod at all, display or legacy. */
     public static boolean isOurs(Holder<MobEffect> effect) {
         return effect != null && effect.unwrapKey()
-                .map(key -> Constants.MOD_ID.equals(key.identifier().getNamespace()))
+                .map(key -> Constants.MOD_ID.equals(key.location().getNamespace()))
                 .orElse(false);
     }
 
@@ -521,7 +521,7 @@ public final class NutrientEffects {
      * Put one transient modifier at exactly this amount, or remove it at zero, and touch nothing
      * when it is already right, so a steady diet sends no attribute update at all.
      */
-    private static void setModifier(ServerPlayer player, Modifier modifier, Identifier id,
+    private static void setModifier(ServerPlayer player, Modifier modifier, ResourceLocation id,
                                     double amount) {
         AttributeInstance attribute = player.getAttribute(modifier.attribute());
         if (attribute == null) {

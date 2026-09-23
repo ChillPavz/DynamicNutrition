@@ -13,8 +13,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -254,22 +254,16 @@ public final class NutritionTable {
                                           List<Item> contributors) {
         Set<Nutrient> found = new LinkedHashSet<>();
         for (RecipeHolder<?> holder : recipes.recipesFor(level, item)) {
-            PlacementInfo info;
-            try {
-                info = holder.value().placementInfo();
-            } catch (Throwable t) {
+            List<Ingredient> ingredients = ingredientsOf(holder);
+            if (ingredients == null) {
                 continue;
             }
-            if (info == null || info == PlacementInfo.NOT_PLACEABLE || info.isImpossibleToPlace()) {
-                continue;
-            }
-            for (Ingredient ingredient : info.ingredients()) {
+            for (Ingredient ingredient : ingredients) {
                 // An ingredient can accept many items; the first is a deterministic representative.
-                var first = ingredient.items().findFirst();
-                if (first.isEmpty()) {
+                Item ingredientItem = firstItem(ingredient);
+                if (ingredientItem == null) {
                     continue;
                 }
-                Item ingredientItem = first.get().value();
                 if (ingredientItem == item) {
                     continue;
                 }
@@ -313,24 +307,41 @@ public final class NutritionTable {
                     && type != RecipeType.CAMPFIRE_COOKING) {
                 continue;
             }
-            PlacementInfo info;
-            try {
-                info = holder.value().placementInfo();
-            } catch (Throwable t) {
+            List<Ingredient> ingredients = ingredientsOf(holder);
+            if (ingredients == null) {
                 continue;
             }
-            if (info == null || info == PlacementInfo.NOT_PLACEABLE) {
-                continue;
-            }
-            for (Ingredient ingredient : info.ingredients()) {
-                var first = ingredient.items().findFirst();
-                if (first.isPresent()
-                        && first.get().value().getDefaultInstance().has(DataComponents.FOOD)) {
+            for (Ingredient ingredient : ingredients) {
+                Item first = firstItem(ingredient);
+                if (first != null && first.getDefaultInstance().has(DataComponents.FOOD)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * A recipe's ingredients, or null for one that cannot tell us anything: a special (code
+     * driven) recipe, one with an empty ingredient, or one that throws. This band's stand-in for
+     * 26.x's {@code PlacementInfo}, which arrived at 1.21.2.
+     */
+    private static List<Ingredient> ingredientsOf(RecipeHolder<?> holder) {
+        try {
+            var recipe = holder.value();
+            if (recipe.isSpecial() || recipe.isIncomplete()) {
+                return null;
+            }
+            return recipe.getIngredients();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /** The first item an ingredient accepts, or null if it accepts none. */
+    private static Item firstItem(Ingredient ingredient) {
+        ItemStack[] items = ingredient.getItems();
+        return items.length == 0 || items[0].isEmpty() ? null : items[0].getItem();
     }
 
     // ---------------------------------------------------------------- prewarm
@@ -395,8 +406,9 @@ public final class NutritionTable {
      * pipeline rather than items that are not food.
      */
     public static boolean isEdible(Item item) {
-        var stack = item.getDefaultInstance();
-        return stack.has(DataComponents.FOOD) && stack.has(DataComponents.CONSUMABLE);
+        // No CONSUMABLE component before 1.21.2, and nothing here carries FOOD without being
+        // edible: the fish buckets that do on 26.x are plain buckets on this band.
+        return item.getDefaultInstance().has(DataComponents.FOOD);
     }
 
     public boolean isPrewarmed() {

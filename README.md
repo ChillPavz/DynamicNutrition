@@ -1,7 +1,7 @@
 # Dynamic Nutrition
 
 Five nutrients, tracked from everything you eat, with values modelled on real nutritional data.
-For Minecraft **1.21.11** on **Fabric**, **NeoForge** and **Forge**.
+For Minecraft **1.21** and **1.21.1** on **Fabric**, **NeoForge** and **Forge**.
 
 Hunger tells you how long since you last ate. It says nothing about what you ate. Dynamic Nutrition
 adds the other half: carbohydrates, protein, fat, vitamins and minerals, each filled by different
@@ -54,9 +54,8 @@ inventory button and tooltips, the variety mechanic, and the nutrient effects, w
 ten effects has its own strength and you can hide Well Nourished and Malnourished from the top of
 the screen, from beside the inventory, or both. Hidden, they still work.
 
-On Forge the dependency is the unofficial **Cloth Config API Forge** port rather than the official
-build, which stops shipping a Forge module at this Minecraft version. Same mod id, same version
-number, separate project.
+On Forge this is the official Cloth Config Forge build, which still exists at this Minecraft
+version.
 
 ## Commands
 
@@ -69,8 +68,9 @@ number, separate project.
 
 ## Building
 
-JDK 24. The toolchain compiles against Java 21, which is what this Minecraft version requires;
-Gradle 8.14.3 cannot run on JDK 25 and ForgeGradle 6 cannot run on Gradle 9, which is what pins it.
+JDK 22. The toolchain compiles against Java 21, which is what this Minecraft version requires;
+this branch builds with Gradle 8.10, which newer JDKs cannot run, and ForgeGradle 6 cannot run on
+Gradle 9.
 
 ```
 ./gradlew build

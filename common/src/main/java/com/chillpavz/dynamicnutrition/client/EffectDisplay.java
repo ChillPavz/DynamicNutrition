@@ -2,6 +2,7 @@ package com.chillpavz.dynamicnutrition.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +24,9 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  * in the list beside the inventory (this player's own preference), and what hovering one in that
  * list says.
  *
- * <p>NeoForge asks per effect through its own client extension and gathers the hover text through an
- * event; Fabric has no hook for either, so its mixins hand vanilla's collection through
- * {@link #filter} and call {@link #hover} for each entry drawn. The ten 1.5.0 effect ids are never
+ * <p>NeoForge asks per effect through its own client extension; Fabric and Forge hand vanilla's
+ * collection through {@link #filter} in a mixin. The hover is added to vanilla's own tooltip where
+ * there is one ({@link #addHover}) and drawn by {@link #wideHover} where vanilla has none. The ten 1.5.0 effect ids are never
  * drawn at all: the server takes them off within a second, and this keeps that second invisible.
  */
 public final class EffectDisplay {
@@ -105,25 +106,59 @@ public final class EffectDisplay {
     }
 
     /**
-     * Fabric: the same hover, called at the start of vanilla's text for each inventory entry, with
-     * vanilla's own hover box. Set BEFORE vanilla sets its own (only when the name is cut off), so
-     * ours is the one kept: a later tooltip in the same frame does not replace an earlier one.
+     * Which effect in the inventory's list is under the mouse, by vanilla's own layout on this
+     * band: a column {@code x} along from the panel, rows {@code spacing} apart from {@code top},
+     * 120 wide when there is room for the labels and 33 wide when there is not, and the LAST row
+     * containing the mouse wins, exactly as vanilla's own loop decides it.
+     *
+     * @param shown     what the list draws, after {@link #forInventory}
+     * @param available the width from {@code x} to the screen's edge
      */
-    public static void hover(GuiGraphics graphics, Font font, MobEffectInstance instance,
-                             Component name, int x, int y, int width, int height,
-                             int mouseX, int mouseY) {
-        if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {
-            return;
+    public static MobEffectInstance hoveredInInventory(Collection<MobEffectInstance> shown, int x,
+                                                       int top, int available, int mouseX,
+                                                       int mouseY) {
+        if (shown.isEmpty() || available < 32) {
+            return null;
         }
-        List<Component> lines = describe(instance);
-        if (lines.isEmpty()) {
+        int wide = available >= 120 ? 120 : 33;
+        if (mouseX < x || mouseX > x + wide) {
+            return null;
+        }
+        int spacing = shown.size() > 5 ? 132 / (shown.size() - 1) : 33;
+        List<MobEffectInstance> sorted = new ArrayList<>(shown);
+        Collections.sort(sorted);
+        MobEffectInstance hit = null;
+        int rowY = top;
+        for (MobEffectInstance instance : sorted) {
+            if (mouseY >= rowY && mouseY <= rowY + spacing) {
+                hit = instance;
+            }
+            rowY += spacing;
+        }
+        return hit;
+    }
+
+    /**
+     * The hover in the WIDE layout, where vanilla draws no tooltip of its own on this band: our
+     * effect's name and what it stands for, if the effect under the mouse is one of ours. The
+     * compact layout is handled by adding to vanilla's own tooltip instead ({@link #addHover}), so
+     * one tooltip is ever drawn.
+     */
+    public static void wideHover(GuiGraphics graphics, Font font, Collection<MobEffectInstance> shown,
+                                 int x, int top, int available, int mouseX, int mouseY) {
+        if (available < 120) {
             return;
         }
         try {
+            MobEffectInstance hit = hoveredInInventory(shown, x, top, available, mouseX, mouseY);
+            List<Component> lines = describe(hit);
+            if (lines.isEmpty()) {
+                return;
+            }
             List<Component> tooltip = new ArrayList<>(lines.size() + 1);
-            tooltip.add(name);
+            tooltip.add(hit.getEffect().value().getDisplayName());
             tooltip.addAll(lines);
-            graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
+            graphics.renderTooltip(font, tooltip, Optional.empty(), mouseX, mouseY);
         } catch (Throwable t) {
             // On the render path: no tooltip rather than an exception every frame.
         }

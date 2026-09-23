@@ -3,7 +3,6 @@ package com.chillpavz.dynamicnutrition.client;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.Identifier;
 
 import com.chillpavz.dynamicnutrition.Constants;
 
@@ -20,13 +19,11 @@ import com.chillpavz.dynamicnutrition.Constants;
  */
 public final class DynamicNutritionKeys {
 
-    public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "main"));
+    /** A translation key on this band; the category became a registered object at 1.21.9. */
+    public static final String CATEGORY = "key.categories." + Constants.MOD_ID;
 
     /**
-     * The constructor WITHOUT an input type, on purpose. 26.3 merged {@code InputConstants.Type}'s
-     * KEYSYM and SCANCODE into KEYBOARD, so naming either one throws on the other side of the
-     * change before the main menu. This constructor exists unchanged from 26.1 to 26.3 and picks the
+     * The constructor WITHOUT an input type, the same choice the 26.x band makes: it picks the
      * keyboard type itself.
      */
     public static final KeyMapping OPEN_SCREEN = new KeyMapping(

@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "GuiEffectsMixin",
-    "EffectsInInventoryMixin"
+    "EffectsInInventoryMixin",
+    "GuiHudMixin"
   ],
   "server": [],
   "injectors": {

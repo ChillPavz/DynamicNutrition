@@ -42,7 +42,7 @@ public final class NutritionEvents {
         if (player.isCreative() || player.isSpectator()) {
             return;
         }
-        NutritionValues values = DynamicNutrition.table().resolve(player.level(), stack.getItem());
+        NutritionValues values = DynamicNutrition.table().resolve(player.serverLevel(), stack.getItem());
         if (values.isEmpty()) {
             return;
         }

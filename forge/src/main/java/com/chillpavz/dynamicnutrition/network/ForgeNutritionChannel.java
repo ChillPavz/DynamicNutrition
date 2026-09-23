@@ -1,7 +1,7 @@
 package com.chillpavz.dynamicnutrition.network;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -26,7 +26,7 @@ public final class ForgeNutritionChannel {
     private static final INutritionStorage STORAGE = new ForgeNutritionStorage();
 
     private static final Channel<CustomPacketPayload> CHANNEL =
-            ChannelBuilder.named(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "main"))
+            ChannelBuilder.named(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "main"))
                     // "2" matches the NeoForge registrar version: the payload started carrying the
                     // effect settings at 1.5.0 and the two loaders must not disagree about that.
                     .networkProtocolVersion(2)

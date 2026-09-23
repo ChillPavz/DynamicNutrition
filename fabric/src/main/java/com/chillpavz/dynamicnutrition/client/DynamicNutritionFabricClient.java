@@ -5,12 +5,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.resources.Identifier;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.resources.ResourceLocation;
 
 import com.chillpavz.dynamicnutrition.Constants;
 
@@ -25,8 +24,6 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
         // things that changed.
         KeyBindingHelper.registerKeyBinding(DynamicNutritionKeys.OPEN_SCREEN);
 
-        NutrientBlindnessFog.install();
-
         ClientPlayNetworking.registerGlobalReceiver(NutritionSyncPayload.TYPE,
                 (payload, context) -> NutritionClient.acceptTable(payload));
 
@@ -36,11 +33,9 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
                 FoodTooltip.appendTo(stack, lines, flag.isAdvanced(),
                         net.minecraft.client.Minecraft.getInstance().player));
 
-        // Attached to the food bar, so the strip sits with the thing it describes and moves with it
-        // if another mod reorders the HUD.
-        HudElementRegistry.attachElementAfter(VanillaHudElements.FOOD_BAR,
-                Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrients"),
-                NutritionHud::render);
+        // Fabric API has no HUD layers on this band, only a callback after the vanilla HUD. The
+        // strip works out its own position from the food bar's, so the order is all this decides.
+        HudRenderCallback.EVENT.register(NutritionHud::render);
 
         // AFTER_INIT rather than a one-off, because the inventory screen re-runs init() whenever the
         // recipe book is toggled, which is also when the panel moves.
@@ -59,7 +54,7 @@ public class DynamicNutritionFabricClient implements ClientModInitializer {
             // is open, so consumeClick cannot fire underneath one.
             while (DynamicNutritionKeys.OPEN_SCREEN.consumeClick()) {
                 if (client.player != null) {
-                    client.setScreenAndShow(new NutritionScreen(null));
+                    client.setScreen(new NutritionScreen(null));
                 }
             }
         });

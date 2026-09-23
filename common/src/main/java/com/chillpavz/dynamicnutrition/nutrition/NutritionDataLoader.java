@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -33,10 +35,10 @@ import com.chillpavz.dynamicnutrition.Constants;
  * load. A pack that mentions a food from a mod the player has not installed is the normal case, not
  * an error, and refusing the whole file over one line would take the other thirty-nine down with it.
  */
-public class NutritionDataLoader extends SimpleJsonResourceReloadListener<Map<String, Map<String, Integer>>> {
+public class NutritionDataLoader extends SimpleJsonResourceReloadListener {
 
-    public static final Identifier ID =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
+    public static final ResourceLocation ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
 
     private static final Codec<Map<String, Map<String, Integer>>> CODEC =
             Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, Codec.INT));
@@ -44,20 +46,29 @@ public class NutritionDataLoader extends SimpleJsonResourceReloadListener<Map<St
     private final NutritionTable table;
 
     public NutritionDataLoader(NutritionTable table) {
-        super(CODEC, FileToIdConverter.json("nutrition"));
+        // Untyped on this band: the files arrive as JSON and are decoded with CODEC in apply.
+        super(new Gson(), "nutrition");
         this.table = table;
     }
 
     @Override
-    protected void apply(Map<Identifier, Map<String, Map<String, Integer>>> files,
+    protected void apply(Map<ResourceLocation, JsonElement> json,
                          ResourceManager manager, ProfilerFiller profiler) {
+        // Decoded one file at a time, so one malformed file is reported and skipped rather than
+        // taking the other files down with it, which is what the typed listener on 26.x does too.
+        Map<ResourceLocation, Map<String, Map<String, Integer>>> files = new LinkedHashMap<>();
+        for (Map.Entry<ResourceLocation, JsonElement> file : json.entrySet()) {
+            CODEC.parse(JsonOps.INSTANCE, file.getValue())
+                    .resultOrPartial(error -> Constants.LOG.warn("{}: {}", file.getKey(), error))
+                    .ifPresent(values -> files.put(file.getKey(), values));
+        }
         Map<Item, NutritionValues> out = new HashMap<>();
         int unknownItems = 0;
         int unknownNutrients = 0;
 
-        for (Map.Entry<Identifier, Map<String, Map<String, Integer>>> file : files.entrySet()) {
+        for (Map.Entry<ResourceLocation, Map<String, Map<String, Integer>>> file : files.entrySet()) {
             for (Map.Entry<String, Map<String, Integer>> entry : file.getValue().entrySet()) {
-                Identifier itemId = Identifier.tryParse(entry.getKey());
+                ResourceLocation itemId = ResourceLocation.tryParse(entry.getKey());
                 if (itemId == null) {
                     Constants.LOG.warn("{}: {} is not a valid item id", file.getKey(), entry.getKey());
                     continue;
@@ -70,7 +81,7 @@ public class NutritionDataLoader extends SimpleJsonResourceReloadListener<Map<St
                     unknownItems++;
                     continue;
                 }
-                Item item = BuiltInRegistries.ITEM.getValue(itemId);
+                Item item = BuiltInRegistries.ITEM.get(itemId);
 
                 Map<Nutrient, Integer> values = new LinkedHashMap<>();
                 for (Map.Entry<String, Integer> pair : entry.getValue().entrySet()) {

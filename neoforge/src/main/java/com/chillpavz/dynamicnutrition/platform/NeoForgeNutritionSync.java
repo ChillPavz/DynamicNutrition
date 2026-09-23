@@ -6,25 +6,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
 
-import com.chillpavz.dynamicnutrition.network.ForgeNutritionChannel;
 import com.chillpavz.dynamicnutrition.network.PlayerNutritionPayload;
 
 /**
- * The two things a Fabric or NeoForge attachment does for free and a Forge capability does not:
- * send the player's values to their own client, and carry them across a death.
+ * Sends a player's values to their own client. On 26.x the NeoForge attachment does this itself;
+ * NeoForge 21.1's attachment builder has no sync, so on this band it is done here, the same way the
+ * Forge module does it for its capability.
  *
  * <p>Sending is deferred to the end of the player's tick rather than done inside
- * {@code markDirty}. A single tick can move several nutrients, award a meal and change the held
- * status, and each of those marks the state dirty; sending immediately would put three or four
- * identical payloads on the wire for one eaten carrot. Both other loaders coalesce for the same
- * reason, so this keeps the traffic the same shape on all three.
+ * {@code markDirty}: one tick can move several nutrients, award a meal and change the held status,
+ * and sending on each would put three or four identical payloads on the wire for one carrot.
  */
-public final class ForgeNutritionSync {
+public final class NeoForgeNutritionSync {
 
     private static final Set<UUID> DIRTY = ConcurrentHashMap.newKeySet();
 
-    private ForgeNutritionSync() {
+    private NeoForgeNutritionSync() {
     }
 
     /** Remember that this player's client is now behind. Cheap, and safe to call repeatedly. */
@@ -41,17 +40,12 @@ public final class ForgeNutritionSync {
         }
     }
 
-    /**
-     * Send unconditionally, and clear the flag.
-     *
-     * <p>Used where the client is known to have nothing: a fresh login and a dimension change both
-     * give the player a new client-side entity whose capability is at its defaults. NOT a respawn:
-     * Clone fires before the client has its new entity, so a respawn only raises the flag.
-     */
+    /** Send unconditionally, and clear the flag. For a join and a dimension change. */
     public static void sendNow(ServerPlayer player) {
         DIRTY.remove(player.getUUID());
-        ForgeNutritionChannel.sendTo(player,
-                new PlayerNutritionPayload(ForgeNutritionChannel.storage().get(player)));
+        // Registered optional, so NeoForge drops it for a client without the mod.
+        PacketDistributor.sendToPlayer(player,
+                new PlayerNutritionPayload(new NeoForgeNutritionStorage().get(player)));
     }
 
     /** A player who has left cannot be sent anything; without this the set grows all session. */

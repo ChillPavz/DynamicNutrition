@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
@@ -49,7 +49,7 @@ public class NutritionButton extends Button {
      */
     public static final int DEFAULT_Y = 4;
 
-    private static final Identifier ICON = Identifier.withDefaultNamespace("hud/food_full");
+    private static final ResourceLocation ICON = ResourceLocation.withDefaultNamespace("hud/food_full");
     private static final int HOVER = 0x50FFFFFF;
 
     public NutritionButton(int x, int y, Screen parent) {
@@ -93,18 +93,18 @@ public class NutritionButton extends Button {
      * screen it is being added to, so this costs nothing and needs no access widener.
      */
     private static void open(Screen parent) {
-        Minecraft.getInstance().setScreenAndShow(new NutritionScreen(parent));
+        Minecraft.getInstance().setScreen(new NutritionScreen(parent));
     }
 
     /**
-     * The whole render. {@code renderWidget} is final on {@code AbstractButton}, and
-     * this is the hook it leaves open; not calling {@code renderDefaultSprite} is what makes the
-     * button icon-only, because at nine pixels square a bevelled button frame would leave no room
-     * for anything inside it. Vanilla's own recipe book button is built the same way.
+     * The whole render. Overriding {@code renderWidget} (not final on this band) and not drawing
+     * the default sprite is what makes the button icon-only, because at nine pixels square a
+     * bevelled button frame would leave no room for anything inside it. Vanilla's own recipe book
+     * button is built the same way.
      */
     @Override
-    protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY,
-                                   float partialTick) {
+    protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY,
+                                float partialTick) {
         GuiBlit.sprite(gfx, ICON, getX(), getY(), SIZE, SIZE);
         if (isHoveredOrFocused()) {
             gfx.fill(getX(), getY(), getX() + SIZE, getY() + SIZE, HOVER);

@@ -26,9 +26,10 @@ public class NeoForgeNutritionStorage implements INutritionStorage {
      */
     public static final Supplier<AttachmentType<PlayerNutrition>> TYPE = ATTACHMENTS.register(
             "nutrition", () -> AttachmentType.builder(PlayerNutrition::new)
-                    .serialize(PlayerNutrition.MAP_CODEC)
+                    .serialize(PlayerNutrition.CODEC)
                     .copyOnDeath()
-                    .sync((holder, player) -> holder == player, PlayerNutrition.STREAM_CODEC)
+                    // No .sync(...): NeoForge 21.1 attachments cannot sync. NeoForgeNutritionSync
+                    // sends the values instead, as the Forge module does for its capability.
                     .build());
 
     @Override
@@ -38,10 +39,8 @@ public class NeoForgeNutritionStorage implements INutritionStorage {
 
     @Override
     public void markDirty(Player player) {
-        // NeoForge's setData syncs unconditionally, so a copy is not strictly required here.
-        // It is used anyway so both loaders do the identical thing: Fabric NEEDS the copy, and two
-        // implementations that differ in a detail like this is how a loader-specific bug gets
-        // reintroduced later. See PlayerNutrition.copy().
-        player.setData(TYPE.get(), player.getData(TYPE.get()).copy());
+        // The attachment is mutated in place and saved from there, so nothing needs setting; what
+        // it cannot do on this band is tell the client, which is this flag's job.
+        NeoForgeNutritionSync.markDirty(player);
     }
 }

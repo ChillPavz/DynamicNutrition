@@ -1,17 +1,18 @@
 package com.chillpavz.dynamicnutrition.client;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -32,26 +33,40 @@ public final class DynamicNutritionForgeClient {
     private DynamicNutritionForgeClient() {
     }
 
-    public static void init(BusGroup modBus) {
-        NutrientBlindnessFog.install();
+    public static void init(IEventBus modBus) {
+        // The vitamins debuff's fog. Both events fire after vanilla has chosen its fog, and the
+        // distances are applied only when the event is cancelled, so it is cancelled only when the
+        // debuff applies.
+        MinecraftForge.EVENT_BUS.addListener((ViewportEvent.RenderFog event) -> {
+            float[] fog = NutrientBlindnessFog.distances(event.getType(), event.getCamera().getEntity(),
+                    Minecraft.getInstance().gameRenderer.getRenderDistance(),
+                    event.getMode() == FogRenderer.FogMode.FOG_SKY);
+            if (fog != null) {
+                event.setNearPlaneDistance(fog[0]);
+                event.setFarPlaneDistance(fog[1]);
+                event.setCanceled(true);
+            }
+        });
+        MinecraftForge.EVENT_BUS.addListener((ViewportEvent.ComputeFogColor event) -> {
+            float scale = NutrientBlindnessFog.colorScale(event.getCamera().getFluidInCamera(),
+                    event.getCamera().getEntity());
+            if (scale < 1.0F) {
+                event.setRed(event.getRed() * scale);
+                event.setGreen(event.getGreen() * scale);
+                event.setBlue(event.getBlue() * scale);
+            }
+        });
 
         // Keybind registration is a MOD bus event; everything else below is on the game bus. Same
         // split as everywhere else in this mod, and getting it wrong fails silently.
-        RegisterKeyMappingsEvent.getBus(modBus).addListener(event ->
+        modBus.addListener((RegisterKeyMappingsEvent event) ->
                 event.register(DynamicNutritionKeys.OPEN_SCREEN));
 
-        // The HUD strip, added just above vanilla's food bar inside the hotbar stack, so it draws
-        // over the region the hunger bar owns rather than under it. The strip computes its own
-        // position, so this decides z-order and nothing else.
-        AddGuiOverlayLayersEvent.BUS.addListener(event -> event.getLayeredDraw().addAbove(
-                ForgeLayeredDraw.HOTBAR_AND_DECOS,
-                Identifier.withDefaultNamespace("food"),
-                Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrients"),
-                NutritionHud::render));
+        // The HUD strip is drawn by GuiHudMixin: Forge 52 has no HUD event to register it with.
 
         // Init.Post fires again whenever the screen re-inits, which the inventory does when the
         // recipe book is toggled and the panel moves.
-        ScreenEvent.Init.Post.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((ScreenEvent.Init.Post event) -> {
             if (!NutritionButton.enabled()
                     || !(event.getScreen() instanceof InventoryScreen inventory)) {
                 return;
@@ -64,16 +79,16 @@ public final class DynamicNutritionForgeClient {
                     NutritionButton.y(inventory.getGuiTop()), inventory));
         });
 
-        ItemTooltipEvent.BUS.addListener(event ->
+        MinecraftForge.EVENT_BUS.addListener((ItemTooltipEvent event) ->
                 FoodTooltip.appendTo(event.getItemStack(), event.getToolTip(),
                         event.getFlags().isAdvanced(), event.getEntity()));
 
-        TickEvent.ClientTickEvent.Post.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent.Post event) -> {
             Minecraft client = Minecraft.getInstance();
             // No "is a screen open" guard: vanilla only dispatches keybinds while no screen is open.
             while (DynamicNutritionKeys.OPEN_SCREEN.consumeClick()) {
                 if (client.player != null) {
-                    client.setScreenAndShow(new NutritionScreen(null));
+                    client.setScreen(new NutritionScreen(null));
                 }
             }
         });

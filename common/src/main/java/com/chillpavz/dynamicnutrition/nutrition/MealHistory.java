@@ -3,7 +3,7 @@ package com.chillpavz.dynamicnutrition.nutrition;
 import java.util.List;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
@@ -37,7 +37,7 @@ public final class MealHistory {
 
     /** The id this item is remembered under, or null if it somehow has no registry entry. */
     public static String key(Item item) {
-        Identifier id = BuiltInRegistries.ITEM.getKey(item);
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
         return id == null ? null : id.toString();
     }
 

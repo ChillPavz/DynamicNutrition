@@ -24,7 +24,7 @@ public final class NeoForgeNutritionEffects {
 
     static {
         for (NutrientEffects.Registration registration : NutrientEffects.registrations()) {
-            EFFECTS.register(registration.key().identifier().getPath(), registration::effect);
+            EFFECTS.register(registration.key().location().getPath(), registration::effect);
         }
     }
 
@@ -58,7 +58,7 @@ public final class NeoForgeNutritionEffects {
     public static void bind() {
         Map<ResourceKey<MobEffect>, Holder<MobEffect>> holders = new HashMap<>();
         for (NutrientEffects.Registration registration : NutrientEffects.registrations()) {
-            holders.put(registration.key(), BuiltInRegistries.MOB_EFFECT.getOrThrow(registration.key()));
+            holders.put(registration.key(), BuiltInRegistries.MOB_EFFECT.getHolderOrThrow(registration.key()));
         }
         NutrientEffects.bind(holders);
     }

@@ -1,6 +1,6 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.minecraftforge.gradle' version '[6.0.46,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'idea'
 }
@@ -89,27 +89,20 @@ minecraft {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 repositories {
-    // Cloth Config's Forge build for this Minecraft version is the unofficial cloth-config-forge
-    // port, which is published on Modrinth rather than on shedaniel's maven (official cloth stops
-    // shipping Forge builds after 1.21.3). Same mod id, 'cloth_config', and the same version number.
-    exclusiveContent {
-        forRepository { maven { url = 'https://api.modrinth.com/maven' } }
-        filter { includeGroup('maven.modrinth') }
-    }
+    // Official Cloth Config ships a Forge build at this Minecraft version, on shedaniel's maven.
+    maven { url = 'https://maven.shedaniel.me/' }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 
-    // "Cloth Config API Forge" (addavriance). Published on Modrinth, not shedaniel's maven, because
-    // it is his own Forge module re-enabled by someone else. REQUIRED on this band, same as the
-    // other two loaders.
-    // No fg.deobf: this module compiles against official mappings (mappings channel 'official',
-    // reobf = false above), and Forge has shipped official names since 1.20.6, so the published jar
-    // already matches. fg.deobf instead asks for a "..._mapped_official_1.21.11" artifact that
-    // nobody publishes, and fails to resolve.
-    implementation("maven.modrinth:cloth-config-forge:${cloth_config_version}")
+    // Official Cloth Config's Forge build: at this Minecraft version shedaniel still publishes one.
+    // REQUIRED on this band, same as the other two loaders.
+    implementation("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}")
+
+    // Forge's hack fix
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
 publishing {
@@ -127,20 +120,3 @@ sourceSets.each {
 }
 
 // Implement mcgradleconventions loader attribute
-def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-    configurations.named("$variant") {
-        attributes {
-            attribute(loaderAttribute, 'forge')
-        }
-    }
-}
-sourceSets.configureEach {
-    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
-        configurations.named("$variant") {
-            attributes {
-                attribute(loaderAttribute, 'forge')
-            }
-        }
-    }
-}

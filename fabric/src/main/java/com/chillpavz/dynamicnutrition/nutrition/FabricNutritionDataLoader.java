@@ -1,7 +1,7 @@
 package com.chillpavz.dynamicnutrition.nutrition;
 
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Fabric needs the reload listener to carry an id, and {@code IdentifiableResourceReloadListener} is
@@ -15,7 +15,7 @@ public class FabricNutritionDataLoader extends NutritionDataLoader
     }
 
     @Override
-    public Identifier getFabricId() {
+    public ResourceLocation getFabricId() {
         return NutritionDataLoader.ID;
     }
 }

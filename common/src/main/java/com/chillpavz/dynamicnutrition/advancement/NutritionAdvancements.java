@@ -2,7 +2,7 @@ package com.chillpavz.dynamicnutrition.advancement;
 
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -38,11 +38,11 @@ public final class NutritionAdvancements {
 
     private static final String CRITERION = "granted";
 
-    private static final Identifier BALANCED = id("balanced");
-    private static final Identifier SUSTAINED = id("sustained");
-    private static final Identifier COMPLETE_MEAL = id("complete_meal");
-    private static final Identifier DEFICIENT = id("deficient");
-    private static final Identifier RECOVERED = id("recovered");
+    private static final ResourceLocation BALANCED = id("balanced");
+    private static final ResourceLocation SUSTAINED = id("sustained");
+    private static final ResourceLocation COMPLETE_MEAL = id("complete_meal");
+    private static final ResourceLocation DEFICIENT = id("deficient");
+    private static final ResourceLocation RECOVERED = id("recovered");
 
     /**
      * A cooked dish, which is what {@code complete_meal} actually asks for.
@@ -53,13 +53,13 @@ public final class NutritionAdvancements {
      * convention tag means a modded stew qualifies with no work from us.
      */
     private static final TagKey<Item> SOUPS =
-            TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "foods/soup"));
+            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "foods/soup"));
 
     private NutritionAdvancements() {
     }
 
-    private static Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, path);
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
     }
 
     /**
@@ -68,7 +68,7 @@ public final class NutritionAdvancements {
      * <p>A datapack can remove any of these, and a player may have already earned it. Neither is an
      * error, and neither may throw on a player tick.
      */
-    private static void award(ServerPlayer player, Identifier advancement) {
+    private static void award(ServerPlayer player, ResourceLocation advancement) {
         try {
             MinecraftServer server = player.level().getServer();
             if (server == null) {

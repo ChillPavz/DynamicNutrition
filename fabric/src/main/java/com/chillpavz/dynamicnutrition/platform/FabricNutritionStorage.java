@@ -3,7 +3,7 @@ package com.chillpavz.dynamicnutrition.platform;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -25,7 +25,7 @@ public class FabricNutritionStorage implements INutritionStorage {
             .persistent(PlayerNutrition.CODEC)
             .copyOnDeath()
             .syncWith(PlayerNutrition.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
-            .buildAndRegister(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrition"));
+            .buildAndRegister(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition"));
 
     @Override
     public PlayerNutrition get(Player player) {

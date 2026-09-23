@@ -8,7 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -39,8 +39,8 @@ public class ForgeNutritionStorage implements INutritionStorage {
     public static final Capability<PlayerNutrition> CAPABILITY =
             CapabilityManager.get(new CapabilityToken<PlayerNutrition>() { });
 
-    public static final Identifier ID =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
+    public static final ResourceLocation ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition");
 
     /**
      * The provider Forge attaches, and the thing that saves the values into the player's own NBT.

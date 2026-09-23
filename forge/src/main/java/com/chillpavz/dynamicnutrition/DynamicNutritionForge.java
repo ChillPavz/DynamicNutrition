@@ -1,6 +1,9 @@
 package com.chillpavz.dynamicnutrition;
 
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -12,7 +15,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -32,11 +35,9 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
 /**
  * Forge entrypoint.
  *
- * <p>Forge 61 is on EventBus 8, a different shape from both older Forge and NeoForge:
- * {@code @Mod} takes a NO-ARG constructor, mod-bus events are subscribed through the mod's own
- * {@link BusGroup} via {@code SomeEvent.getBus(group)}, and game-bus events expose a static
- * {@code BUS}. Tell the two apart by whether the event implements {@code IModBusEvent}; the wrong
- * bus fails silently.
+ * <p>Forge 52 is on EventBus 6: mod-bus events go on the mod's own {@link IEventBus} and game-bus
+ * events on {@code MinecraftForge.EVENT_BUS}, each listener typed by its lambda parameter. Tell the
+ * two apart by whether the event implements {@code IModBusEvent}; the wrong bus fails silently.
  *
  * <p>The one real architectural difference from the other two loaders is that per-player state is a
  * CAPABILITY rather than an attachment, so persistence, copy-on-death and the sync to the owning
@@ -52,47 +53,48 @@ public class DynamicNutritionForge {
         // Touching the channel class is what builds it, and it must exist before anything sends.
         ForgeNutritionChannel.init();
 
-        BusGroup modBus = ModLoadingContext.get().getActiveContainer().getModBusGroup();
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        RegisterCapabilitiesEvent.getBus(modBus).addListener(event ->
+        modBus.addListener((RegisterCapabilitiesEvent event) ->
                 event.register(PlayerNutrition.class));
 
         ForgeNutritionEffects.register(modBus);
 
         // The holders only exist once registration has actually run, so the handover to the common
         // code waits for common setup rather than happening in this constructor.
-        FMLCommonSetupEvent.getBus(modBus).addListener(event -> ForgeNutritionEffects.bind());
+        modBus.addListener((FMLCommonSetupEvent event) -> ForgeNutritionEffects.bind());
 
         // ---- game bus ----
 
         // Every player gets the capability, on BOTH sides: the screen, the HUD strip and the
         // tooltips read the local player's values through the same service call the server uses.
-        AttachCapabilitiesEvent.Entities.BUS.addListener(event -> {
+        // A GENERIC event on EventBus 6, so it needs addGenericListener with the target class.
+        MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, (AttachCapabilitiesEvent<Entity> event) -> {
             if (event.getObject() instanceof Player) {
                 event.addCapability(ForgeNutritionStorage.ID, new ForgeNutritionStorage.Provider());
             }
         });
 
-        AddReloadListenerEvent.BUS.addListener(event ->
+        MinecraftForge.EVENT_BUS.addListener((AddReloadListenerEvent event) ->
                 event.addListener(new NutritionDataLoader(DynamicNutrition.table())));
 
-        RegisterCommandsEvent.BUS.addListener(event ->
+        MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NutritionCommands.register(event.getDispatcher()));
 
-        ServerStartedEvent.BUS.addListener(event ->
+        MinecraftForge.EVENT_BUS.addListener((ServerStartedEvent event) ->
                 DynamicNutrition.onServerStarted(event.getServer()));
-        ServerStoppedEvent.BUS.addListener(event -> DynamicNutrition.onServerStopped());
+        MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> DynamicNutrition.onServerStopped());
 
         // The eat hook. Forge has a real event for this, so unlike Fabric there is no mixin.
-        LivingEntityUseItemEvent.Finish.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((LivingEntityUseItemEvent.Finish event) -> {
             if (event.getEntity() instanceof ServerPlayer player) {
                 NutritionEvents.onFoodEaten(player, event.getItem());
             }
         });
 
-        // A record event on EventBus 8, so the player is an accessor rather than a field.
-        TickEvent.PlayerTickEvent.Post.BUS.addListener(event -> {
-            if (event.player() instanceof ServerPlayer player) {
+        // A plain field on EventBus 6; it became a record accessor at EventBus 8.
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.PlayerTickEvent.Post event) -> {
+            if (event.player instanceof ServerPlayer player) {
                 NutritionEvents.onPlayerTick(player);
                 // Drain the dirty flag once per tick, after everything that could have set it.
                 // This is the loader's sync on the other two; here it is ours.
@@ -100,7 +102,7 @@ public class DynamicNutritionForge {
             }
         });
 
-        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
             if (event.getEntity() instanceof ServerPlayer player) {
                 NutritionEvents.onPlayerJoin(player);
                 // The client entity is brand new and its capability is at the defaults, so send
@@ -109,13 +111,13 @@ public class DynamicNutritionForge {
             }
         });
 
-        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(event ->
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) ->
                 ForgeNutritionSync.forget(event.getEntity()));
 
         // Copy across death, which the other two loaders get from copyOnDeath() on the attachment.
         // Clone fires for a death respawn AND for an end-portal return; the common code decides
         // what each one costs, so the values are copied either way and the flag is passed through.
-        PlayerEvent.Clone.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.Clone event) -> {
             event.getOriginal().reviveCaps();
             event.getOriginal().getCapability(ForgeNutritionStorage.CAPABILITY).ifPresent(old ->
                     event.getEntity().getCapability(ForgeNutritionStorage.CAPABILITY)
@@ -123,12 +125,16 @@ public class DynamicNutritionForge {
             event.getOriginal().invalidateCaps();
             if (event.getEntity() instanceof ServerPlayer player) {
                 NutritionEvents.onRespawn(player, event.isWasDeath());
-                ForgeNutritionSync.sendNow(player);
+                // FLAGGED, not sent: Clone fires before the client is told about its new player
+                // entity, so a payload sent now lands on the old one and the new one shows the
+                // defaults (seen on Forge 52). The flag is drained at the end of the new player's
+                // first tick, after the respawn packet.
+                ForgeNutritionSync.markDirty(player);
             }
         });
 
         // A dimension change also gives the client a fresh entity, so it needs the values again.
-        PlayerEvent.PlayerChangedDimensionEvent.BUS.addListener(event -> {
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent event) -> {
             if (event.getEntity() instanceof ServerPlayer player) {
                 ForgeNutritionSync.sendNow(player);
             }

@@ -8,7 +8,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
@@ -40,8 +40,8 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  */
 public final class NutritionHud {
 
-    private static final Identifier STRIP =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/strip.png");
+    private static final ResourceLocation STRIP =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/strip.png");
 
     // Must match art/gen_art.py. The generator asserts the source art has this exact geometry, so
     // the two cannot drift without the art build failing first.

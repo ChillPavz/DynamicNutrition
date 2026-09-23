@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
 import com.chillpavz.dynamicnutrition.command.NutritionCommands;
@@ -22,16 +22,9 @@ import com.chillpavz.dynamicnutrition.platform.FabricNutritionStorage;
 
 public class DynamicNutritionFabric implements ModInitializer {
 
-    /**
-     * Ceiling for the food table packet. Measured at roughly ten bytes a food, so this is room for
-     * about eight hundred thousand of them: the point is to be far above any real pack rather than
-     * to be a meaningful limit.
-     */
-    private static final int MAX_TABLE_BYTES = 8 * 1024 * 1024;
-
     /** The respawn phase that runs after Fabric API has copied the attachment. See onInitialize. */
-    private static final Identifier AFTER_ATTACHMENT_COPY =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "after_attachment_copy");
+    private static final ResourceLocation AFTER_ATTACHMENT_COPY =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "after_attachment_copy");
 
     @Override
     public void onInitialize() {
@@ -47,11 +40,11 @@ public class DynamicNutritionFabric implements ModInitializer {
         // so it belongs here rather than in the client one. Registering it only client side would
         // make canSend answer false on an integrated server and the table would never be sent.
         //
-        // registerLarge, not register: a custom payload is capped at 32767 bytes in the play phase,
-        // and the whole food table of a large modpack is bigger than that. NeoForge splits an
-        // oversized payload itself (GenericPacketSplitter); on Fabric it has to be asked for.
-        PayloadTypeRegistry.playS2C().registerLarge(
-                NutritionSyncPayload.TYPE, NutritionSyncPayload.STREAM_CODEC, MAX_TABLE_BYTES);
+        // Plain register: Fabric API has no registerLarge on this band. A clientbound custom
+        // payload may be 1 MiB here, and the table is roughly ten bytes a food, so a pack would
+        // need about a hundred thousand foods to reach it.
+        PayloadTypeRegistry.playS2C().register(
+                NutritionSyncPayload.TYPE, NutritionSyncPayload.STREAM_CODEC);
 
         ResourceManagerHelper.get(PackType.SERVER_DATA)
                 .registerReloadListener(new FabricNutritionDataLoader(DynamicNutrition.table()));

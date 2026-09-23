@@ -22,7 +22,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -94,7 +94,7 @@ public final class NutritionCommands {
                         // exist and the levels are PermissionCheck objects tested against the
                         // source's own PermissionSet.
                         .requires(source ->
-                                Commands.LEVEL_GAMEMASTERS.check(source.permissions()))
+                                source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(NutritionCommands::export)));
     }
 
@@ -103,7 +103,7 @@ public final class NutritionCommands {
      * levels are {@code PermissionCheck} objects tested against the source's own set.
      */
     private static boolean isOperator(CommandSourceStack source) {
-        return Commands.LEVEL_GAMEMASTERS.check(source.permissions());
+        return source.hasPermission(Commands.LEVEL_GAMEMASTERS);
     }
 
     /**
@@ -195,7 +195,7 @@ public final class NutritionCommands {
                 }
                 NutritionValues values = DynamicNutrition.table().resolve(level, item);
                 if (values.isEmpty()) {
-                    Identifier id = BuiltInRegistries.ITEM.getKey(item);
+                    ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
                     empty.add(id == null ? item.toString() : id.toString());
                 }
             } catch (Throwable ignored) {
@@ -236,7 +236,7 @@ public final class NutritionCommands {
                 if (!NutritionTable.isEdible(item)) {
                     continue;
                 }
-                Identifier id = BuiltInRegistries.ITEM.getKey(item);
+                ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
                 foods.put(id == null ? item.toString() : id.toString(), item);
             } catch (Throwable ignored) {
                 // One awkward item must not cost the whole export.
@@ -274,7 +274,7 @@ public final class NutritionCommands {
                         if (i > 0) {
                             row.append(' ');
                         }
-                        Identifier from = BuiltInRegistries.ITEM.getKey(origin.from().get(i));
+                        ResourceLocation from = BuiltInRegistries.ITEM.getKey(origin.from().get(i));
                         row.append(from == null ? "?" : from.toString());
                     }
                     w.write(row.append(System.lineSeparator()).toString());

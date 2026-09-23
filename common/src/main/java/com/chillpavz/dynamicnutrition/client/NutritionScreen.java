@@ -7,11 +7,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -44,16 +42,16 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  */
 public class NutritionScreen extends Screen {
 
-    private static final Identifier PANEL =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "panel");
+    private static final ResourceLocation PANEL =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "panel");
 
     /** The panel sprite's size and nine slice border. These MUST match panel.png.mcmeta. */
     private static final int PANEL_SPRITE = 8;
     private static final int PANEL_BORDER = 3;
-    private static final Identifier BARS =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/bars.png");
-    private static final Identifier ARROWS =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/arrows.png");
+    private static final ResourceLocation BARS =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/bars.png");
+    private static final ResourceLocation ARROWS =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/arrows.png");
 
     /** The back arrow sheet: two 10x8 arrows side by side, normal then hover, with a 1px gap. */
     private static final int ARROW_W = 10;
@@ -134,10 +132,8 @@ public class NutritionScreen extends Screen {
     /**
      * The back arrow.
      *
-     * <p>Icon only, so it overrides {@code renderContents} and does not call
-     * {@code renderDefaultSprite}: {@code renderWidget} is final on
-     * {@code AbstractButton}, and a bevelled button frame around a ten by eight arrow would leave no
-     * room for the arrow. Vanilla's own recipe book button is built the same way.
+     * <p>Icon only, so it overrides {@code renderWidget} and draws no button frame: a bevelled
+     * frame around a ten by eight arrow would leave no room for the arrow. Vanilla's own recipe book button is built the same way.
      *
      * <p>It is shown whether or not there is a parent screen. With one it goes back to the
      * inventory, without one it closes to the world, and both are what a player means by "back".
@@ -150,9 +146,10 @@ public class NutritionScreen extends Screen {
             setTooltip(Tooltip.create(Component.translatable("gui.back")));
         }
 
+        // renderWidget is overridable on this band; the icon replaces the whole default button.
         @Override
-        protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY,
-                                       float partialTick) {
+        protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY,
+                                    float partialTick) {
             // The hover arrow is the second one on the sheet. Both keep the dark outline, so
             // contrast never drops on hover; only the interior lights up.
             int u = isHoveredOrFocused() ? ARROW_W + 1 : 0;
@@ -209,8 +206,8 @@ public class NutritionScreen extends Screen {
             if (mouseX >= barX && mouseX < barX + BAR_W && mouseY >= barY && mouseY < barY + BAR_H) {
                 List<Component> tip = tooltipFor(nutrient);
                 if (!tip.isEmpty()) {
-                    gfx.setTooltipForNextFrame(this.font, tip, java.util.Optional.empty(),
-                            mouseX, mouseY);
+                    // Deferred to the end of the frame, so the widgets drawn after it cannot cover it.
+                    setTooltipForNextRenderPass(tip.stream().map(Component::getVisualOrderText).toList());
                 }
             }
             index++;
@@ -293,38 +290,33 @@ public class NutritionScreen extends Screen {
             case "minerals" -> "minecraft:dried_kelp";
             default -> "minecraft:apple";
         };
-        Identifier key = Identifier.parse(id);
+        ResourceLocation key = ResourceLocation.parse(id);
         // Defaulted registry: an absent id resolves to AIR rather than null, so ask before taking.
         return BuiltInRegistries.ITEM.containsKey(key)
-                ? new ItemStack(BuiltInRegistries.ITEM.getValue(key))
+                ? new ItemStack(BuiltInRegistries.ITEM.get(key))
                 : ItemStack.EMPTY;
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return super.mouseClicked(event, doubleClick);
-    }
-
-    @Override
-    public boolean keyPressed(KeyEvent event) {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Closing on the inventory key as well as escape is what a player expects from a panel they
         // opened from the inventory, which is what a player expects from a panel they opened
         // from there.
-        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(event)) {
+        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
             this.onClose();
             return true;
         }
-        if (DynamicNutritionKeys.OPEN_SCREEN.matches(event)) {
+        if (DynamicNutritionKeys.OPEN_SCREEN.matches(keyCode, scanCode)) {
             this.onClose();
             return true;
         }
-        return super.keyPressed(event);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public void onClose() {
         if (this.minecraft != null) {
-            this.minecraft.setScreenAndShow(parent);
+            this.minecraft.setScreen(parent);
         } else {
             super.onClose();
         }

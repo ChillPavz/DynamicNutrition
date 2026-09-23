@@ -1,7 +1,6 @@
 package com.chillpavz.dynamicnutrition.config;
 
 import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.AutoConfigClient;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.minecraftforge.fml.ModList;
@@ -86,10 +85,9 @@ public final class ClothCompat {
             return null;
         }
         try {
-            // AutoConfigClient, not AutoConfig: cloth split the GUI entry point out at 26.1 so the
-            // server-safe class stops referencing screen types, and AutoConfig.getConfigScreen is
-            // gone from 26.1 onward.
-            return AutoConfigClient.getConfigScreen(ClothConfigData.class, parent).get();
+            // AutoConfig on this band. Cloth split the GUI entry point out into AutoConfigClient at
+            // 26.1; before that the screen comes from AutoConfig itself.
+            return AutoConfig.getConfigScreen(ClothConfigData.class, parent).get();
         } catch (Throwable t) {
             Constants.LOG.warn("Could not open the config screen: {}", t.toString());
             return null;

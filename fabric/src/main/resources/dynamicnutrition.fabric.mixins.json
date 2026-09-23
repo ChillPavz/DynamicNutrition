@@ -10,7 +10,8 @@
   ],
   "client": [
     "GuiEffectsMixin",
-    "EffectsInInventoryMixin"
+    "EffectsInInventoryMixin",
+    "FogRendererMixin"
   ],
   "server": [],
   "injectors": {

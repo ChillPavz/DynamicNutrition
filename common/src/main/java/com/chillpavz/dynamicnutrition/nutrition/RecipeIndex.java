@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.display.RecipeDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import com.chillpavz.dynamicnutrition.Constants;
 
@@ -41,15 +41,15 @@ public final class RecipeIndex {
 
     /** Recipes producing this item, empty if none. Builds or rebuilds the index as needed. */
     public List<RecipeHolder<?>> recipesFor(ServerLevel level, Item item) {
-        RecipeManager manager = level.recipeAccess();
+        RecipeManager manager = level.getRecipeManager();
         if (byOutput == null || builtFrom != manager) {
-            build(manager);
+            build(manager, level.registryAccess());
         }
         List<RecipeHolder<?>> found = byOutput.get(item);
         return found != null ? found : Collections.emptyList();
     }
 
-    private void build(RecipeManager manager) {
+    private void build(RecipeManager manager, HolderLookup.Provider registries) {
         long start = System.currentTimeMillis();
         Map<Item, List<RecipeHolder<?>>> index = new HashMap<>();
         Set<Item> outputs = new HashSet<>();
@@ -58,11 +58,14 @@ public final class RecipeIndex {
         for (RecipeHolder<?> holder : manager.getRecipes()) {
             outputs.clear();
             try {
-                for (RecipeDisplay display : holder.value().display()) {
-                    collectOutputs(display.result(), outputs);
+                // One result per recipe on this band. The 26.x recipe display tree, with several
+                // possible results, arrived at 1.21.2.
+                ItemStack result = holder.value().getResultItem(registries);
+                if (result != null && !result.isEmpty()) {
+                    outputs.add(result.getItem());
                 }
             } catch (Throwable t) {
-                // Some modded recipes throw from display() outside a crafting context. Skipping the
+                // Some modded recipes throw from getResultItem outside a crafting context. Skipping the
                 // offender is right; letting it abort the build would lose the whole index and
                 // silently disable derivation for every food in the game.
                 skipped++;
@@ -77,27 +80,7 @@ public final class RecipeIndex {
         builtFrom = manager;
         Constants.LOG.info("Built recipe output index: {} items, {} ms{}",
                 index.size(), System.currentTimeMillis() - start,
-                skipped > 0 ? ", skipped " + skipped + " recipes that threw from display()" : "");
-    }
-
-    /**
-     * A recipe's result is a TREE, not an item. Walk it.
-     *
-     * <p>There is no "get the output item" call on {@link RecipeDisplay}; the result is a
-     * {@link SlotDisplay} which may be a single item, a stack, or a composite of several.
-     */
-    private static void collectOutputs(SlotDisplay display, Set<Item> sink) {
-        if (display instanceof SlotDisplay.ItemSlotDisplay item) {
-            sink.add(item.item().value());
-        } else if (display instanceof SlotDisplay.ItemStackSlotDisplay stack) {
-            // ItemStack is not a record here: 26.x's item() accessor returning Holder<Item>
-            // arrived later, so this band asks the stack for the Item directly.
-            sink.add(stack.stack().getItem());
-        } else if (display instanceof SlotDisplay.Composite composite) {
-            for (SlotDisplay inner : composite.contents()) {
-                collectOutputs(inner, sink);
-            }
-        }
+                skipped > 0 ? ", skipped " + skipped + " recipes that threw from getResultItem()" : "");
     }
 
     /** Drop the index. Called on server stop so nothing holds a dead RecipeManager. */

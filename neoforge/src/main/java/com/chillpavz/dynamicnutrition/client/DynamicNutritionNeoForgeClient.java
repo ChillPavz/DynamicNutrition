@@ -1,5 +1,9 @@
 package com.chillpavz.dynamicnutrition.client;
 
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.bus.api.IEventBus;
@@ -8,7 +12,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -34,8 +38,34 @@ public final class DynamicNutritionNeoForgeClient {
     private DynamicNutritionNeoForgeClient() {
     }
 
+    /** The inventory's effect list as NeoForge last drew it, for the wide-layout hover. */
+    private static boolean effectsDrawn;
+    private static boolean effectsCompact;
+    private static int effectsOffset;
+
     public static void init(IEventBus modBus, ModContainer container) {
-        NutrientBlindnessFog.install();
+        // The vitamins debuff's fog. Both events fire after vanilla has chosen its own fog, and the
+        // distances are only applied when the event is cancelled, so it is cancelled only when the
+        // debuff applies.
+        NeoForge.EVENT_BUS.addListener(ViewportEvent.RenderFog.class, event -> {
+            float[] fog = NutrientBlindnessFog.distances(event.getType(), event.getCamera().getEntity(),
+                    Minecraft.getInstance().gameRenderer.getRenderDistance(),
+                    event.getMode() == FogRenderer.FogMode.FOG_SKY);
+            if (fog != null) {
+                event.setNearPlaneDistance(fog[0]);
+                event.setFarPlaneDistance(fog[1]);
+                event.setCanceled(true);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(ViewportEvent.ComputeFogColor.class, event -> {
+            float scale = NutrientBlindnessFog.colorScale(event.getCamera().getFluidInCamera(),
+                    event.getCamera().getEntity());
+            if (scale < 1.0F) {
+                event.setRed(event.getRed() * scale);
+                event.setGreen(event.getGreen() * scale);
+                event.setBlue(event.getBlue() * scale);
+            }
+        });
 
         // NeoForge asks each effect's client extension whether to draw it. The two display effects
         // answer with this player's preferences; the ten 1.5.0 ids are never drawn, as the server
@@ -61,9 +91,36 @@ public final class DynamicNutritionNeoForgeClient {
         });
 
         // Hovering Well Nourished or Malnourished beside the inventory lists what it stands for.
-        // Fired by NeoForge for every hovered effect, whether or not its name is cut off.
+        // On this band vanilla has a tooltip only in the COMPACT layout, and NeoForge's gather
+        // event fires only there, so it covers that half.
         NeoForge.EVENT_BUS.addListener(GatherEffectScreenTooltipsEvent.class, event ->
                 EffectDisplay.addHover(event.getEffectInstance(), event.getTooltip()));
+
+        // The WIDE layout has no tooltip at all, so ours is drawn after the screen. NeoForge decides
+        // the layout (and any offset another mod asks for) in RenderInventoryMobEffects; it is read
+        // at LOWEST so the hit test uses the layout that was actually drawn, and a cancelled event
+        // (effects hidden) never arrives, which leaves effectsDrawn false.
+        NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Pre.class, event -> effectsDrawn = false);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ScreenEvent.RenderInventoryMobEffects.class,
+                event -> {
+                    effectsDrawn = true;
+                    effectsCompact = event.isCompact();
+                    effectsOffset = event.getHorizontalOffset();
+                });
+        NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Post.class, event -> {
+            if (!effectsDrawn || effectsCompact
+                    || !(event.getScreen() instanceof EffectRenderingInventoryScreen<?> screen)) {
+                return;
+            }
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null) {
+                return;
+            }
+            int x = screen.getGuiLeft() + screen.getXSize() + 2 + effectsOffset;
+            EffectDisplay.wideHover(event.getGuiGraphics(), client.font,
+                    EffectDisplay.forInventory(client.player.getActiveEffects()), x,
+                    screen.getGuiTop(), screen.width - x, event.getMouseX(), event.getMouseY());
+        });
 
         // Keybind registration is a MOD bus event; the tick is a GAME bus event. Same split as
         // everywhere else in this mod, and getting it wrong fails silently.
@@ -74,7 +131,7 @@ public final class DynamicNutritionNeoForgeClient {
         // same region the hunger bar owns rather than under it.
         modBus.addListener(RegisterGuiLayersEvent.class, event ->
                 event.registerAbove(VanillaGuiLayers.FOOD_LEVEL,
-                        Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrients"),
+                        ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrients"),
                         NutritionHud::render));
 
         // Init.Post is a GAME bus event and fires again whenever the screen re-inits, which the
@@ -99,7 +156,7 @@ public final class DynamicNutritionNeoForgeClient {
             // vanilla only dispatches keybinds while no screen is open.
             while (DynamicNutritionKeys.OPEN_SCREEN.consumeClick()) {
                 if (client.player != null) {
-                    client.setScreenAndShow(new NutritionScreen(null));
+                    client.setScreen(new NutritionScreen(null));
                 }
             }
         });

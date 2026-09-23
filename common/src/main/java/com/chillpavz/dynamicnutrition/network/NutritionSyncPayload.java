@@ -11,7 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -66,7 +66,7 @@ public record NutritionSyncPayload(List<String> nutrientNames,
 
     public static final CustomPacketPayload.Type<NutritionSyncPayload> TYPE =
             new CustomPacketPayload.Type<>(
-                    Identifier.fromNamespaceAndPath(Constants.MOD_ID, "nutrition_sync"));
+                    ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrition_sync"));
 
     /**
      * Generous ceilings. A large modpack can carry several thousand foods, and the default
