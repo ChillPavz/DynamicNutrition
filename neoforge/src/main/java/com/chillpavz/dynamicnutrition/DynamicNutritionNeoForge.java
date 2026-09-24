@@ -1,6 +1,7 @@
 package com.chillpavz.dynamicnutrition;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -101,7 +102,10 @@ public class DynamicNutritionNeoForge {
             }
         });
 
-        gameBus.addListener(PlayerEvent.Clone.class, event -> {
+        // LOWEST, because NeoForge copies copyOnDeath attachments in its own Clone listener at the
+        // default priority. Run beside it and ours can charge the death to the fresh defaults,
+        // which the floor ignores, before the copy overwrites them: a death then costs nothing.
+        gameBus.addListener(EventPriority.LOWEST, PlayerEvent.Clone.class, event -> {
             if (event.getEntity() instanceof ServerPlayer player) {
                 NutritionEvents.onRespawn(player, event.isWasDeath());
             }

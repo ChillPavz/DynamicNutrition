@@ -2,12 +2,14 @@ package com.chillpavz.dynamicnutrition;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 
 import com.chillpavz.dynamicnutrition.command.NutritionCommands;
@@ -26,6 +28,10 @@ public class DynamicNutritionFabric implements ModInitializer {
      * to be a meaningful limit.
      */
     private static final int MAX_TABLE_BYTES = 8 * 1024 * 1024;
+
+    /** The respawn phase that runs after Fabric API has copied the attachment. See onInitialize. */
+    private static final Identifier AFTER_ATTACHMENT_COPY =
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "after_attachment_copy");
 
     @Override
     public void onInitialize() {
@@ -62,7 +68,12 @@ public class DynamicNutritionFabric implements ModInitializer {
             }
         });
 
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) ->
+        // Fabric API copies copyOnDeath attachments in its OWN AFTER_RESPAWN listener, in the
+        // default phase. Registered alongside it, ours can run first, charge the death to the fresh
+        // defaults (which the floor then ignores) and have the copy overwrite the result, so a death
+        // silently costs nothing. A phase ordered after the default makes the copy land first.
+        ServerPlayerEvents.AFTER_RESPAWN.addPhaseOrdering(Event.DEFAULT_PHASE, AFTER_ATTACHMENT_COPY);
+        ServerPlayerEvents.AFTER_RESPAWN.register(AFTER_ATTACHMENT_COPY, (oldPlayer, newPlayer, alive) ->
                 NutritionEvents.onRespawn(newPlayer, !alive));
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
