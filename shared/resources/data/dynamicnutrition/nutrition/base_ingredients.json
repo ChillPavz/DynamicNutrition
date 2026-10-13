@@ -1,0 +1,785 @@
+{
+  "braziliandelight:salt": {
+    "minerals": 15
+  },
+  "candlelight:mozzarella": {
+    "carbohydrates": 1,
+    "fat": 13,
+    "minerals": 8,
+    "protein": 11,
+    "vitamins": 2
+  },
+  "cornexpansion:corn_flour": {
+    "carbohydrates": 21,
+    "fat": 2,
+    "minerals": 2,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "create:dough": {
+    "carbohydrates": 14,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "createfood:bread_slice": {
+    "carbohydrates": 8,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 1
+  },
+  "createfood:bun": {
+    "carbohydrates": 16,
+    "fat": 2,
+    "minerals": 3,
+    "protein": 4,
+    "vitamins": 2
+  },
+  "createfood:condensed_milk_bottle": {
+    "carbohydrates": 15,
+    "fat": 4,
+    "minerals": 4,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "createfood:heavy_cream_bottle": {
+    "carbohydrates": 1,
+    "fat": 17,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 2
+  },
+  "createfood:marshmallow": {
+    "carbohydrates": 22,
+    "protein": 1
+  },
+  "createfood:pasta": {
+    "carbohydrates": 21,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 5,
+    "vitamins": 1
+  },
+  "croptopia:almond": {
+    "carbohydrates": 2,
+    "fat": 7,
+    "minerals": 2,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "croptopia:apricot": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "croptopia:artichoke": {
+    "carbohydrates": 3,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 3
+  },
+  "croptopia:asparagus": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 5
+  },
+  "croptopia:avocado": {
+    "carbohydrates": 2,
+    "fat": 6,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "croptopia:banana": {
+    "carbohydrates": 6,
+    "minerals": 2,
+    "vitamins": 2
+  },
+  "croptopia:barley": {
+    "carbohydrates": 12,
+    "fat": 1,
+    "minerals": 3,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "croptopia:bellpepper": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 9
+  },
+  "croptopia:blackberry": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "croptopia:blueberry": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:broccoli": {
+    "carbohydrates": 2,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 10
+  },
+  "croptopia:butter": {
+    "fat": 12,
+    "vitamins": 1
+  },
+  "croptopia:cabbage": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 6
+  },
+  "croptopia:cantaloupe": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 5
+  },
+  "croptopia:cauliflower": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 6
+  },
+  "croptopia:celery": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:cherry": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:chile_pepper": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 6
+  },
+  "croptopia:coconut": {
+    "carbohydrates": 2,
+    "fat": 10,
+    "minerals": 2,
+    "protein": 1
+  },
+  "croptopia:corn": {
+    "carbohydrates": 5,
+    "fat": 1,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 2
+  },
+  "croptopia:cranberry": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:cucumber": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 1
+  },
+  "croptopia:currant": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 7
+  },
+  "croptopia:date": {
+    "carbohydrates": 12,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 1
+  },
+  "croptopia:dragonfruit": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:eggplant": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 1
+  },
+  "croptopia:elderberry": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 5
+  },
+  "croptopia:fig": {
+    "carbohydrates": 5,
+    "minerals": 1,
+    "vitamins": 1
+  },
+  "croptopia:garlic": {
+    "carbohydrates": 5,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 2
+  },
+  "croptopia:grape": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:grapefruit": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 5
+  },
+  "croptopia:greenbean": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "croptopia:greenonion": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 6
+  },
+  "croptopia:honeydew": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 3
+  },
+  "croptopia:kale": {
+    "carbohydrates": 2,
+    "minerals": 3,
+    "protein": 2,
+    "vitamins": 12
+  },
+  "croptopia:kiwi": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 9
+  },
+  "croptopia:kumquat": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 5
+  },
+  "croptopia:leek": {
+    "carbohydrates": 3,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "croptopia:lemon": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 6
+  },
+  "croptopia:lettuce": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 6
+  },
+  "croptopia:lime": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:mango": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 5
+  },
+  "croptopia:nectarine": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:oat": {
+    "carbohydrates": 11,
+    "fat": 2,
+    "minerals": 4,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "croptopia:olive": {
+    "carbohydrates": 1,
+    "fat": 3,
+    "minerals": 1,
+    "vitamins": 1
+  },
+  "croptopia:olive_oil": {
+    "fat": 14
+  },
+  "croptopia:onion": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:orange": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 6
+  },
+  "croptopia:peach": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:pear": {
+    "carbohydrates": 4,
+    "minerals": 1,
+    "vitamins": 1
+  },
+  "croptopia:pecan": {
+    "carbohydrates": 1,
+    "fat": 10,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 1
+  },
+  "croptopia:pepper": {
+    "carbohydrates": 18,
+    "fat": 2,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "croptopia:persimmon": {
+    "carbohydrates": 5,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:pineapple": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 5
+  },
+  "croptopia:plum": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:radish": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:raspberry": {
+    "carbohydrates": 3,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:rhubarb": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 2
+  },
+  "croptopia:rice": {
+    "carbohydrates": 13,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 1
+  },
+  "croptopia:rutabaga": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:saguaro": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:soybean": {
+    "carbohydrates": 5,
+    "fat": 6,
+    "minerals": 4,
+    "protein": 9,
+    "vitamins": 2
+  },
+  "croptopia:spinach": {
+    "carbohydrates": 1,
+    "minerals": 5,
+    "protein": 1,
+    "vitamins": 12
+  },
+  "croptopia:squash": {
+    "carbohydrates": 3,
+    "minerals": 2,
+    "vitamins": 7
+  },
+  "croptopia:starfruit": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "croptopia:strawberry": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 7
+  },
+  "croptopia:sweetpotato": {
+    "carbohydrates": 5,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 8
+  },
+  "croptopia:tomatillo": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:tomato": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 5
+  },
+  "croptopia:turnip": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "vitamins": 3
+  },
+  "croptopia:walnut": {
+    "carbohydrates": 1,
+    "fat": 9,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 1
+  },
+  "croptopia:yam": {
+    "carbohydrates": 7,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 3
+  },
+  "croptopia:zucchini": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 4
+  },
+  "farmersdelight:bacon": {
+    "fat": 17,
+    "minerals": 2,
+    "protein": 5,
+    "vitamins": 1
+  },
+  "farmersdelight:beef_patty": {
+    "fat": 11,
+    "minerals": 8,
+    "protein": 15,
+    "vitamins": 3
+  },
+  "farmersdelight:cabbage": {
+    "carbohydrates": 3,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 13
+  },
+  "farmersdelight:cabbage_leaf": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 6
+  },
+  "farmersdelight:chicken_cuts": {
+    "fat": 3,
+    "minerals": 3,
+    "protein": 8,
+    "vitamins": 1
+  },
+  "farmersdelight:cod_slice": {
+    "minerals": 4,
+    "protein": 6,
+    "vitamins": 2
+  },
+  "farmersdelight:cooked_bacon": {
+    "fat": 14,
+    "minerals": 2,
+    "protein": 10,
+    "vitamins": 1
+  },
+  "farmersdelight:cooked_chicken_cuts": {
+    "fat": 3,
+    "minerals": 3,
+    "protein": 11,
+    "vitamins": 2
+  },
+  "farmersdelight:cooked_cod_slice": {
+    "minerals": 4,
+    "protein": 7,
+    "vitamins": 2
+  },
+  "farmersdelight:cooked_mutton_chops": {
+    "fat": 9,
+    "minerals": 5,
+    "protein": 9,
+    "vitamins": 2
+  },
+  "farmersdelight:cooked_rice": {
+    "carbohydrates": 21,
+    "minerals": 4,
+    "protein": 3,
+    "vitamins": 2
+  },
+  "farmersdelight:cooked_salmon_slice": {
+    "fat": 5,
+    "minerals": 5,
+    "protein": 8,
+    "vitamins": 5
+  },
+  "farmersdelight:fried_egg": {
+    "fat": 7,
+    "minerals": 4,
+    "protein": 5,
+    "vitamins": 6
+  },
+  "farmersdelight:ham": {
+    "carbohydrates": 1,
+    "fat": 11,
+    "minerals": 11,
+    "protein": 17,
+    "vitamins": 8
+  },
+  "farmersdelight:milk_bottle": {
+    "carbohydrates": 1,
+    "fat": 2,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 3
+  },
+  "farmersdelight:minced_beef": {
+    "fat": 7,
+    "minerals": 4,
+    "protein": 8,
+    "vitamins": 2
+  },
+  "farmersdelight:mutton_chops": {
+    "fat": 7,
+    "minerals": 4,
+    "protein": 7,
+    "vitamins": 1
+  },
+  "farmersdelight:onion": {
+    "carbohydrates": 5,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "farmersdelight:pumpkin_slice": {
+    "carbohydrates": 5,
+    "minerals": 5,
+    "protein": 1,
+    "vitamins": 21
+  },
+  "farmersdelight:raw_pasta": {
+    "carbohydrates": 15,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "farmersdelight:rice": {
+    "carbohydrates": 22,
+    "minerals": 3,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "farmersdelight:salmon_slice": {
+    "fat": 5,
+    "minerals": 4,
+    "protein": 6,
+    "vitamins": 5
+  },
+  "farmersdelight:smoked_ham": {
+    "carbohydrates": 1,
+    "fat": 13,
+    "minerals": 14,
+    "protein": 25,
+    "vitamins": 10
+  },
+  "farmersdelight:tomato": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 5
+  },
+  "farmersdelight:tomato_sauce": {
+    "carbohydrates": 3,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 8
+  },
+  "farmersdelight:wheat_dough": {
+    "carbohydrates": 14,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "herbsandharvest:cabbage": {
+    "carbohydrates": 3,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 13
+  },
+  "herbsandharvest:corn": {
+    "carbohydrates": 5,
+    "fat": 1,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 2
+  },
+  "herbsandharvest:onion": {
+    "carbohydrates": 5,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "herbsandharvest:rice_item": {
+    "carbohydrates": 22,
+    "minerals": 3,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "herbsandharvest:tomato": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 5
+  },
+  "meadow:cheese_slice": {
+    "fat": 9,
+    "minerals": 4,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "meadow:piece_of_cheese": {
+    "fat": 19,
+    "minerals": 9,
+    "protein": 12,
+    "vitamins": 2
+  },
+  "pamhc2crops:onionitem": {
+    "carbohydrates": 5,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "pamhc2foodcore:batteritem": {
+    "carbohydrates": 7,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 2
+  },
+  "pamhc2foodcore:caramelitem": {
+    "carbohydrates": 21,
+    "fat": 3,
+    "minerals": 1
+  },
+  "pamhc2foodcore:chocolatebaritem": {
+    "carbohydrates": 17,
+    "fat": 14,
+    "minerals": 4,
+    "protein": 2
+  },
+  "pamhc2foodcore:flouritem": {
+    "carbohydrates": 21,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "pamhc2foodcore:pastaitem": {
+    "carbohydrates": 21,
+    "fat": 1,
+    "minerals": 2,
+    "protein": 5,
+    "vitamins": 1
+  },
+  "pamhc2foodcore:saltitem": {
+    "minerals": 15
+  },
+  "pamhc2foodcore:stockitem": {
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 1
+  },
+  "pamhc2foodcore:sunflowerseedsitem": {
+    "carbohydrates": 2,
+    "fat": 7,
+    "minerals": 2,
+    "protein": 3,
+    "vitamins": 2
+  },
+  "pamhc2foodcore:toastitem": {
+    "carbohydrates": 16,
+    "fat": 2,
+    "minerals": 4,
+    "protein": 4,
+    "vitamins": 2
+  },
+  "pamhc2foodcore:yogurtitem": {
+    "carbohydrates": 1,
+    "fat": 2,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 2
+  },
+  "pamhc2foodextended:almondbutteritem": {
+    "carbohydrates": 5,
+    "fat": 27,
+    "minerals": 7,
+    "protein": 8,
+    "vitamins": 4
+  },
+  "pamhc2foodextended:groundcinnamonitem": {
+    "carbohydrates": 22,
+    "fat": 1,
+    "minerals": 6,
+    "protein": 2,
+    "vitamins": 1
+  },
+  "pamhc2foodextended:sesameoilitem": {
+    "fat": 14
+  },
+  "pamhc2foodextended:silkentofuitem": {
+    "carbohydrates": 1,
+    "fat": 1,
+    "minerals": 3,
+    "protein": 2,
+    "vitamins": 1
+  },
+  "pamhc2trees:lemonitem": {
+    "carbohydrates": 5,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 13
+  },
+  "veggiesdelight:bellpepper": {
+    "carbohydrates": 1,
+    "minerals": 1,
+    "vitamins": 9
+  },
+  "veggiesdelight:garlic": {
+    "carbohydrates": 5,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 2
+  },
+  "vintagedelight:cheese_slice": {
+    "fat": 9,
+    "minerals": 4,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "vintagedelight:salt_dust": {
+    "minerals": 15
+  },
+  "youkaishomecoming:butter": {
+    "fat": 12,
+    "vitamins": 1
+  }
+}
