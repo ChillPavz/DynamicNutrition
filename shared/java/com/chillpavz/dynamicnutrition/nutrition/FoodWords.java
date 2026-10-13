@@ -42,9 +42,15 @@ public final class FoodWords {
                     "nigiri", "sashimi", "otoro", "onigiri", "snail", "escargot", "perch", "pike",
                     "carp", "trout", "bass", "herring", "mackerel", "halibut", "sturgeon", "tilapia",
                     "minnow", "piranha", "lutefisk", "clawster", "uni", "filet", "algae",
+                    // Species the fishing mods add, and the parts their invented fish are named by.
+                    "bream", "snapper", "koi", "chub", "arowana", "arapaima", "barbel", "knifejaw",
+                    "bitterling", "bluegill", "coelacanth", "dab", "dace", "goby", "snakehead", "guppy",
+                    "loach", "marlin", "flounder", "smelt", "seahorse", "darter", "char", "pollock",
+                    "haddock", "bonito", "barracuda", "grouper", "walleye", "shark", "sharks", "gill",
+                    "fin", "fins", "ceviche",
                     // Offal: protein, with the iron and other minerals organ meat is known for.
                     "liver", "kidney", "heart", "lungs", "lung", "stomach", "intestines", "tongue",
-                    "gizzard", "blood", "brain"),
+                    "gizzard", "blood", "brain", "nose", "snout"),
             word(List.of(Nutrients.PROTEIN, Nutrients.FAT),
                     "meat", "meats", "beef", "pork", "porkchop", "mutton", "chicken", "steak",
                     "bacon", "ham", "sausage", "sausages", "jerky", "egg", "eggs", "cheese", "milk",
@@ -56,7 +62,8 @@ public final class FoodWords {
                     "turkey", "duck", "goose", "boar", "tail", "yogurt", "yoghurt", "natto", "nattou",
                     "flesh", "pepperoni", "salami", "pastrami", "brisket", "carnitas", "gyro",
                     "dumpling", "wonton", "mince", "rib", "bison", "moose", "camel", "frog", "wing",
-                    "wings", "stroganoff", "fondue", "maggot"),
+                    "wings", "stroganoff", "fondue", "maggot", "karaage", "tonkatsu", "wurst", "haggis",
+                    "tartare", "kabob", "kabobs", "hotdog"),
             word(List.of(Nutrients.CARBOHYDRATES, Nutrients.VITAMINS),
                     "juice", "fruit", "fruits", "berry", "berries", "grape", "grapes", "apple",
                     "apples", "cherry", "cherries", "pineapple", "melon", "hamimelon", "durian",
@@ -66,7 +73,7 @@ public final class FoodWords {
                     "persimmon", "starfruit", "dragonfruit", "cantaloupe", "honeydew", "watermelon",
                     "raisin", "saguaro", "pomegranate", "papaya", "guava", "lychee", "passionfruit",
                     "tangerine", "mandarin", "citrus", "jam", "smoothie", "lemonade", "limeade",
-                    "wolfberries", "goji", "ketchup", "compote", "marmalade", "sorbet", "nectar",
+                    "wolfberries", "goji", "ketchup", "compote", "marmalade", "sorbet", "nectar", "pomelo",
                     "chutney", "puree"),
             word(List.of(Nutrients.VITAMINS, Nutrients.MINERALS),
                     "vegetable", "vegetables", "salad", "greens", "mushroom", "mushrooms", "cabbage",
@@ -79,7 +86,7 @@ public final class FoodWords {
                     "mint", "oregano", "parsley", "rosemary", "sage", "thyme", "leaf", "leaves",
                     "pickle", "pickles", "kimchi", "sauerkraut", "bok", "choy", "fungus", "truffle",
                     "sprout", "sprouts", "shoot", "shoots", "root", "roots", "lichen", "capsicum",
-                    "aloe", "yucca", "cactus"),
+                    "aloe", "yucca", "cactus", "salsa", "umeboshi", "tsukemono", "wheatgrass"),
             word(List.of(Nutrients.CARBOHYDRATES, Nutrients.MINERALS),
                     "potato", "potatoes", "sweetpotato", "yam", "cassava", "taro", "fries", "chips",
                     "hashbrown", "hashbrowns"),
@@ -96,7 +103,8 @@ public final class FoodWords {
                     "bean", "beans", "blackbean", "lentil", "lentils", "chickpea", "chickpeas",
                     "hummus", "falafel", "lasagna", "lasagne", "pizza", "taco", "tacos", "burrito",
                     "sandwich", "sandwiches", "wrap", "quiche", "pasty", "calzone", "ravioli",
-                    "bolognese", "feijoada", "khinkali", "pierogi", "empanada", "bruschetta"),
+                    "bolognese", "feijoada", "khinkali", "pierogi", "empanada", "bruschetta", "miso",
+                    "lasanga", "panini", "bunwich", "perogies", "pierogies"),
             word(List.of(Nutrients.CARBOHYDRATES, Nutrients.FAT),
                     "cookie", "cookies", "cake", "cakes", "pie", "pies", "chocolate", "brownie",
                     "brownies", "muffin", "muffins", "donut", "donuts", "doughnut", "waffle", "waffles",
@@ -107,12 +115,14 @@ public final class FoodWords {
                     "fritter", "fritters", "oliebollen", "stroopwafel", "speculaas", "gingerbread",
                     "shortbread", "praline", "nougat", "brittle", "truffles", "icecream", "sundae",
                     "milkshake", "latte", "cappuccino", "mocha", "cocoa", "gateau", "galette",
-                    "sable", "malasada", "oreo", "cone", "canjica", "crisp"),
+                    "sable", "malasada", "oreo", "cone", "canjica", "crisp", "tempura", "gelato",
+                    "blondie", "blondies", "pavlova", "meringue", "puff", "puffs", "tarte"),
             word(List.of(Nutrients.CARBOHYDRATES, Nutrients.VITAMINS, Nutrients.MINERALS),
                     "soup", "stew", "bisque", "borscht", "goulash", "chowder", "broth", "stock",
                     "gruel", "congee", "ramen", "pho", "curry", "chili", "gumbo", "minestrone",
                     "okroshka", "ukha", "acquacotta", "stracciatella", "hodgepodge", "fricassee",
-                    "casserole", "stirfry", "paella", "jambalaya", "stamppot", "ratatouille"),
+                    "casserole", "stirfry", "paella", "jambalaya", "stamppot", "ratatouille", "gazpacho",
+                    "bouillabaisse", "moqueca", "malatang", "hotpot", "hotdish"),
             // Alcohol is sugar to the body, which is all a wine or a beer is here.
             word(List.of(Nutrients.CARBOHYDRATES),
                     "bread", "dough", "pasta", "noodle", "noodles", "rice", "grain", "grains", "corn",
@@ -126,10 +136,12 @@ public final class FoodWords {
                     "champagne", "sake", "vodka", "whiskey", "whisky", "rum", "gin", "brandy", "liquor",
                     "cocktail", "mojito", "kvass", "sangria", "punch", "pilsner", "porter", "hop",
                     "hops", "maize", "polenta", "baguette", "cornet", "gummy", "gumdrop", "sweets",
-                    "treat", "floss", "boba", "roll", "rolls"),
+                    "treat", "floss", "boba", "roll", "rolls", "soba", "udon", "crouton", "croutons",
+                    "crumbs", "stuffing", "kykeon", "brew", "taffy"),
             // Tea and coffee are water and a little of the leaf or the bean: minerals, nothing else.
             word(List.of(Nutrients.MINERALS),
-                    "tea", "coffee", "espresso", "matcha", "kombucha",
+                    "tea", "coffee", "espresso", "matcha", "kombucha", "americano", "mate", "hibiscus",
+                    "rosehip", "chamomile",
                     // Spices: eaten for flavour, they bring trace minerals and nothing else.
                     "spice", "spices", "cinnamon", "nutmeg", "paprika", "mustard", "turmeric",
                     "saffron", "clove", "cloves", "cumin", "salt", "vanilla", "peppercorn"));
@@ -144,10 +156,10 @@ public final class FoodWords {
 
     /**
      * Endings a compound word ({@code applefritteritem}, {@code cottagepie}) may be read by: words of
-     * four letters or more, plus these short ones, so {@code graham} is not ham and {@code goat} is
-     * not an oat.
+     * four letters or more, plus these short ones, so {@code graham} is not ham, {@code goat} is
+     * not an oat, and {@code cloudfin} is a fish.
      */
-    private static final Set<String> SHORT_SUFFIXES = Set.of("pie", "jam", "tea", "bun", "egg");
+    private static final Set<String> SHORT_SUFFIXES = Set.of("pie", "jam", "tea", "bun", "egg", "fin");
 
     /**
      * Words that name a DISH rather than what is in it. A dish word found first is joined by the
@@ -169,7 +181,7 @@ public final class FoodWords {
 
     /** Compound words that END with a food word but are not that food. */
     private static final Set<String> NOT_COMPOUNDS = Set.of("slime", "slimeball", "slimeballs", "spear",
-            "update", "candidate");
+            "update", "candidate", "basalt");
 
     private FoodWords() {
     }

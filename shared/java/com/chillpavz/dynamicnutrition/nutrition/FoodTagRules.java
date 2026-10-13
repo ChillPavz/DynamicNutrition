@@ -14,8 +14,8 @@ import java.util.Set;
  *       API and NeoForge both ship. The build checks these against the loaders' own tags.</li>
  *   <li>{@link #legacy} the older names mods still use: the plural {@code c:} umbrellas of Fabric's
  *       first convention ({@code c:fruits}, {@code c:vegetables}, {@code c:nuts}), Croptopia's
- *       {@code c:grain}, and Forge's {@code forge:} tags on 1.20.1. No loader defines them, so a mod
- *       that tags its items with one creates it. Croptopia tags its raw crops ONLY this way, which
+ *       {@code c:grain}, Forge's {@code forge:} tags on 1.20.1, and the Diet mod's food groups
+ *       ({@code diet:fruits}). No loader defines them, so a mod that tags its items with one creates it. Croptopia tags its raw crops ONLY this way, which
  *       is why every one of them used to resolve to nothing.</li>
  * </ul>
  *
@@ -62,7 +62,7 @@ public final class FoodTagRules {
             // well as c:crops/grain, and rice c:seeds as well as c:crops/rice. Read as a vegetable or
             // a seed (fat and minerals), corn and rice dishes lost their carbohydrate.
             rule(CARBS, c("crops/grain"), legacy("c:grain"), legacy("c:grains"), legacy("forge:grain"),
-                    legacy("forge:grains")),
+                    legacy("forge:grains"), legacy("diet:grains")),
             rule(CARBS, c("crops/rice"), legacy("forge:crops/rice"), legacy("forge:grain/rice")),
             rule(CARBS, c("crops/corn"), legacy("forge:crops/corn"), legacy("forge:grain/corn")),
             rule(CARBS, c("seeds/corn"), legacy("forge:seeds/corn")),
@@ -72,9 +72,11 @@ public final class FoodTagRules {
             // No loader has a c:foods subtag for nuts (checked against NeoForge 26.2 and the 1.21 jars).
             rule(FAT_MINERALS, legacy("c:nuts"), legacy("forge:nuts")),
             rule(CARBS_VITAMINS, c("foods/berry"), legacy("c:berries"), legacy("forge:berries")),
-            rule(CARBS_VITAMINS, c("foods/fruit"), legacy("c:fruits"), legacy("forge:fruits")),
-            rule(VITAMINS_MINERALS, c("foods/vegetable"), legacy("c:vegetables"), legacy("forge:vegetables")),
-            rule(CARBS, c("foods/candy")),
+            rule(CARBS_VITAMINS, c("foods/fruit"), legacy("c:fruits"), legacy("forge:fruits"),
+                    legacy("diet:fruits")),
+            rule(VITAMINS_MINERALS, c("foods/vegetable"), legacy("c:vegetables"), legacy("forge:vegetables"),
+                    legacy("diet:vegetables")),
+            rule(CARBS, c("foods/candy"), legacy("diet:sugars")),
             rule(CARBS_FAT, c("foods/cookie")),
             rule(CARBS_FAT, c("foods/pie")),
             rule(CARBS, c("foods/bread"), legacy("forge:bread")),
@@ -102,7 +104,10 @@ public final class FoodTagRules {
             rule(CARBS_VITAMINS, c("crops/pumpkin")),
             rule(CARBS, c("crops/sugar_cane")),
             rule(CARBS_FAT, c("crops/cocoa_bean")),
-            rule(FAT_MINERALS, c("seeds"), legacy("forge:seeds")));
+            rule(FAT_MINERALS, c("seeds"), legacy("forge:seeds")),
+            // The Diet mod's food groups. Many food mods tag their foods for it and nothing else;
+            // its protein group is meat, fish, eggs and legumes alike, so protein alone.
+            rule(List.of(Nutrients.PROTEIN), legacy("diet:proteins")));
 
     /**
      * Broadest possible net, LAST, after the subtag names and the item's own name: anything a mod
@@ -112,7 +117,7 @@ public final class FoodTagRules {
      */
     public static final List<String> ANY_FOOD = List.of(c("foods"));
 
-    /** Namespaces whose tag NAMES are read when no rule matched. */
+    /** Namespaces whose tag NAMES are read first, folders and all, when no rule matched. */
     private static final Set<String> NAMED_ROOTS = Set.of("c", "forge");
 
     /**
@@ -139,15 +144,27 @@ public final class FoodTagRules {
      *   <li>Other folder tags under a {@link #FOOD_FOLDERS} root, by their last segment.</li>
      *   <li>Flat tags ({@code c:bananas}), by their LAST word only: {@code c:orange_dyes} is a dye,
      *       and reading further back would make it a fruit.</li>
+     *   <li>Any other namespace's tags, a mod's own ({@code starcatcher:common_fishes},
+     *       {@code youkaisfeasts:sake}, {@code dcs_climate:meals/noodle}), by the last word of the
+     *       last segment only. Never a seed tag: vanilla's {@code villager_plantable_seeds} holds
+     *       crops a player eats as vegetables.</li>
      * </ol>
      */
     public static Set<Nutrient> fromTagNames(List<String> tagIds) {
         List<String> food = new ArrayList<>();
         List<String> folders = new ArrayList<>();
         List<String> flat = new ArrayList<>();
+        List<String> other = new ArrayList<>();
         for (String id : tagIds) {
             int colon = id.indexOf(':');
-            if (colon < 0 || !NAMED_ROOTS.contains(id.substring(0, colon))) {
+            if (colon < 0) {
+                continue;
+            }
+            if (!NAMED_ROOTS.contains(id.substring(0, colon))) {
+                String last = id.substring(Math.max(colon, id.lastIndexOf('/')) + 1);
+                if (!last.endsWith("seed") && !last.endsWith("seeds")) {
+                    other.add(last);
+                }
                 continue;
             }
             String path = id.substring(colon + 1);
@@ -165,6 +182,7 @@ public final class FoodTagRules {
         food.sort(null);
         folders.sort(null);
         flat.sort(null);
+        other.sort(null);
         for (String path : food) {
             Set<Nutrient> found = FoodWords.forTagPath(path);
             if (!found.isEmpty()) {
@@ -178,6 +196,12 @@ public final class FoodTagRules {
             }
         }
         for (String path : flat) {
+            Set<Nutrient> found = FoodWords.forLastWord(path);
+            if (!found.isEmpty()) {
+                return found;
+            }
+        }
+        for (String path : other) {
             Set<Nutrient> found = FoodWords.forLastWord(path);
             if (!found.isEmpty()) {
                 return found;
