@@ -1,32 +1,36 @@
-// The shared/ folders that belong to this module in this band, added as source folders.
+// The shared source folders that belong to this module in this band, added as source folders.
 //
 // shared/java and shared/resources hold what every band and every loader ships; common adds them
 // itself. This script adds the narrower ones, each byte-identical in every band it names:
-//   shared/<loader>/{java,resources}            every band of that loader (fabric, forge, neoforge)
-//   shared/<a>+<b>/{java,resources}             every band of both loaders (forge+neoforge)
-//   shared/eras/<bands>/<module>/{java,...}     only the bands named, joined by '+'
-// A band token is a toolchain folder (1.20, 1.21, 26.x) or one band of a folder that builds
-// several (1.21.1, 1.21.11). A module folder may name several modules the same way (fabric+forge).
+//   shared/loaders/<loader>/{java,resources}         every band of that loader (fabric, forge, neoforge)
+//   shared/loaders/<a>+<b>/{java,resources}          every band of both loaders (forge+neoforge)
+//   shared/eras/<bands>/<module>/{java,resources}    only the bands named, joined by '+'
+//   <toolchain>/<a>+<b>/src/<era>/{java,resources}   several loaders of ONE toolchain folder
+// An era folder is named by exact bands only (1.20.1, 1.21.1, 1.21.11, 26.x), never by a toolchain
+// folder. A module folder may name several modules the same way (fabric+forge).
 //
-// Applied by every module's multiloader-common, after the band's own era folders. Plain Groovy, so
-// it runs on every Gradle in the repository.
+// Applied by every module's build.gradle, after the band's own era folders. Plain Groovy, so it
+// runs on every Gradle in the repository.
 
-def toolchain = rootProject.projectDir.name
-def band = project.hasProperty('minecraft_version') ? project.property('minecraft_version').toString() : toolchain
+def prop = { String key -> project.hasProperty(key) ? project.property(key).toString() : null }
+def band = prop('version_band') ?: prop('minecraft_version_label') ?: prop('minecraft_version')
 def module = project.name
 def shared = rootProject.file('../shared')
 
 def names = { File dir -> dir.name.split('\\+') as List }
-def inBand = { File dir -> names(dir).any { it == toolchain || it == band } }
 def forModule = { File dir -> names(dir).contains(module) }
+def subdirs = { File parent -> (parent.listFiles() ?: []).findAll { it.isDirectory() }.sort { it.name } }
 
 def dirs = []
 if (module != 'common') {
-    (shared.listFiles() ?: []).findAll { it.isDirectory() && forModule(it) }.sort { it.name }.each { dirs << it }
+    subdirs(new File(shared, 'loaders')).findAll(forModule).each { dirs << it }
 }
-def eraRoot = new File(shared, 'eras')
-(eraRoot.listFiles() ?: []).findAll { it.isDirectory() && inBand(it) }.sort { it.name }.each { era ->
-    (era.listFiles() ?: []).findAll { it.isDirectory() && forModule(it) }.sort { it.name }.each { dirs << it }
+subdirs(new File(shared, 'eras')).findAll { names(it).contains(band) }.each { era ->
+    subdirs(era).findAll(forModule).each { dirs << it }
+}
+def eras = (prop('eras') ?: '').split(',').collect { it.trim() }.findAll { it }
+subdirs(rootProject.projectDir).findAll { it.name.contains('+') && forModule(it) }.each { group ->
+    (['main'] + eras).each { dirs << new File(group, 'src/' + it) }
 }
 
 dirs.each { dir ->
