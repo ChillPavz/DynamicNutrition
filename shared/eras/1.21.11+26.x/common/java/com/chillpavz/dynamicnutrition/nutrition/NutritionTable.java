@@ -360,8 +360,8 @@ public final class NutritionTable {
                     continue;
                 }
                 for (Ingredient ingredient : ingredients) {
-                    // An ingredient can accept many items; the first is a deterministic representative.
-                    Item ingredientItem = firstItem(ingredient);
+                    // An ingredient can accept many items; one stands for them all (firstItem).
+                    Item ingredientItem = firstItem(ingredient, own);
                     if (ingredientItem == null || ingredientItem == item || isTool(ingredientItem)) {
                         continue;
                     }
@@ -505,6 +505,7 @@ public final class NutritionTable {
 
     /** True if a cooking recipe produces this item from something that is itself a food. */
     private boolean isCooked(ServerLevel level, Item item) {
+        String own = BuiltInRegistries.ITEM.getKey(item).getNamespace();
         for (RecipeHolder<?> holder : recipes.recipesFor(level, item)) {
             RecipeType<?> type = holder.value().getType();
             if (type != RecipeType.SMELTING && type != RecipeType.SMOKING
@@ -521,9 +522,8 @@ public final class NutritionTable {
                 continue;
             }
             for (Ingredient ingredient : info.ingredients()) {
-                var first = ingredient.items().findFirst();
-                if (first.isPresent()
-                        && first.get().value().getDefaultInstance().has(DataComponents.FOOD)) {
+                Item first = firstItem(ingredient, own);
+                if (first != null && first.getDefaultInstance().has(DataComponents.FOOD)) {
                     return true;
                 }
             }
@@ -548,22 +548,27 @@ public final class NutritionTable {
     }
 
     /**
-     * The item that stands for an ingredient: vanilla's when the ingredient accepts one, else the first.
-     * A tag's first item is whatever mod sorted first: in one food pack {@code #c:eggs} began with a
-     * vegan mod's silken tofu, and every dough made with "an egg" stopped being a protein source.
+     * The item that stands for an ingredient: the one {@link IngredientPick} ranks best among the items
+     * it accepts (vanilla's, then an edible one, then anything but a seed), first on a tie.
+     *
+     * @param own the namespace of the item the recipe makes
      */
-    private static Item firstItem(Ingredient ingredient) {
-        Item first = null;
+    private static Item firstItem(Ingredient ingredient, String own) {
+        Item best = null;
+        int bestRank = Integer.MAX_VALUE;
         for (var it = ingredient.items().iterator(); it.hasNext();) {
             Item each = it.next().value();
-            if (first == null) {
-                first = each;
-            }
-            if (BuiltInRegistries.ITEM.getKey(each).getNamespace().equals("minecraft")) {
-                return each;
+            var id = BuiltInRegistries.ITEM.getKey(each);
+            int rank = IngredientPick.rank(id.getNamespace(), id.getPath(), isEdible(each), own);
+            if (rank < bestRank) {
+                best = each;
+                bestRank = rank;
+                if (rank == IngredientPick.BEST) {
+                    break;
+                }
             }
         }
-        return first;
+        return best;
     }
 
     // ---------------------------------------------------------------- prewarm

@@ -76,6 +76,13 @@ public final class RecipeIndex {
             }
         }
 
+        // The recipe manager hands recipes back in hash order, which can differ between two runs of
+        // the same pack, and the walk takes the first recipe that answers. Sorted by id, every run of
+        // a pack gives the same values.
+        for (List<RecipeHolder<?>> recipes : index.values()) {
+            recipes.sort(java.util.Comparator.comparing((RecipeHolder<?> r) -> r.id().toString()));
+        }
+
         byOutput = index;
         builtFrom = manager;
         Constants.LOG.info("Built recipe output index: {} items, {} ms{}",
