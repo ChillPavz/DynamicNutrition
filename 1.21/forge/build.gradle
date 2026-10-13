@@ -4,6 +4,9 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'idea'
 }
+
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
 base {
     // The template used mod_name here, which puts spaces in the jar filename; mod_id matches what
     // multiloader-common gives the other modules.

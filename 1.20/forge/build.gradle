@@ -3,6 +3,9 @@ plugins {
     id 'net.neoforged.moddev.legacyforge'
 }
 
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
+
 // Three client mixins (the effect list, the top-right effects, the HUD strip), the Forge copies of
 // the Fabric ones. Forge 1.20.1 runs on SRG names, so they need a refmap, which legacyForge's
 // mixin block generates, and Forge only reads a config named in the MixinConfigs manifest entry.

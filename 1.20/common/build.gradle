@@ -46,9 +46,13 @@ configurations {
 // this module's own.
 sourceSets.main.java.srcDir('../../shared/java')
 
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
+
+// Every source folder is published on its own: src/main, the shared/eras folders this band takes
+// and shared/. The template's sourceDirectories.singleFile throws once there is more than one.
 artifacts {
-    commonJava file('src/main/java')
-    commonJava file('../../shared/java')
-    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+    sourceSets.main.java.srcDirs.findAll { it.exists() }.each { commonJava it }
+    sourceSets.main.resources.srcDirs.findAll { it.exists() }.each { commonResources it }
     commonResources file('../../shared/resources')
 }

@@ -3,6 +3,9 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
+
 repositories {
     maven { url = 'https://maven.shedaniel.me/' }
 }

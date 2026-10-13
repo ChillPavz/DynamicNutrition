@@ -2,6 +2,9 @@ plugins {
     id 'multiloader-loader'
     id 'fabric-loom'
 }
+
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
 // ONE FABRIC JAR COVERS 1.20 AND 1.20.1. fabric-api ships a separate file per version,
 // but every entry point this mod uses is byte-identical between 0.83.0+1.20 and
 // 0.92.x+1.20.1, so the declared range is the whole band.

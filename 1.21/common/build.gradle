@@ -40,6 +40,9 @@ configurations {
 // this module's own.
 sourceSets.main.java.srcDir('../../shared/java')
 
+// The repository's narrower shared/ folders: per loader, and per group of bands (shared/eras).
+apply from: '../../shared/gradle/shared-sources.gradle'
+
 // Every source folder is published on its own: src/main, this band's era folders and shared/.
 // The template's sourceDirectories.singleFile throws once there is more than one.
 artifacts {
