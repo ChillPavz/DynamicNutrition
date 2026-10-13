@@ -53,7 +53,7 @@ public final class FoodTagRules {
 
     public static final List<Rule> RULES = List.of(
             // Specific first.
-            rule(PROTEIN_FAT, c("foods/cooked_meat"), legacy("forge:cooked_meats"), legacy("c:cooked_meats")),
+            rule(PROTEIN_FAT, c("foods/cooked_meat"), legacy("forge:cooked_meats")),
             rule(PROTEIN_FAT, c("foods/raw_meat"), legacy("forge:raw_meats"), legacy("c:raw_meats")),
             rule(PROTEIN_MINERALS, c("foods/cooked_fish"), legacy("forge:cooked_fishes"),
                     legacy("c:cooked_fishes")),
@@ -62,12 +62,12 @@ public final class FoodTagRules {
             // well as c:crops/grain, and rice c:seeds as well as c:crops/rice. Read as a vegetable or
             // a seed (fat and minerals), corn and rice dishes lost their carbohydrate.
             rule(CARBS, c("crops/grain"), legacy("c:grain"), legacy("c:grains"), legacy("forge:grain"),
-                    legacy("forge:grains"), legacy("forge:crops/grain")),
+                    legacy("forge:grains")),
             rule(CARBS, c("crops/rice"), legacy("forge:crops/rice"), legacy("forge:grain/rice")),
             rule(CARBS, c("crops/corn"), legacy("forge:crops/corn"), legacy("forge:grain/corn")),
             rule(CARBS, c("seeds/corn"), legacy("forge:seeds/corn")),
             // Soybeans are tagged c:seeds too, and soy is a protein food.
-            rule(PROTEIN_FAT, c("crops/soybeans"), legacy("forge:crops/soybean"), legacy("forge:crops/soybeans")),
+            rule(PROTEIN_FAT, c("crops/soybeans"), legacy("forge:crops/soybean")),
             // Nuts before fruit: Croptopia files almonds under c:fruits as well as c:nuts.
             // No loader has a c:foods subtag for nuts (checked against NeoForge 26.2 and the 1.21 jars).
             rule(FAT_MINERALS, legacy("c:nuts"), legacy("forge:nuts")),
@@ -77,7 +77,7 @@ public final class FoodTagRules {
             rule(CARBS, c("foods/candy")),
             rule(CARBS_FAT, c("foods/cookie")),
             rule(CARBS_FAT, c("foods/pie")),
-            rule(CARBS, c("foods/bread"), legacy("forge:bread"), legacy("c:breads")),
+            rule(CARBS, c("foods/bread"), legacy("forge:bread")),
             rule(CARBS, c("foods/dough"), legacy("forge:dough"), legacy("c:doughs")),
             // A golden food is supernatural rather than nutritious; give it the micros, which is
             // what the vanilla table does for the golden apple and carrot.
@@ -110,7 +110,7 @@ public final class FoodTagRules {
      * rule in the list it came first for every food tagged only {@code c:foods}, and ham, roast
      * chicken, crab, shrimp, cheese and salads were all pure carbohydrate.
      */
-    public static final List<String> ANY_FOOD = List.of(c("foods"), legacy("c:foods"), legacy("forge:foods"));
+    public static final List<String> ANY_FOOD = List.of(c("foods"));
 
     /** Namespaces whose tag NAMES are read when no rule matched. */
     private static final Set<String> NAMED_ROOTS = Set.of("c", "forge");
