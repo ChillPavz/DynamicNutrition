@@ -7,9 +7,9 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import com.chillpavz.dynamicnutrition.Constants;
 
 /**
- * The cloth-config data class, NeoForge copy.
+ * The cloth-config data class, one copy for every loader.
  *
- * <p>It is duplicated per loader rather than shared because {@code common} cannot see cloth at all,
+ * <p>It is compiled per loader rather than in common because {@code common} cannot see cloth at all,
  * and it holds no logic: {@link ClothCompat} copies every value into {@link NutritionConfig}, which
  * is the only thing the rest of the mod reads.
  *

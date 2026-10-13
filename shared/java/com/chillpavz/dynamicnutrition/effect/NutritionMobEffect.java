@@ -10,8 +10,8 @@ import net.minecraft.world.effect.MobEffectCategory;
  * The second is the ten effect ids 1.5.0 used, one per nutrient effect: they are still registered
  * so saves naming them load, and should one ever be drawn in the moment before it is taken off, it
  * carries the vanilla name it imitates ("Haste", "Slowness") by answering with vanilla's own
- * translation key, and vanilla's icon through the atlas entry in
- * {@code assets/minecraft/atlases/gui.json}, so no vanilla pixels are copied into this jar. Well
+ * translation key, and vanilla's icon through an atlas entry ({@code atlases/mob_effects.json} or
+ * {@code gui.json}, by band), so no vanilla pixels are copied into this jar. Well
  * Nourished and Malnourished use their own names and icons.
  */
 public class NutritionMobEffect extends MobEffect {
