@@ -13,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -361,7 +362,7 @@ public final class NutritionTable {
                 for (Ingredient ingredient : ingredients) {
                     // An ingredient can accept many items; the first is a deterministic representative.
                     Item ingredientItem = firstItem(ingredient);
-                    if (ingredientItem == null || ingredientItem == item) {
+                    if (ingredientItem == null || ingredientItem == item || isTool(ingredientItem)) {
                         continue;
                     }
                     Set<Nutrient> ingredientNutrients = setOf(level, ingredientItem, depth + 1);
@@ -377,6 +378,26 @@ public final class NutritionTable {
             }
         }
         return new LinkedHashSet<>();
+    }
+
+    /**
+     * A tool the recipe keeps rather than an ingredient it uses up: Pam's HarvestCraft puts a cutting
+     * board, a pot or a skillet in most of its recipes, Croptopia a frying pan or a cooking pot. They
+     * are not food, stack to one and leave no container behind, and counting them gave every Pam's
+     * dish all five nutrients. A milk bucket also stacks to one, but leaves its bucket, so it stays.
+     * The empty containers count as tools too: mods add "pour it out" recipes that make a glass
+     * bottle from a juice, which gave the bottle the juice's nutrients and every bottled drink more.
+     */
+    private static boolean isTool(Item item) {
+        if (item == Items.GLASS_BOTTLE || item == Items.BOWL || item == Items.BUCKET) {
+            return true;
+        }
+        try {
+            return !isEdible(item) && item.getDefaultInstance().getMaxStackSize() == 1
+                    && !(item.hasCraftingRemainingItem());
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /** 0 for the item's own namespace, 1 for vanilla's, 2 for any other mod's. */
