@@ -243,9 +243,11 @@ public final class NutritionCommands {
             }
         }
 
+        // Absolute: a dedicated server's directory is a bare relative path from 1.21 on, so the file
+        // had no parent, createDirectories(null) threw, and the export failed from a server console.
         Path out = ctx.getSource().getServer().getFile(Constants.MOD_ID + "-"
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
-                + ".csv");
+                + ".csv").toAbsolutePath();
         int written = 0;
         try {
             Files.createDirectories(out.getParent());
