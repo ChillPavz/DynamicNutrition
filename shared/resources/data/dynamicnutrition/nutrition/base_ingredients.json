@@ -1,4 +1,8 @@
 {
+  "braziliandelight:butter": {
+    "fat": 12,
+    "vitamins": 1
+  },
   "braziliandelight:salt": {
     "minerals": 15
   },
@@ -23,6 +27,13 @@
     "protein": 4,
     "vitamins": 1
   },
+  "create_cheese:soft_curd_cheese": {
+    "carbohydrates": 1,
+    "fat": 1,
+    "minerals": 3,
+    "protein": 3,
+    "vitamins": 1
+  },
   "createfood:bread_slice": {
     "carbohydrates": 8,
     "fat": 1,
@@ -36,6 +47,12 @@
     "minerals": 3,
     "protein": 4,
     "vitamins": 2
+  },
+  "createfood:cheese_slice": {
+    "fat": 9,
+    "minerals": 4,
+    "protein": 6,
+    "vitamins": 1
   },
   "createfood:condensed_milk_bottle": {
     "carbohydrates": 15,
@@ -218,6 +235,12 @@
     "minerals": 1,
     "vitamins": 1
   },
+  "croptopia:flour": {
+    "carbohydrates": 21,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
   "croptopia:garlic": {
     "carbohydrates": 5,
     "minerals": 2,
@@ -396,6 +419,9 @@
     "minerals": 1,
     "vitamins": 2
   },
+  "croptopia:salt": {
+    "minerals": 15
+  },
   "croptopia:soybean": {
     "carbohydrates": 5,
     "fat": 6,
@@ -462,6 +488,16 @@
     "carbohydrates": 1,
     "minerals": 1,
     "vitamins": 4
+  },
+  "dragncrops:flour": {
+    "carbohydrates": 21,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "extradelight:butter": {
+    "fat": 12,
+    "vitamins": 1
   },
   "farmersdelight:bacon": {
     "fat": 17,
@@ -662,6 +698,72 @@
     "protein": 12,
     "vitamins": 2
   },
+  "minecraft:brown_mushroom": {
+    "carbohydrates": 1,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 5
+  },
+  "minecraft:cocoa_beans": {
+    "carbohydrates": 16,
+    "fat": 7,
+    "minerals": 10,
+    "protein": 8,
+    "vitamins": 1
+  },
+  "minecraft:egg": {
+    "fat": 5,
+    "minerals": 4,
+    "protein": 5,
+    "vitamins": 6
+  },
+  "minecraft:kelp": {
+    "carbohydrates": 3,
+    "minerals": 12,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "minecraft:milk_bucket": {
+    "carbohydrates": 1,
+    "fat": 2,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 3
+  },
+  "minecraft:pumpkin": {
+    "carbohydrates": 2,
+    "minerals": 2,
+    "vitamins": 8
+  },
+  "minecraft:red_mushroom": {
+    "carbohydrates": 1,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 5
+  },
+  "minecraft:sugar": {
+    "carbohydrates": 28
+  },
+  "minecraft:wheat": {
+    "carbohydrates": 20,
+    "fat": 1,
+    "minerals": 4,
+    "protein": 5,
+    "vitamins": 2
+  },
+  "mystias_izakaya:dou_fu": {
+    "carbohydrates": 1,
+    "fat": 2,
+    "minerals": 7,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "mystias_izakaya:mian_fen": {
+    "carbohydrates": 21,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
+  },
   "pamhc2crops:onionitem": {
     "carbohydrates": 5,
     "minerals": 3,
@@ -757,6 +859,10 @@
     "minerals": 1,
     "protein": 1,
     "vitamins": 13
+  },
+  "vanilladelight:butter": {
+    "fat": 12,
+    "vitamins": 1
   },
   "veggiesdelight:bellpepper": {
     "carbohydrates": 1,
