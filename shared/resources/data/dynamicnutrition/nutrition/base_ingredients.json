@@ -790,6 +790,12 @@
     "protein": 1,
     "vitamins": 3
   },
+  "minecraft:potato_peels": {
+    "carbohydrates": 5,
+    "minerals": 6,
+    "protein": 1,
+    "vitamins": 3
+  },
   "minecraft:pumpkin": {
     "carbohydrates": 2,
     "minerals": 2,
