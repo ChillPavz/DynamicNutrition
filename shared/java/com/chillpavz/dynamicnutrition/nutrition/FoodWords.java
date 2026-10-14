@@ -47,7 +47,7 @@ public final class FoodWords {
                     "bitterling", "bluegill", "coelacanth", "dab", "dace", "goby", "snakehead", "guppy",
                     "loach", "marlin", "flounder", "smelt", "seahorse", "darter", "char", "pollock",
                     "haddock", "bonito", "barracuda", "grouper", "walleye", "shark", "sharks", "gill",
-                    "fin", "fins", "ceviche",
+                    "fin", "fins", "ceviche", "fishsicle", "chikuwa",
                     // Offal: protein, with the iron and other minerals organ meat is known for.
                     "liver", "kidney", "heart", "lungs", "lung", "stomach", "intestines", "tongue",
                     "gizzard", "blood", "brain", "nose", "snout"),
@@ -63,7 +63,8 @@ public final class FoodWords {
                     "flesh", "pepperoni", "salami", "pastrami", "brisket", "carnitas", "gyro",
                     "dumpling", "wonton", "mince", "rib", "bison", "moose", "camel", "frog", "wing",
                     "wings", "stroganoff", "fondue", "maggot", "karaage", "tonkatsu", "wurst", "haggis",
-                    "tartare", "kabob", "kabobs", "hotdog"),
+                    "tartare", "kabob", "kabobs", "hotdog", "yakitori", "paw", "paws",
+                    "edamame", "yuba", "okara"),
             word(List.of(Nutrients.CARBOHYDRATES, Nutrients.VITAMINS),
                     "juice", "fruit", "fruits", "berry", "berries", "grape", "grapes", "apple",
                     "apples", "cherry", "cherries", "pineapple", "melon", "hamimelon", "durian",
@@ -126,6 +127,9 @@ public final class FoodWords {
             // Alcohol is sugar to the body, which is all a wine or a beer is here.
             word(List.of(Nutrients.CARBOHYDRATES),
                     "bread", "dough", "pasta", "noodle", "noodles", "rice", "grain", "grains", "corn",
+                    "baozi", "mantou", "zongzi", "qingtuan", "pandesal", "ensaymada", "hopia",
+                    "naan", "dimsum", "taiyaki", "imagawayaki", "zeppole", "lamington", "battenberg",
+                    "timpano", "pirogi", "pierogi", "souffle",
                     "toast", "popcorn", "cereal", "porridge", "oatmeal", "risotto", "nachos", "jello",
                     "popsicle", "barley", "oat", "oats", "wheat", "rye", "flour", "millet", "quinoa",
                     "tortilla", "crepe", "candy", "sugar", "pretzel", "cracker", "crackers", "bagel",
@@ -178,6 +182,9 @@ public final class FoodWords {
      */
     private static final Set<String> ANIMAL_PREFIXES = Set.of("raw", "cooked", "grilled", "roasted",
             "fried", "smoked", "seared", "braised");
+
+    /** A state glued onto an animal's name: Mo' Creatures names its meats duckraw and crabcooked. */
+    private static final List<String> GLUED_STATES = List.of("cooked", "raw");
 
     /** Compound words that END with a food word but are not that food. */
     private static final Set<String> NOT_COMPOUNDS = Set.of("slime", "slimeball", "slimeballs", "spear",
@@ -253,6 +260,14 @@ public final class FoodWords {
             exact = exactWord(word);
             if (!exact.isEmpty()) {
                 return exact;
+            }
+        }
+        // The animal before a glued state, and an animal nobody lists is still meat, like raw_strider.
+        for (String state : GLUED_STATES) {
+            String animal = word.substring(0, Math.max(0, word.length() - state.length()));
+            if (word.endsWith(state) && animal.length() >= 3 && !animal.equals("pre")) {
+                Set<Nutrient> found = forWord(animal);
+                return found.isEmpty() ? new LinkedHashSet<>(List.of(Nutrients.PROTEIN, Nutrients.FAT)) : found;
             }
         }
         // A compound, read by its longest known ending: cottagepie is a pie, lanternfish a fish.
