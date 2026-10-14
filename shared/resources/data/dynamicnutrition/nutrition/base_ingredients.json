@@ -79,6 +79,17 @@
     "protein": 5,
     "vitamins": 1
   },
+  "createfood:sliced_onion": {
+    "carbohydrates": 5,
+    "minerals": 3,
+    "protein": 1,
+    "vitamins": 4
+  },
+  "createfood:sliced_tomato": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "vitamins": 5
+  },
   "croptopia:almond": {
     "carbohydrates": 2,
     "fat": 7,
@@ -168,6 +179,12 @@
   "croptopia:celery": {
     "carbohydrates": 1,
     "minerals": 1,
+    "vitamins": 2
+  },
+  "croptopia:cheese": {
+    "fat": 19,
+    "minerals": 9,
+    "protein": 12,
     "vitamins": 2
   },
   "croptopia:cherry": {
@@ -489,6 +506,18 @@
     "minerals": 1,
     "vitamins": 4
   },
+  "dffeasts:oregano": {
+    "carbohydrates": 2,
+    "minerals": 8,
+    "protein": 1,
+    "vitamins": 8
+  },
+  "dragncrops:cilantro": {
+    "carbohydrates": 1,
+    "minerals": 5,
+    "protein": 1,
+    "vitamins": 9
+  },
   "dragncrops:flour": {
     "carbohydrates": 21,
     "minerals": 2,
@@ -656,6 +685,12 @@
     "protein": 4,
     "vitamins": 1
   },
+  "fruitsdelight:lemon_slice": {
+    "carbohydrates": 5,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 19
+  },
   "herbsandharvest:cabbage": {
     "carbohydrates": 3,
     "minerals": 4,
@@ -770,6 +805,12 @@
     "protein": 1,
     "vitamins": 4
   },
+  "pamhc2crops:spiceleafitem": {
+    "carbohydrates": 2,
+    "minerals": 8,
+    "protein": 1,
+    "vitamins": 8
+  },
   "pamhc2foodcore:batteritem": {
     "carbohydrates": 7,
     "fat": 1,
@@ -860,6 +901,24 @@
     "protein": 1,
     "vitamins": 13
   },
+  "pokefood:lettuce": {
+    "carbohydrates": 1,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 7
+  },
+  "productivefarming:garlic": {
+    "carbohydrates": 5,
+    "minerals": 2,
+    "protein": 2,
+    "vitamins": 2
+  },
+  "simplefarming:lettuce": {
+    "carbohydrates": 1,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 13
+  },
   "vanilladelight:butter": {
     "fat": 12,
     "vitamins": 1
@@ -874,6 +933,12 @@
     "minerals": 2,
     "protein": 2,
     "vitamins": 2
+  },
+  "veggiesdelight:garlic_clove": {
+    "carbohydrates": 2,
+    "minerals": 1,
+    "protein": 1,
+    "vitamins": 1
   },
   "vintagedelight:cheese_slice": {
     "fat": 9,
