@@ -57,7 +57,7 @@ public final class FoodWords {
                     "shank", "chops", "chop", "ribs", "drumstick", "patty", "lamb", "rabbit", "leg",
                     "legs", "gristle", "tripe", "custard", "tofu", "soy", "soymilk", "soybean",
                     "soybeans", "omelet", "omelette", "meatball", "burger", "hamburger",
-                    "cheeseburger", "kebab", "skewer", "nugget", "poultry", "roast", "meatloaf",
+                    "cheeseburger", "kebab", "skewer", "poultry", "roast", "meatloaf",
                     "charcuterie", "kroket", "croquette", "frikandel", "bitterballen", "venison",
                     "turkey", "duck", "goose", "boar", "tail", "yogurt", "yoghurt", "natto", "nattou",
                     "flesh", "pepperoni", "salami", "pastrami", "brisket", "carnitas", "gyro",

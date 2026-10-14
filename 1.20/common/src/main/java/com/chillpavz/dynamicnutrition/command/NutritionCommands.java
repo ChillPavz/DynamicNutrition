@@ -282,6 +282,7 @@ public final class NutritionCommands {
                     written++;
                 }
             }
+            IngredientExport.write(out, foods.values());
         } catch (IOException e) {
             ctx.getSource().sendFailure(Component.literal("Could not write the export: " + e));
             Constants.LOG.warn("Nutrition export failed", e);

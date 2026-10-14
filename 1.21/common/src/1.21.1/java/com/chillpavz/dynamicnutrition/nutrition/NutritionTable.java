@@ -39,9 +39,10 @@ import com.chillpavz.dynamicnutrition.Constants;
  *       Edible items only, and only when everything above found nothing.</li>
  * </ol>
  *
- * <p>Stages 2 to 5 produce a nutrient SET; the MAGNITUDE then comes from the food's own nutrition
- * and saturation, split across that set. Only stage 1 carries real per-nutrient values, which is why
- * the shipped vanilla table is worth generating from real composition data.
+ * <p>Stages 2 to 5 produce a nutrient SET and a SHAPE: the recipe walk mixes its ingredients' shapes,
+ * the other stages share evenly. The SIZE then comes from the food's own nutrition and saturation,
+ * spread by that shape ({@link Proportions}). Only stage 1 carries real per-nutrient values, and every
+ * derived shape starts from them, which is why the shipped tables are generated from real composition.
  *
  * <h2>Server only</h2>
  * The recipe walk cannot run on a client: {@code Level.recipeAccess()} returns an interface that
@@ -96,6 +97,11 @@ public final class NutritionTable {
      * and the name stage need what it would feed. See {@link #setOf}.
      */
     private final Map<Item, Set<Nutrient>> sets = new HashMap<>();
+    /**
+     * The SHAPE each resolved item passes on to the dishes made from it, food or not: its real
+     * proportions when it has values, else an even share of its set. See {@link Proportions}.
+     */
+    private final Map<Item, float[]> shapes = new HashMap<>();
     /** Item path to the items with that path, for the name stage. Built on first use. */
     private Map<String, List<Item>> byPath = null;
     private final RecipeIndex recipes = new RecipeIndex();
@@ -125,6 +131,7 @@ public final class NutritionTable {
     public synchronized void invalidate() {
         resolved.clear();
         sets.clear();
+        shapes.clear();
         origins.clear();
         resolving.clear();
         recipes.clear();
@@ -155,8 +162,22 @@ public final class NutritionTable {
         return origins.getOrDefault(item, NutritionOrigin.NONE);
     }
 
+    /** The share of each nutrient an item passes on to what is made from it, or null. */
+    public synchronized float[] shape(Item item) {
+        float[] shape = shapes.get(item);
+        return shape == null ? null : shape.clone();
+    }
+
+    /** The origins a client needs: foods only, so the non-food ingredients' never reach the sync. */
     public synchronized Map<Item, NutritionOrigin> originSnapshot() {
-        return Map.copyOf(origins);
+        Map<Item, NutritionOrigin> out = new HashMap<>();
+        for (Map.Entry<Item, NutritionOrigin> entry : origins.entrySet()) {
+            NutritionValues values = resolved.get(entry.getKey());
+            if (values != null && !values.isEmpty()) {
+                out.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return out;
     }
 
     /** Install a table received from the server. Client side only. */
@@ -194,6 +215,7 @@ public final class NutritionTable {
             NutritionValues capped = exact.capped(MAX_PER_NUTRIENT);
             resolved.put(item, capped);
             sets.put(item, dominant(capped));
+            shapes.put(item, Proportions.of(capped));
             origins.put(item, NutritionOrigin.of(NutritionOrigin.Source.EXPLICIT));
             return capped;
         }
@@ -202,6 +224,7 @@ public final class NutritionTable {
         boolean limited = false;
         NutritionOrigin origin = NutritionOrigin.NONE;
         Set<Nutrient> set = tagNutrients(item);
+        float[] shape = null;
         if (!set.isEmpty()) {
             origin = NutritionOrigin.of(NutritionOrigin.Source.TAG);
         }
@@ -213,13 +236,15 @@ public final class NutritionTable {
                 limited = true;
             } else {
                 List<Item> contributors = new ArrayList<>();
+                float[] mix = Proportions.sum();
                 try {
-                    set = recipeNutrients(level, item, depth, contributors);
+                    set = recipeNutrients(level, item, depth, contributors, mix);
                 } finally {
                     resolving.remove(item);
                 }
                 if (!set.isEmpty()) {
                     origin = NutritionOrigin.ofRecipe(contributors);
+                    shape = Proportions.normalised(mix);
                 }
             }
         }
@@ -242,10 +267,11 @@ public final class NutritionTable {
                     Set<Nutrient> stemSet = sets.getOrDefault(stem, stemValues.nutrients());
                     if (!stemSet.isEmpty()) {
                         set = new LinkedHashSet<>(stemSet);
+                        float[] stemShape = shapes.getOrDefault(stem, Proportions.uniform(stemSet));
                         origin = NutritionOrigin.ofName(stem);
                         // Real values only when this is the stem SERVED differently (a cup of
                         // stew), never for a dish named after an ingredient (a beef omelet is not
-                        // beef) or a feast block: those give the set, and the split below applies.
+                        // beef) or a feast block: those mix the stem's shape with the dish's own words.
                         boolean serving = !stemValues.isEmpty() && FoodWords.isServing(
                                 BuiltInRegistries.ITEM.getKey(item).getPath(),
                                 BuiltInRegistries.ITEM.getKey(stem).getPath());
@@ -253,7 +279,12 @@ public final class NutritionTable {
                         if (named == null) {
                             // A dish named after an ingredient is that ingredient AND the dish:
                             // egg_cookie is egg and cookie, so its own words join the set.
-                            set.addAll(FoodWords.forTagPath(BuiltInRegistries.ITEM.getKey(item).getPath()));
+                            Set<Nutrient> words = FoodWords.forTagPath(BuiltInRegistries.ITEM.getKey(item).getPath());
+                            set.addAll(words);
+                            float[] both = Proportions.sum();
+                            Proportions.add(both, stemShape, 1.0F);
+                            Proportions.add(both, Proportions.uniform(words), 1.0F);
+                            shape = Proportions.normalised(both);
                         }
                         break;
                     }
@@ -272,8 +303,11 @@ public final class NutritionTable {
             }
         }
 
+        if (shape == null) {
+            shape = named != null ? Proportions.of(named) : Proportions.uniform(set);
+        }
         NutritionValues values = named != null ? named
-                : NutritionValues.spread(set, magnitude(item, set.size()));
+                : Proportions.values(shape, magnitude(item, set.size()));
         if (!values.isEmpty() && isCooked(level, item)) {
             values = values.scaled(COOKED_BONUS);
         }
@@ -284,7 +318,9 @@ public final class NutritionTable {
         }
         resolved.put(item, values);
         sets.put(item, set);
-        origins.put(item, values.isEmpty() ? NutritionOrigin.NONE : origin);
+        shapes.put(item, shape);
+        // By the set, not the values: a non-food ingredient has no values and still passes a shape on.
+        origins.put(item, set.isEmpty() ? NutritionOrigin.NONE : origin);
         return values;
     }
 
@@ -339,18 +375,26 @@ public final class NutritionTable {
      *
      * @param contributors filled with the ingredients that actually supplied something, so the
      *                     advanced tooltip can say where the answer came from
+     * @param mix          filled with the ingredients' shapes: each recipe of the answering tier
+     *                     counts once, and within a recipe each ingredient slot once
      */
     private Set<Nutrient> recipeNutrients(ServerLevel level, Item item, int depth,
-                                          List<Item> contributors) {
+                                          List<Item> contributors, float[] mix) {
         // An item's own mod says what it is; another mod's alternative recipe does not. In one food
         // pack sugar is also crafted from a strider egg, a date syrup and a crate, and taking the union
         // of every recipe made sugar protein and fat, and everything sweetened with it too. So the
         // item's own namespace first, then vanilla's, then everyone else's, first tier that answers.
         String own = BuiltInRegistries.ITEM.getKey(item).getNamespace();
         var all = recipes.recipesFor(level, item);
+        // Something that is not food is made of what its own mod or vanilla says, even when that is
+        // nothing, and never of another mod's food: Tide smelts raw gold from a gilded minnow and Pam's
+        // makes water from a cactus, which made every golden food a fish and every soup a cactus.
+        boolean food = isEdible(item);
         for (int tier = 0; tier < 3; tier++) {
             Set<Nutrient> found = new LinkedHashSet<>();
+            boolean made = false;
             List<Item> from = new ArrayList<>();
+            float[] tierMix = Proportions.sum();
             for (var holder : all) {
                 if (tierOf(namespaceOf(holder), own) != tier) {
                     continue;
@@ -359,10 +403,15 @@ public final class NutritionTable {
                 if (ingredients == null) {
                     continue;
                 }
+                made = true;
+                float[] recipeMix = Proportions.sum();
                 for (Ingredient ingredient : ingredients) {
                     // An ingredient can accept many items; one stands for them all (firstItem).
                     Item ingredientItem = firstItem(ingredient, own);
                     if (ingredientItem == null || ingredientItem == item || isTool(ingredientItem)) {
+                        continue;
+                    }
+                    if (!food && tier == 2 && isEdible(ingredientItem)) {
                         continue;
                     }
                     Set<Nutrient> ingredientNutrients = setOf(level, ingredientItem, depth + 1);
@@ -370,11 +419,20 @@ public final class NutritionTable {
                         from.add(ingredientItem);
                     }
                     found.addAll(ingredientNutrients);
+                    if (!ingredientNutrients.isEmpty()) {
+                        Proportions.add(recipeMix, shapes.getOrDefault(ingredientItem,
+                                Proportions.uniform(ingredientNutrients)), 1.0F);
+                    }
                 }
+                Proportions.add(tierMix, Proportions.normalised(recipeMix), 1.0F);
             }
             if (!found.isEmpty()) {
+                Proportions.add(mix, Proportions.normalised(tierMix), 1.0F);
                 contributors.addAll(from);
                 return found;
+            }
+            if (!food && made && tier < 2) {
+                break;
             }
         }
         return new LinkedHashSet<>();
@@ -453,9 +511,9 @@ public final class NutritionTable {
 
     /**
      * A food in another container is the SAME food, so it takes that food's real values rather than
-     * an even split: a cup of mushroom stew is mostly vitamins and minerals, like the bowl. Scaled by
+     * a fresh shape: a cup of mushroom stew is mostly vitamins and minerals, like the bowl. Scaled by
      * the two foods' own hunger totals, so a smaller serving is worth proportionally less. Null when
-     * either has no hunger value to compare, and the even split applies instead.
+     * either has no hunger value to compare, and the mixed shape applies instead.
      */
     private static NutritionValues sameFoodIn(Item item, Item stem, NutritionValues stemValues) {
         int all = Nutrients.all().size();
@@ -485,7 +543,7 @@ public final class NutritionTable {
             // an ingredient like wheat, but it is worth nothing to eat.
             return 0;
         }
-        float total = Math.max(food.nutrition() + food.saturation(), MIN_MAGNITUDE);
+        float total = Math.max(food.nutrition() + food.saturation(), MIN_MAGNITUDE) * Proportions.SIZE_SCALE;
         return Math.min(total, (float) MAX_PER_NUTRIENT * nutrientCount);
     }
 

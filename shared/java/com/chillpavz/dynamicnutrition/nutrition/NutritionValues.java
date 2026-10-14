@@ -34,31 +34,6 @@ public final class NutritionValues {
         return copy.isEmpty() ? EMPTY : new NutritionValues(copy);
     }
 
-    /**
-     * Spread a total evenly across a set of nutrients.
-     *
-     * <p>This is how every stage except the explicit table produces its numbers: the SET comes from
-     * tags, from the recipe graph or from the food-tag heuristic, and the MAGNITUDE comes from the
-     * food's own nutrition and saturation. The explicit table bypasses this entirely, which is why
-     * vanilla food gets real per-nutrient values and a modded food gets a reasonable split.
-     */
-    public static NutritionValues spread(Set<Nutrient> nutrients, float total) {
-        if (nutrients.isEmpty() || total <= 0) {
-            return EMPTY;
-        }
-        int each = Math.round(total / nutrients.size());
-        if (each <= 0) {
-            return EMPTY;
-        }
-        Map<Nutrient, Integer> out = new LinkedHashMap<>();
-        for (Nutrient n : Nutrients.all()) {
-            if (nutrients.contains(n)) {
-                out.put(n, each);
-            }
-        }
-        return new NutritionValues(out);
-    }
-
     public boolean isEmpty() {
         return values.isEmpty();
     }
