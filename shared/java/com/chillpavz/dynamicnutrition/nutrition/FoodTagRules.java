@@ -149,8 +149,16 @@ public final class FoodTagRules {
      *       last segment only. Never a seed tag: vanilla's {@code villager_plantable_seeds} holds
      *       crops a player eats as vegetables.</li>
      * </ol>
+     * The last two read loose names, so only for something a player can eat: on a stick, a cactus,
+     * leaves or blaze powder they found a meaning, and every kebab, soup and potion-brewed drink made
+     * with one took it.
      */
     public static Set<Nutrient> fromTagNames(List<String> tagIds) {
+        return fromTagNames(tagIds, true);
+    }
+
+    /** {@link #fromTagNames(List)}, with the loose readings only when {@code edible}. */
+    public static Set<Nutrient> fromTagNames(List<String> tagIds, boolean edible) {
         List<String> food = new ArrayList<>();
         List<String> folders = new ArrayList<>();
         List<String> flat = new ArrayList<>();
@@ -194,6 +202,9 @@ public final class FoodTagRules {
             if (!found.isEmpty()) {
                 return found;
             }
+        }
+        if (!edible) {
+            return Set.of();
         }
         for (String path : flat) {
             Set<Nutrient> found = FoodWords.forLastWord(path);

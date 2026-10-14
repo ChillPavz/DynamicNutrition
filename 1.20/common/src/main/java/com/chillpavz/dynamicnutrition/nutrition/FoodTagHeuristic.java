@@ -65,7 +65,7 @@ public final class FoodTagHeuristic {
             }
         }
         Set<Nutrient> named = FoodTagRules.fromTagNames(holder.tags().map(tag -> tag.location().getNamespace()
-                + ":" + tag.location().getPath()).toList());
+                + ":" + tag.location().getPath()).toList(), NutritionTable.isEdible(item));
         if (named.isEmpty() && ANY_FOOD.stream().anyMatch(holder::is)) {
             named = FoodWords.forTagPath(BuiltInRegistries.ITEM.getKey(item).getPath());
             if (named.isEmpty()) {
