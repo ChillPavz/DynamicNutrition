@@ -1,4 +1,16 @@
 {
+  "alexscaves:cooked_dinosaur_chop": {
+    "fat": 7,
+    "minerals": 4,
+    "protein": 10,
+    "vitamins": 2
+  },
+  "alexscaves:dinosaur_chop": {
+    "fat": 7,
+    "minerals": 4,
+    "protein": 10,
+    "vitamins": 2
+  },
   "braziliandelight:butter": {
     "fat": 12,
     "vitamins": 1
@@ -6,12 +18,25 @@
   "braziliandelight:salt": {
     "minerals": 15
   },
+  "breadcraft:parmesan": {
+    "carbohydrates": 1,
+    "fat": 12,
+    "minerals": 10,
+    "protein": 14,
+    "vitamins": 2
+  },
   "candlelight:mozzarella": {
     "carbohydrates": 1,
     "fat": 13,
     "minerals": 8,
     "protein": 11,
     "vitamins": 2
+  },
+  "collectorsreap:portobello": {
+    "carbohydrates": 1,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 5
   },
   "cornexpansion:corn_flour": {
     "carbohydrates": 21,
@@ -797,6 +822,12 @@
     "carbohydrates": 21,
     "minerals": 2,
     "protein": 4,
+    "vitamins": 1
+  },
+  "netherdepthsupgrade:soulsucker": {
+    "fat": 3,
+    "minerals": 4,
+    "protein": 8,
     "vitamins": 1
   },
   "pamhc2crops:onionitem": {
