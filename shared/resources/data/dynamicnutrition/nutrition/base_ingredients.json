@@ -746,6 +746,20 @@
     "minerals": 2,
     "vitamins": 5
   },
+  "kaleidoscope_cookery:fondant_spider_eye": {
+    "carbohydrates": 26,
+    "fat": 3,
+    "minerals": 5,
+    "protein": 9,
+    "vitamins": 3
+  },
+  "kaleidoscope_cookery:sweet_and_sour_ender_pearls": {
+    "carbohydrates": 21,
+    "fat": 2,
+    "minerals": 8,
+    "protein": 4,
+    "vitamins": 3
+  },
   "meadow:cheese_slice": {
     "fat": 9,
     "minerals": 4,
