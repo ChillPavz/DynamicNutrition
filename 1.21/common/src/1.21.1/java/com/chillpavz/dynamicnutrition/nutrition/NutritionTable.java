@@ -571,17 +571,30 @@ public final class NutritionTable {
     }
 
     /**
-     * A recipe's ingredients, or null for one that cannot tell us anything: a special (code
-     * driven) recipe, one with an empty ingredient, or one that throws. This band's stand-in for
-     * 26.x's {@code PlacementInfo}, which arrived at 1.21.2.
+     * A recipe's ingredients, or null for one that cannot tell us anything: one with no ingredients
+     * (a code driven recipe), one with an ingredient no item satisfies, or one that throws. Empty
+     * slots are dropped, as a shaped recipe's gaps are. This band's stand-in for 26.x's
+     * {@code PlacementInfo}, which arrived at 1.21.2.
+     *
+     * <p>{@code isSpecial()} is not a test: it only keeps a recipe out of the recipe book, and the
+     * cooking pots of Farmer's Delight and Kaleidoscope Cookery set it on every recipe. Nor is
+     * {@code isIncomplete()}: Kaleidoscope Cookery pads every recipe to nine slots with empty
+     * ingredients, and the default check fails a recipe on any of them.
      */
     private static List<Ingredient> ingredientsOf(RecipeHolder<?> holder) {
         try {
             var recipe = holder.value();
-            if (recipe.isSpecial() || recipe.isIncomplete()) {
-                return null;
+            List<Ingredient> ingredients = new ArrayList<>();
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                if (ingredient == null || ingredient.isEmpty()) {
+                    continue;
+                }
+                if (ingredient.getItems().length == 0) {
+                    return null;
+                }
+                ingredients.add(ingredient);
             }
-            return recipe.getIngredients();
+            return ingredients.isEmpty() ? null : ingredients;
         } catch (Throwable t) {
             return null;
         }
