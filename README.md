@@ -35,7 +35,9 @@ foods and each drained at its own rate.
 - **Press N** to open the nutrition screen, or use the small button in your inventory. The keybind
   is the primary route, so if the button ever collides with another mod you can simply turn it off.
 - **A strip beside the hunger bar** shows all five at a glance. Each section is ten pixels, so one
-  pixel is worth exactly ten points.
+  pixel is worth exactly ten points. It sits above whatever else is in the right-hand column, so a
+  bar another mod adds there keeps its place and the strip moves up (see
+  [HUD mods tested](#hud-mods-tested)).
 - **Food tooltips** show what that food is worth to you right now. Hold F3 and H for where the value
   came from.
 - **The bars are marked** with the two thresholds for that nutrient. The marks turn white once you
@@ -44,17 +46,20 @@ foods and each drained at its own rate.
 ## Food from other mods
 
 Values for foods the mod has no data for are worked out automatically, in stages. Explicit data
-first, then item tags, then the recipe graph, so bread is a carbohydrate because wheat is, even
-through ingredients that cannot be eaten on their own. Then the food and drink convention tags,
-including the subtags mods add for themselves, so dragon meat reads as meat. Then a food served
-differently, such as a stew in a cup or a slice of a feast, is worth what that food is worth, and
-last a food's own name is read: spider meat is meat.
+first, including base values for common modded ingredients such as flour, butter, cheese and tofu.
+Then item tags, then the recipe graph, so bread is a carbohydrate because wheat is, even through
+ingredients that cannot be eaten on their own. A dish takes the mix of its ingredients in proportion,
+so fried rice is mostly carbohydrates, and its size follows its hunger value. Then the food and drink
+convention tags, including the subtags mods add for themselves, so dragon meat reads as meat. Then a
+food served differently, such as a stew in a cup or a slice of a feast, is worth what that food is
+worth, and last a food's own name is read: spider meat is meat.
 
-In a test pack of 34 food mods (1,183 foods, Minecraft 1.21.1 on NeoForge), 92% of the foods got
-values this way. The rest have none, and `/dynamicnutrition unassigned` lists them. Writing values by
-hand for every food mod is not realistic: there are thousands of modded foods, they change between
-versions, and many are fantasy foods with no real counterpart. The automatic resolver is what covers
-the most, and it improves with every reported case of a food that gets no values or the wrong ones.
+In 18 test packs with about 280 food mods on 1.20.1 and 1.21.1 (30,668 foods), 97.0% of the foods
+got values this way; on NeoForge 26.2 (28 food mods) 99.5%, and on 26.1.2 (45 food mods) 98.5%. The
+rest have none, and `/dynamicnutrition unassigned` lists them. Writing values by hand for every food
+mod is not realistic: there are thousands of modded foods, they change between versions, and many are
+fantasy foods with no real counterpart. The automatic resolver is what covers the most, and it
+improves with every reported case of a food that gets no values or the wrong ones.
 
 ## Configuration
 
@@ -63,6 +68,22 @@ tooltips, the variety mechanic, and the nutrient effects, where each of the ten 
 strength and you can hide Well Nourished and Malnourished from the top of the screen, from beside
 the inventory, or both. Hidden, they still work. Where Cloth is optional, the mod runs on its
 defaults without it and there is no settings screen.
+
+## Languages
+
+English, Chinese (Simplified), Russian, Portuguese (Brazil), Spanish, German, French, Japanese and
+Korean. The translations are machine-assisted; corrections are welcome on the issue tracker.
+
+## HUD mods tested
+
+Checked in game with 2.5.0, one mod at a time, with and without the air bubbles showing: nothing
+drawn over the strip and nothing hidden under it.
+
+- **NeoForge 1.21.1**: Tough As Nails 10.1.0.13, Iron's Spells 'n Spellbooks 3.16.3, Thirst Was Taken 2.1.5, Legendary Survival Overhaul 2.4.7.2, Survive 10.2.0, AsteorBar 1.5.3, ParCool 4.0.1.2 and Cold Sweat 2.4.3.1, plus Tough As Nails, Thirst Was Taken and Iron's Spells 'n Spellbooks together
+- **Fabric 1.21.1**: Tough As Nails 10.1.0.13 and AsteorBar 1.5.3
+- **Fabric 1.20.1**: Tough As Nails 9.2.0.171, Dehydration 1.3.6 and AsteorBar 1.5.3
+
+Other HUD mods, and these mods on other loaders or versions, have not been tested.
 
 ## Commands
 
