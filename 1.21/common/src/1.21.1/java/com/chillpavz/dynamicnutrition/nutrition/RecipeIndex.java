@@ -11,8 +11,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.material.Fluid;
 
 import com.chillpavz.dynamicnutrition.Constants;
 
@@ -63,6 +65,16 @@ public final class RecipeIndex {
                 ItemStack result = holder.value().getResultItem(registries);
                 if (result != null && !result.isEmpty()) {
                     outputs.add(result.getItem());
+                }
+                // A recipe that makes a fluid (Create's mixer making cream frosting) is filed under
+                // the fluid's bucket too, or the bucket only knows the recipe that fills it.
+                for (Object fluid : RecipeFluids.fluidResultsOf(holder.value())) {
+                    if (fluid instanceof Fluid f) {
+                        Item bucket = f.getBucket();
+                        if (bucket != null && bucket != Items.AIR && bucket != Items.BUCKET) {
+                            outputs.add(bucket);
+                        }
+                    }
                 }
             } catch (Throwable t) {
                 // Some modded recipes throw from getResultItem outside a crafting context. Skipping the

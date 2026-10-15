@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -573,7 +574,9 @@ public final class NutritionTable {
     /**
      * A recipe's ingredients, or null for one that cannot tell us anything: one with no ingredients
      * (a code driven recipe), one with an ingredient no item satisfies, or one that throws. Empty
-     * slots are dropped, as a shaped recipe's gaps are. This band's stand-in for 26.x's
+     * slots ({@code Ingredient.EMPTY} itself, as a shaped recipe's gaps are) are dropped. Not
+     * {@code isEmpty()}: on Forge an ingredient whose tag no mod fills reports empty too, and a
+     * recipe that needs one cannot be made, so it must not be walked without it. This band's stand-in for 26.x's
      * {@code PlacementInfo}, which arrived at 1.21.2.
      *
      * <p>{@code isSpecial()} is not a test: it only keeps a recipe out of the recipe book, and the
@@ -586,18 +589,41 @@ public final class NutritionTable {
             var recipe = holder.value();
             List<Ingredient> ingredients = new ArrayList<>();
             for (Ingredient ingredient : recipe.getIngredients()) {
-                if (ingredient == null || ingredient.isEmpty()) {
+                if (ingredient == null || ingredient == Ingredient.EMPTY) {
                     continue;
                 }
-                if (ingredient.getItems().length == 0) {
+                if (onlyPlaceholders(ingredient.getItems())) {
                     return null;
                 }
                 ingredients.add(ingredient);
+            }
+            // Fluid ingredients (Create's milk, cream, honey) stand in the walk as their buckets.
+            for (Object fluid : RecipeFluids.fluidsOf(recipe)) {
+                if (fluid instanceof Fluid f) {
+                    Item bucket = f.getBucket();
+                    if (bucket != null && bucket != Items.AIR && bucket != Items.BUCKET) {
+                        ingredients.add(Ingredient.of(bucket));
+                    }
+                }
             }
             return ingredients.isEmpty() ? null : ingredients;
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    /**
+     * True when an ingredient offers no real item: none at all, or only the barrier Forge and NeoForge
+     * put in an ingredient whose tag no mod fills ("Empty Tag: forge:raw_beef"). A recipe that needs
+     * one cannot be made in this pack, so it must not be walked from its other ingredients.
+     */
+    private static boolean onlyPlaceholders(ItemStack[] items) {
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty() && !stack.is(Items.BARRIER)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
