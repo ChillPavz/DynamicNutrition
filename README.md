@@ -54,7 +54,7 @@ convention tags, including the subtags mods add for themselves, so dragon meat r
 food served differently, such as a stew in a cup or a slice of a feast, is worth what that food is
 worth, and last a food's own name is read: spider meat is meat.
 
-In 18 test packs with about 280 food mods on 1.20.1 and 1.21.1 (30,668 foods), 97.0% of the foods
+In 18 test packs with about 280 food mods on 1.20.1 and 1.21.1 (30,668 foods), 97.6% of the foods
 got values this way; on NeoForge 26.2 (28 food mods) 99.5%, and on 26.1.2 (45 food mods) 98.5%. The
 rest have none, and `/dynamicnutrition unassigned` lists them. Writing values by hand for every food
 mod is not realistic: there are thousands of modded foods, they change between versions, and many are
