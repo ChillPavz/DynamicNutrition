@@ -65,9 +65,31 @@
     "protein": 1,
     "vitamins": 7
   },
+  "createcafe:coffee_beans": {
+    "carbohydrates": 8,
+    "fat": 6,
+    "minerals": 9,
+    "protein": 5,
+    "vitamins": 1
+  },
+  "createcafe:coffee_fruit": {
+    "carbohydrates": 2,
+    "minerals": 2,
+    "vitamins": 4
+  },
   "createcafe:tapioca_flour": {
     "carbohydrates": 24,
     "minerals": 1
+  },
+  "createfood:apple_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
+  },
+  "createfood:berry_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
   },
   "createfood:bread_slice": {
     "carbohydrates": 8,
@@ -89,11 +111,31 @@
     "protein": 6,
     "vitamins": 1
   },
+  "createfood:chocolate_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
+  },
+  "createfood:chorus_fruit_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
+  },
   "createfood:condensed_milk_bottle": {
     "carbohydrates": 15,
     "fat": 4,
     "minerals": 4,
     "protein": 3,
+    "vitamins": 1
+  },
+  "createfood:cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
+  },
+  "createfood:glow_berry_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
     "vitamins": 1
   },
   "createfood:heavy_cream_bottle": {
@@ -106,6 +148,11 @@
   "createfood:marshmallow": {
     "carbohydrates": 22,
     "protein": 1
+  },
+  "createfood:melon_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
   },
   "createfood:pasta": {
     "carbohydrates": 21,
@@ -124,6 +171,11 @@
     "carbohydrates": 1,
     "minerals": 2,
     "vitamins": 5
+  },
+  "createfood:ube_cream_frosting_bottle": {
+    "carbohydrates": 13,
+    "fat": 8,
+    "vitamins": 1
   },
   "croptopia:almond": {
     "carbohydrates": 2,
@@ -726,6 +778,13 @@
     "protein": 4,
     "vitamins": 1
   },
+  "farmersrespite:coffee_beans": {
+    "carbohydrates": 8,
+    "fat": 6,
+    "minerals": 9,
+    "protein": 5,
+    "vitamins": 1
+  },
   "fruitsdelight:lemon_slice": {
     "carbohydrates": 5,
     "minerals": 2,
@@ -768,6 +827,12 @@
     "minerals": 8,
     "protein": 4,
     "vitamins": 3
+  },
+  "kaleidoscope_nether:soul_pepper": {
+    "carbohydrates": 2,
+    "minerals": 2,
+    "protein": 1,
+    "vitamins": 11
   },
   "meadow:cheese_slice": {
     "fat": 9,
@@ -839,6 +904,13 @@
     "minerals": 4,
     "protein": 5,
     "vitamins": 2
+  },
+  "mynethersdelight:bread_loaf": {
+    "carbohydrates": 13,
+    "fat": 2,
+    "minerals": 2,
+    "protein": 4,
+    "vitamins": 1
   },
   "mystias_izakaya:dou_fu": {
     "carbohydrates": 1,
@@ -978,6 +1050,12 @@
     "minerals": 4,
     "protein": 1,
     "vitamins": 13
+  },
+  "twilightforest:firefly": {
+    "fat": 3,
+    "minerals": 4,
+    "protein": 8,
+    "vitamins": 1
   },
   "vanilladelight:butter": {
     "fat": 12,
