@@ -110,7 +110,13 @@ public final class HudPlacement {
      */
     public static int topFixed(int guiHeight, boolean airShowing) {
         int up = FOOD_ROW_UP + ROW * (fixedRows() + (airShowing ? 1 : 0));
-        up = Math.max(up, AsteorBar.rightUp());
+        int asteor = AsteorBar.rightUp();
+        if (asteor > 0) {
+            // AsteorBar's counter is where its NEXT row would start, one row above the top of its
+            // highest bar, as vanilla's is. Its bars replace the food row and it counts its own air
+            // bar, so neither the food row nor the bubbles' row is added here.
+            up = asteor - ROW + ROW * fixedRows();
+        }
         return guiHeight - up - ROW_GAP - STRIP_H;
     }
 
