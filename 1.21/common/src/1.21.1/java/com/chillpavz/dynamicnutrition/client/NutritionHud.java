@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
@@ -46,7 +47,7 @@ public final class NutritionHud {
     // Must match art/gen_art.py. The generator asserts the source art has this exact geometry, so
     // the two cannot drift without the art build failing first.
     private static final int STRIP_W = 56;
-    private static final int STRIP_H = 5;
+    private static final int STRIP_H = HudPlacement.STRIP_H;
     private static final int SECTION_W = 10;
     private static final int SECTION_PITCH = 11;
     private static final int SECTION_X0 = 1;
@@ -55,22 +56,6 @@ public final class NutritionHud {
 
     /** Vanilla's own right-hand HUD column: the food bar's right edge. */
     private static final int BAR_RIGHT_FROM_CENTRE = 91;
-
-    /** The top of the food bar, counted up from the bottom of the screen. */
-    private static final int FOOD_ROW_UP = 39;
-
-    /** The top of the air bubble row, which is one vanilla row above the food bar. */
-    private static final int AIR_ROW_UP = 49;
-
-    /**
-     * The gap vanilla leaves between two stacked HUD rows.
-     *
-     * <p>Vanilla's rows are ten pixels apart and its icons are nine tall, so ONE pixel is the
-     * spacing the hotbar, the hunger bar and the bubbles all use between themselves. Two reads
-     * better here, because the strip is a different kind of thing from the row below it rather than
-     * another row of the same gauge, and at one pixel it looked joined to the hunger bar.
-     */
-    private static final int ROW_GAP = 2;
 
     /**
      * How to ask whether the player has hidden the HUD with F1, resolved once.
@@ -134,40 +119,66 @@ public final class NutritionHud {
         return () -> false;
     }
 
+    /**
+     * The strip on a loader with NO right-column counter (Fabric, and Forge 1.21.x): vanilla's fixed
+     * rows, the bubbles while they show, and the rows of the known HUD mods. See {@link HudPlacement}.
+     */
     public static void render(GuiGraphics gfx, DeltaTracker delta) {
+        LocalPlayer player = visiblePlayer();
+        if (player != null) {
+            // The same test vanilla uses for the bubble row: eyes in water, or short of air.
+            boolean air = player.isEyeInFluid(FluidTags.WATER)
+                    || player.getAirSupply() < player.getMaxAirSupply();
+            draw(gfx, player, HudPlacement.topFixed(gfx.guiHeight(), air));
+        }
+    }
+
+    /**
+     * The strip on a loader that KEEPS the right-column counter (NeoForge, and Forge 1.20.1): on top
+     * of whatever the column already holds, and the counter comes back raised past the strip, so a
+     * mod drawn after it stacks above it. Unchanged when the strip is not drawn.
+     */
+    public static int renderOnCounter(GuiGraphics gfx, int rightHeight) {
+        LocalPlayer player = visiblePlayer();
+        if (player == null) {
+            return rightHeight;
+        }
+        int column = HudPlacement.correctedCounter(rightHeight, player);
+        draw(gfx, player, HudPlacement.topFromCounter(gfx.guiHeight(), column));
+        return HudPlacement.counterAfter(column);
+    }
+
+    /** The player whose strip is drawn, or null when nothing is drawn at all. */
+    private static LocalPlayer visiblePlayer() {
         if (!NutritionConfig.hudEnabled) {
-            return;
+            return null;
         }
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
         if (player == null) {
-            return;
+            return null;
         }
         // F1. A hidden HUD DOES still visit third party elements, on both 26.1 and 26.2, so this
         // has to be tested rather than assumed. See hudHidden.
         if (hudHidden(client)) {
-            return;
+            return null;
         }
         // Match the hunger bar: it is not drawn in creative or spectator, so neither is this.
         if (player.isCreative() || player.isSpectator()) {
-            return;
+            return null;
         }
+        return player;
+    }
 
+    private static void draw(GuiGraphics gfx, LocalPlayer player, int top) {
         PlayerNutrition nutrition = Services.STORAGE.get(player);
 
         int right = gfx.guiWidth() / 2 + BAR_RIGHT_FROM_CENTRE + NutritionConfig.hudOffsetX;
-        // Sit the strip's BOTTOM one pixel above whatever row is currently topmost on the right.
-        // The air bubbles take the row above the food bar, and only while the player is short of
-        // air, so step up rather than overlap. Checking the air supply is cheaper and more honest
-        // than checking whether the player is in water, which is not the same question.
-        int rowUp = player.getAirSupply() < player.getMaxAirSupply() ? AIR_ROW_UP : FOOD_ROW_UP;
-
         // CLAMPED, never hidden. An offset that pushed the strip off the edge used to make it
         // vanish, so a player nudging the config lost the feature and had no way to tell whether
         // they had broken it or switched it off.
         int left = clamp(right - STRIP_W, 0, gfx.guiWidth() - STRIP_W);
-        int y = clamp(gfx.guiHeight() - rowUp - ROW_GAP - STRIP_H + NutritionConfig.hudOffsetY,
-                0, gfx.guiHeight() - STRIP_H);
+        int y = clamp(top + NutritionConfig.hudOffsetY, 0, gfx.guiHeight() - STRIP_H);
 
         GuiBlit.texture(gfx, STRIP, left, y, 0, 0, STRIP_W, STRIP_H,
                 TEX_W, TEX_H);

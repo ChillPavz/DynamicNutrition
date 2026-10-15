@@ -15,7 +15,6 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
@@ -127,12 +126,21 @@ public final class DynamicNutritionNeoForgeClient {
         modBus.addListener(RegisterKeyMappingsEvent.class, event ->
                 event.register(DynamicNutritionKeys.OPEN_SCREEN));
 
-        // Also a MOD bus event. Registered above the food level layer so the strip draws over the
-        // same region the hunger bar owns rather than under it.
+        // Also a MOD bus event. Registered LAST, above every layer, and placed by NeoForge's
+        // right-column counter rather than a fixed row: every other mod's bar keeps the place it
+        // chose (food, bubbles, Tough As Nails' thirst, Iron's Spells' mana, anything that plays by
+        // the counter) and the strip goes on top of whatever the column holds. It still raises the
+        // counter, for a mod that reads it later still.
         modBus.addListener(RegisterGuiLayersEvent.class, event ->
-                event.registerAbove(VanillaGuiLayers.FOOD_LEVEL,
+                event.registerAboveAll(
                         ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "nutrients"),
-                        NutritionHud::render));
+                        (graphics, delta) -> {
+                            if (RightColumn.available()) {
+                                RightColumn.set(NutritionHud.renderOnCounter(graphics, RightColumn.get()));
+                            } else {
+                                NutritionHud.render(graphics, delta);
+                            }
+                        }));
 
         // Init.Post is a GAME bus event and fires again whenever the screen re-inits, which the
         // inventory does when the recipe book is toggled and the panel moves.

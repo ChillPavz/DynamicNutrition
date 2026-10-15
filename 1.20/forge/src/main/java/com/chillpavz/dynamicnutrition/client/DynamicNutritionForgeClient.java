@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraft.client.renderer.FogRenderer;
@@ -64,13 +63,13 @@ public final class DynamicNutritionForgeClient {
         modBus.addListener((RegisterKeyMappingsEvent event) ->
                 event.register(DynamicNutritionKeys.OPEN_SCREEN));
 
-        // The HUD strip, as an overlay just above vanilla's food level, so it draws over the region
-        // the hunger bar owns rather than under it. A MOD bus event, and Forge 47's flat overlay
-        // list (the target first, then the new id). The strip computes its own position, so this
-        // decides z-order and nothing else.
-        modBus.addListener((RegisterGuiOverlaysEvent event) -> event.registerAbove(
-                VanillaGuiOverlay.FOOD_LEVEL.id(), "nutrients",
-                (gui, graphics, partialTick, width, height) -> NutritionHud.render(graphics, partialTick)));
+        // The HUD strip, as the LAST overlay, so every other overlay keeps the place it chose and
+        // the strip goes on top. A MOD bus event. Placed by ForgeGui's right-column counter, not a
+        // fixed row: it sits on top of whatever the column holds by then (food, bubbles, any mod
+        // that plays by the counter) and raises it.
+        modBus.addListener((RegisterGuiOverlaysEvent event) -> event.registerAboveAll("nutrients",
+                (gui, graphics, partialTick, width, height) ->
+                        gui.rightHeight = NutritionHud.renderOnCounter(graphics, gui.rightHeight)));
 
         // Init.Post fires again whenever the screen re-inits, which the inventory does when the
         // recipe book is toggled and the panel moves.
