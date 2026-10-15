@@ -59,6 +59,16 @@
     "protein": 3,
     "vitamins": 1
   },
+  "createcafe:cassava_root": {
+    "carbohydrates": 19,
+    "minerals": 4,
+    "protein": 1,
+    "vitamins": 7
+  },
+  "createcafe:tapioca_flour": {
+    "carbohydrates": 24,
+    "minerals": 1
+  },
   "createfood:bread_slice": {
     "carbohydrates": 8,
     "fat": 1,
@@ -549,6 +559,12 @@
     "protein": 4,
     "vitamins": 1
   },
+  "expandeddelight:cheese_wheel": {
+    "fat": 19,
+    "minerals": 9,
+    "protein": 12,
+    "vitamins": 2
+  },
   "extradelight:butter": {
     "fat": 12,
     "vitamins": 1
@@ -745,13 +761,6 @@
     "carbohydrates": 1,
     "minerals": 2,
     "vitamins": 5
-  },
-  "kaleidoscope_cookery:fondant_spider_eye": {
-    "carbohydrates": 26,
-    "fat": 3,
-    "minerals": 5,
-    "protein": 9,
-    "vitamins": 3
   },
   "kaleidoscope_cookery:sweet_and_sour_ender_pearls": {
     "carbohydrates": 21,
