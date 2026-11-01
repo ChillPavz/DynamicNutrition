@@ -29,11 +29,11 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-# Cloth Config, REQUIRED on this band. Official cloth still ships a Forge build at this Minecraft
-# version, under the same mod id.
+# Cloth Config, OPTIONAL on this band. Official cloth still ships a Forge build at this Minecraft
+# version, under the same mod id. Without it the mod runs on its defaults with no config screen.
 [[dependencies.${mod_id}]]
 modId = "cloth_config"
-mandatory = true
-versionRange = "[${cloth_config_version},)"
+mandatory = false
+versionRange = "[${cloth_config_floor},)"
 ordering = "AFTER"
 side = "BOTH"

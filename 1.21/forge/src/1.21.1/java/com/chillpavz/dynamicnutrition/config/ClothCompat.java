@@ -13,13 +13,11 @@ import com.chillpavz.dynamicnutrition.Constants;
  * Everything that touches cloth-config, on Forge.
  *
  * <h2>Why this class exists at all, and why a try/catch is not enough</h2>
- * Cloth is a REQUIRED dependency on this band, unlike the 26.x one where it is optional to win the
- * day-zero update after a Minecraft release. There is no such race on a version this old, so
- * requiring it buys a config screen that is always there.
+ * Cloth is OPTIONAL on this band. One Forge file serves a store page that lists it as optional, so
+ * a jar that insists on it stops the game for a player who was never told to install it.
  *
- * <p>The isolation still earns its keep, for two reasons. A required dependency can still fail to
- * initialise, and rule nine says degrade rather than crash: a broken cloth leaves the mod running
- * on its defaults instead of taking the game down. And {@link ClothConfigData} implements a cloth
+ * <p>The isolation is what makes that safe: cloth absent or broken leaves the mod running on its
+ * defaults instead of taking the game down. And {@link ClothConfigData} implements a cloth
  * interface, so merely verifying a method that mentions it can trigger the class load, which is why
  * a {@code catch (Throwable)} around the annotated class would not be enough on its own. Nothing
  * outside this class names anything cloth-shaped.
@@ -53,10 +51,9 @@ public final class ClothCompat {
             }
         }
         if (!available) {
-            // Declared required in mods.toml, so reaching here means the loader let a jar through
-            // without it. Say so plainly rather than pretending this is a supported shape.
-            Constants.LOG.warn("Cloth Config is required on this version but was not found. "
-                    + "There is no config screen; everything else works on the defaults.");
+            // Optional on this version (mods.toml says mandatory = false): this is a supported shape.
+            Constants.LOG.info("Cloth Config is not installed, so there is no config screen. "
+                    + "Everything else works on the defaults.");
             return;
         }
         try {

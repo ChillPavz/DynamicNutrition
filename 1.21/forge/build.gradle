@@ -106,8 +106,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 
-    // Which Cloth artifact is per band: see forge_cloth_artifact in versions/. REQUIRED, same as
-    // the other two loaders.
+    // Which Cloth artifact is per band: see forge_cloth_artifact in versions/. OPTIONAL at run
+    // time on Forge (mods.toml); needed here to compile ClothCompat.
     // No fg.deobf: this module compiles against official mappings (mappings channel 'official',
     // reobf = false above), and Forge has shipped official names since 1.20.6, so the published jar
     // already matches. fg.deobf instead asks for a "..._mapped_official_<mc>" artifact that nobody

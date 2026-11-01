@@ -108,6 +108,7 @@ processResources {
             'fabric_version'               : fabric_version,
             'fabric_loader_version'        : fabric_loader_version,
             'cloth_config_version'         : cloth_config_version,
+            'cloth_config_floor'           : cloth_config_floor,
             'modmenu_version'              : modmenu_version,
             'mod_name'                     : mod_name,
             'mod_author'                   : mod_author,

@@ -41,6 +41,6 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "cloth_config"
 type = "required"
-versionRange = "[${cloth_config_version},)"
+versionRange = "[${cloth_config_floor},)"
 ordering = "AFTER"
 side = "BOTH"
