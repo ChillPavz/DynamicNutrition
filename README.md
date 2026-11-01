@@ -30,6 +30,14 @@ foods and each drained at its own rate.
   never see an effect twice. Hovering a bar on the nutrition screen names the two effects that bar
   controls.
 
+- **What you do decides which nutrients you burn.** Running draws on carbs, swimming on carbs and
+  fat, fighting on protein, working with tools on minerals, healing on vitamins, the cold on fat, and
+  heat on vitamins and minerals. The total stays the same, so this moves decay and adds none.
+- **What you eat changes how long it fills you.** Protein and fat last longer, carbs run out sooner.
+- **Ketosis.** A full in-game day of low carbs with fat to spare turns your body to fat for fuel:
+  carbs barely fall, fat falls faster, low carbs stop slowing you and meals last longer. Your fat
+  percentage turns yellow while it lasts, and hovering it explains why. Eating real carbs ends it.
+
 ## Where to look
 
 - **Press N** to open the nutrition screen, or use the small button in your inventory. The keybind
@@ -38,6 +46,11 @@ foods and each drained at its own rate.
   pixel is worth exactly ten points. It sits above whatever else is in the right-hand column, so a
   bar another mod adds there keeps its place and the strip moves up (see
   [HUD mods tested](#hud-mods-tested)).
+- **The food finder** opens from the question mark on the nutrition screen, or by clicking a
+  nutrient. Pick a nutrient to list the foods with the most of it, or use the star for the best
+  foods for you right now. Foods that can harm you have their names in red.
+- **Holding a food** previews it: the strip fills in white up to where the meal would land, and the
+  nutrition screen shows a pale extension on each bar.
 - **Food tooltips** show what that food is worth to you right now. Hold F3 and H for where the value
   came from.
 - **The bars are marked** with the two thresholds for that nutrient. The marks turn white once you
@@ -54,7 +67,7 @@ convention tags, including the subtags mods add for themselves, so dragon meat r
 food served differently, such as a stew in a cup or a slice of a feast, is worth what that food is
 worth, and last a food's own name is read: spider meat is meat.
 
-In 18 test packs with about 280 food mods on 1.20.1 and 1.21.1 (30,668 foods), 97.6% of the foods
+In 18 test packs with over 400 food mods on 1.20.1 and 1.21.1 (30,668 foods), 97.6% of the foods
 got values this way; on NeoForge 26.2 (28 food mods) 99.5%, and on 26.1.2 (45 food mods) 98.5%. The
 rest have none, and `/dynamicnutrition unassigned` lists them. Writing values by hand for every food
 mod is not realistic: there are thousands of modded foods, they change between versions, and many are
@@ -63,11 +76,29 @@ improves with every reported case of a food that gets no values or the wrong one
 
 ## Configuration
 
-Cloth Config gives the mod a settings screen in four tabs: the HUD strip, the inventory button and
-tooltips, the variety mechanic, and the nutrient effects, where each of the ten effects has its own
-strength and you can hide Well Nourished and Malnourished from the top of the screen, from beside
+Cloth Config gives the mod a settings screen in five tabs: the HUD strip, the inventory button and
+tooltips, the variety mechanic, hunger (drain speed, fullness, activity and ketosis), and the nutrient
+effects, where each of the ten effects has its own strength, from 0 to turn it off to 100, and you can hide Well Nourished and Malnourished from the top of the screen, from beside
 the inventory, or both. Hidden, they still work. Where Cloth is optional, the mod runs on its
 defaults without it and there is no settings screen.
+
+## Body temperature mods
+
+With one of these installed, your real body temperature decides whether you count as cold or hot
+instead of the biome, so clothing that keeps you warm or cool counts if the mod includes it. Tested:
+
+- **Tough As Nails**: Fabric 26.3, 26.1.2, 1.21.1 and 1.20.1; NeoForge 26.2, 1.21.11 and 1.21.1; Forge 1.20.1
+- **Cold Sweat**: NeoForge 1.21.1, Forge 1.20.1
+- **Legendary Survival Overhaul**: NeoForge 1.21.1, Forge 1.20.1
+- **Survive**: NeoForge 1.21.1
+- **Frostiful**: Fabric 26.1.2
+
+Forge 1.20.1 was checked on a server that finds the mod and starts, not with a player reading a
+temperature. These mods on other versions or loaders have not been tested, and without a working
+reading the biome decides.
+
+AppleSkin's saturation preview shows what a meal will really give. Tested on Fabric 26.3, 1.21.1 and
+1.20.1, NeoForge 26.2 and 1.21.1, and Forge 1.20.1.
 
 ## Languages
 
