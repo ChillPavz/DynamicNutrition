@@ -50,6 +50,14 @@ public class ClothConfigData implements ConfigData {
 
     @ConfigEntry.Category("inventory")
     @ConfigEntry.Gui.Tooltip
+    public boolean finderTooltipsEnabled = true;
+
+    @ConfigEntry.Category("inventory")
+    @ConfigEntry.Gui.Tooltip
+    public boolean effectHoverEnabled = true;
+
+    @ConfigEntry.Category("inventory")
+    @ConfigEntry.Gui.Tooltip
     public boolean buttonEnabled = true;
 
     @ConfigEntry.Category("inventory")

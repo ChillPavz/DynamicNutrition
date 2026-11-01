@@ -153,6 +153,12 @@ public final class NutritionConfig {
      */
     public static volatile int revision;
 
+    /** Whether hovering a food in the food finder shows its tooltip. */
+    public static boolean finderTooltipsEnabled = true;
+
+    /** Whether hovering Well Nourished or Malnourished lists the effects it stands for. */
+    public static boolean effectHoverEnabled = true;
+
     /** Whether a food in hand marks where it would take the strip and the bars. */
     public static boolean mealPreviewEnabled = true;
 

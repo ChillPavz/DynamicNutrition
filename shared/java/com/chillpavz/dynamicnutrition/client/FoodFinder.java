@@ -73,6 +73,12 @@ public final class FoodFinder {
     private static final int PIP_H = 14;
     private static final int SCROLLBAR_W = 3;
 
+    /** Row text, centred on what is drawn: glyphs are seven pixels tall in a nine pixel line. */
+    private static final int TEXT_IN_ROW = (ROW_H - 7) / 2;
+
+    /** A thin bar is hard to hit, so a click this close counts. */
+    private static final int SCROLLBAR_REACH = 2;
+
     private static final int TEXT = 0xFF3F3F3F;
     private static final int TEXT_HARMFUL = 0xFFB02020;
     private static final int HOVER = 0x30000000;
@@ -92,6 +98,7 @@ public final class FoodFinder {
     private int visibleRows;
     private int scroll;
     private EditBox searchBox;
+    private boolean dragging;
 
     private final List<Row> rows = new ArrayList<>();
     private int builtGeneration = -1;
@@ -261,7 +268,7 @@ public final class FoodFinder {
     }
 
     private int rowAt(double mouseX, double mouseY) {
-        if (mouseX < left + PAD || mouseX >= left + width - PAD || mouseY < listY) {
+        if (mouseX < left + PAD || mouseX >= scrollbarX() - GAP || mouseY < listY) {
             return -1;
         }
         int index = ((int) mouseY - listY) / ROW_H;
@@ -295,7 +302,7 @@ public final class FoodFinder {
         }
         drawScrollbar(paint);
 
-        if (hoveredRow >= 0) {
+        if (hoveredRow >= 0 && NutritionConfig.finderTooltipsEnabled) {
             paint.tooltip(Screen.getTooltipFromItem(Minecraft.getInstance(), rows.get(hoveredRow).stack()),
                     mouseX, mouseY);
         } else if (hoveredChip >= 0) {
@@ -346,23 +353,44 @@ public final class FoodFinder {
         if (nutrient != null) {
             Component amount = Component.literal(String.valueOf(row.values()[all.indexOf(nutrient)]));
             amountW = font.width(amount) + GAP;
-            paint.text(amount, pipX - amountW, y + (ROW_H - font.lineHeight) / 2, TEXT);
+            paint.text(amount, pipX - amountW, y + TEXT_IN_ROW, TEXT);
         }
         int nameX = left + PAD + ICON + GAP;
         int room = pipX - amountW - GAP - nameX;
         paint.text(Component.literal(font.plainSubstrByWidth(row.name().getString(), room)), nameX,
-                y + (ROW_H - font.lineHeight) / 2, row.harmful() ? TEXT_HARMFUL : TEXT);
+                y + TEXT_IN_ROW, row.harmful() ? TEXT_HARMFUL : TEXT);
     }
 
     /** A food's bar is full here, about the most one food gives of one nutrient in the vanilla table. */
     private static final int PIP_FULL = 32;
 
+    private int scrollbarX() {
+        return left + width - PAD - SCROLLBAR_W;
+    }
+
+    private int thumbH() {
+        return Math.max(8, visibleRows * ROW_H * visibleRows / Math.max(1, rows.size()));
+    }
+
+    private boolean onScrollbar(double mouseX, double mouseY) {
+        return rows.size() > visibleRows && mouseX >= scrollbarX() - SCROLLBAR_REACH
+                && mouseX < scrollbarX() + SCROLLBAR_W + SCROLLBAR_REACH
+                && mouseY >= listY && mouseY < listY + visibleRows * ROW_H;
+    }
+
+    /** Puts the middle of the thumb under the mouse. */
+    private void scrollTo(double mouseY) {
+        int travel = visibleRows * ROW_H - thumbH();
+        double share = travel <= 0 ? 0.0 : (mouseY - listY - thumbH() / 2.0) / travel;
+        scroll = (int) Math.round(Math.max(0.0, Math.min(1.0, share)) * maxScroll());
+    }
+
     private void drawScrollbar(Painter paint) {
-        int x = left + width - PAD - SCROLLBAR_W;
+        int x = scrollbarX();
         int trackH = visibleRows * ROW_H;
         paint.fill(x, listY, x + SCROLLBAR_W, listY + trackH, PIP_TRACK);
         if (rows.size() > visibleRows) {
-            int thumbH = Math.max(8, trackH * visibleRows / rows.size());
+            int thumbH = thumbH();
             int thumbY = listY + (trackH - thumbH) * scroll / maxScroll();
             paint.fill(x, thumbY, x + SCROLLBAR_W, thumbY + thumbH, 0xFF606060);
         }
@@ -370,6 +398,11 @@ public final class FoodFinder {
 
     /** A click on a nutrient chip picks that nutrient, and again clears it. */
     public boolean click(double mouseX, double mouseY) {
+        if (onScrollbar(mouseX, mouseY)) {
+            dragging = true;
+            scrollTo(mouseY);
+            return true;
+        }
         int chip = chipAt(mouseX, mouseY);
         if (chip < 0) {
             return false;
@@ -379,6 +412,18 @@ public final class FoodFinder {
         stale = true;
         scroll = 0;
         return true;
+    }
+
+    /** The mouse moved with a button held: true when that was dragging the scrollbar. */
+    public boolean dragged(double mouseY) {
+        if (dragging) {
+            scrollTo(mouseY);
+        }
+        return dragging;
+    }
+
+    public void released() {
+        dragging = false;
     }
 
     public void scrolled(double amount) {

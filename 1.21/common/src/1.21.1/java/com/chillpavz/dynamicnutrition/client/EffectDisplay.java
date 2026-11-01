@@ -14,6 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
+import com.chillpavz.dynamicnutrition.Constants;
+import com.chillpavz.dynamicnutrition.config.NutritionConfig;
 import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
 import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 import com.chillpavz.dynamicnutrition.platform.Services;
@@ -30,6 +32,8 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  * drawn at all: the server takes them off within a second, and this keeps that second invisible.
  */
 public final class EffectDisplay {
+
+    private static boolean emptyHoverLogged;
 
     private EffectDisplay() {
     }
@@ -74,6 +78,9 @@ public final class EffectDisplay {
     public static List<Component> describe(MobEffectInstance instance) {
         try {
             Minecraft client = Minecraft.getInstance();
+            if (!NutritionConfig.effectHoverEnabled) {
+                return List.of();
+            }
             if (instance == null || client.player == null
                     || !NutrientEffects.isDisplay(instance.getEffect())) {
                 return List.of();
@@ -153,6 +160,12 @@ public final class EffectDisplay {
             MobEffectInstance hit = hoveredInInventory(shown, x, top, available, mouseX, mouseY);
             List<Component> lines = describe(hit);
             if (lines.isEmpty()) {
+                if (hit != null && NutrientEffects.isDisplay(hit.getEffect()) && !emptyHoverLogged
+                        && NutritionConfig.effectHoverEnabled) {
+                    emptyHoverLogged = true;
+                    Constants.LOG.info("Hovered {} but nothing is listed for it: the client holds no effect on that side",
+                            hit.getEffect().getRegisteredName());
+                }
                 return;
             }
             List<Component> tooltip = new ArrayList<>(lines.size() + 1);

@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
+import com.chillpavz.dynamicnutrition.config.NutritionConfig;
 import com.chillpavz.dynamicnutrition.effect.NutrientEffects;
 import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 import com.chillpavz.dynamicnutrition.platform.Services;
@@ -73,6 +74,9 @@ public final class EffectDisplay {
     public static List<Component> describe(MobEffectInstance instance) {
         try {
             Minecraft client = Minecraft.getInstance();
+            if (!NutritionConfig.effectHoverEnabled) {
+                return List.of();
+            }
             if (instance == null || client.player == null
                     || !NutrientEffects.isDisplay(instance.getEffect())) {
                 return List.of();

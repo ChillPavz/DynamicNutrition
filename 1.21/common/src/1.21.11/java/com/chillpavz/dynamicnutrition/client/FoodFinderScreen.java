@@ -88,6 +88,17 @@ public class FoodFinderScreen extends Screen {
     }
 
     @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        return finder.dragged(event.y()) || super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        finder.released();
+        return super.mouseReleased(event);
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         finder.scrolled(scrollY);
         return true;
