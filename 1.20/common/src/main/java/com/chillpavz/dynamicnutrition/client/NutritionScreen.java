@@ -16,7 +16,6 @@ import com.chillpavz.dynamicnutrition.effect.SyncedEffectSettings;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.platform.Services;
-import com.chillpavz.dynamicnutrition.player.NutrientStatus;
 import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
 
 /**
@@ -67,10 +66,8 @@ public class NutritionScreen extends Screen {
 
     /** Vanilla's own dark label colour on a light panel. */
     private static final int TEXT = 0xFF3F3F3F;
-    /** The status colours are the nutrients' own: protein's red, vitamins' green, fat's yellow. */
-    private static final int TEXT_WARN = 0xFFB20000;
-    private static final int TEXT_ABOVE = 0xFF00E500;
     private static final int ROW_HOVER = 0x30000000;
+    /** Fat's own yellow, only for ketosis: the bar already shows the rest. */
     private static final int TEXT_KETOSIS = 0xFFF2F200;
     private static final Component KETOSIS_TIP =
             Component.translatable("screen." + Constants.MOD_ID + ".ketosis");
@@ -133,14 +130,6 @@ public class NutritionScreen extends Screen {
                 b -> openFinder(null)));
     }
 
-    private static int valueColour(PlayerNutrition nutrition, Nutrient nutrient, NutrientStatus status) {
-        if (ketosis(nutrition, nutrient)) {
-            return TEXT_KETOSIS;
-        }
-        return status == NutrientStatus.MALNOURISHED ? TEXT_WARN
-                : status == NutrientStatus.ON_TARGET ? TEXT_ABOVE : TEXT;
-    }
-
     /** Ketosis shows on the fat row: the number turns yellow and says why when hovered. */
     private static boolean ketosis(PlayerNutrition nutrition, Nutrient nutrient) {
         return nutrition != null && nutrient == Nutrients.FAT && nutrition.inKetosis();
@@ -179,8 +168,6 @@ public class NutritionScreen extends Screen {
                     rowY + (ROW_H - this.font.lineHeight) / 2, TEXT, false);
 
             int value = nutrition == null ? 0 : nutrition.display(nutrient);
-            NutrientStatus status = nutrition == null
-                    ? NutrientStatus.SAFE : nutrition.status(nutrient);
 
             if (mouseX >= left + PAD && mouseX < barX - GAP && mouseY >= rowY && mouseY < rowY + ROW_H) {
                 gfx.fill(left + PAD, rowY, barX - GAP, rowY + ROW_H, ROW_HOVER);
@@ -193,7 +180,7 @@ public class NutritionScreen extends Screen {
             // Right-aligned against the measured width, which is what makes the forced-unicode font
             // a non-event rather than the visible dislocation it otherwise causes.
             int vx = valueX + (this.font.width(valueText(100)) - this.font.width(valueLabel));
-            int valueColour = valueColour(nutrition, nutrient, status);
+            int valueColour = ketosis(nutrition, nutrient) ? TEXT_KETOSIS : TEXT;
             // Only yellow needs the shadow to read on the light panel.
             gfx.drawString(this.font, valueLabel, vx, rowY + (ROW_H - this.font.lineHeight) / 2,
                     valueColour, valueColour == TEXT_KETOSIS);
