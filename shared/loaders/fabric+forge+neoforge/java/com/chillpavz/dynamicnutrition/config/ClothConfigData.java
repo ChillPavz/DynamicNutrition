@@ -42,6 +42,10 @@ public class ClothConfigData implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean announceStatusChanges = true;
 
+    @ConfigEntry.Category("hud")
+    @ConfigEntry.Gui.Tooltip
+    public boolean mealPreviewEnabled = true;
+
     // ---------------------------------------------------------------- inventory
 
     @ConfigEntry.Category("inventory")

@@ -14,6 +14,7 @@ import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.config.NutritionConfig;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
+import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
 import com.chillpavz.dynamicnutrition.platform.Services;
 import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
 
@@ -182,6 +183,7 @@ public final class NutritionHud {
         GuiBlit.texture(gfx, STRIP, left, y, 0, 0, STRIP_W, STRIP_H,
                 TEX_W, TEX_H);
 
+        NutritionValues meal = MealPreview.held(player);
         int index = 0;
         for (Nutrient nutrient : Nutrients.all()) {
             int sectionX = SECTION_X0 + index * SECTION_PITCH;
@@ -193,9 +195,23 @@ public final class NutritionHud {
                 GuiBlit.texture(gfx, STRIP, left + sectionX, y,
                         sectionX, (index + 1) * STRIP_H, filled, STRIP_H, TEX_W, TEX_H);
             }
+            int gain = meal.get(nutrient);
+            if (gain > 0) {
+                // White from the fill to where this meal would land, in the bright, dark, bright
+                // rows every colour on this strip has, so it reads as one more colour.
+                float land = Math.min(nutrition.get(nutrient) + gain, PlayerNutrition.MAX);
+                int from = left + sectionX + filled;
+                int to = left + sectionX + Math.round(SECTION_W * land / PlayerNutrition.MAX);
+                gfx.fill(from, y + 1, to, y + 2, MEAL_BRIGHT);
+                gfx.fill(from, y + 2, to, y + 3, MEAL_DARK);
+                gfx.fill(from, y + 3, to, y + 4, MEAL_BRIGHT);
+            }
             index++;
         }
     }
+
+    private static final int MEAL_BRIGHT = 0xFFFFFFFF;
+    private static final int MEAL_DARK = 0xFFAAAAAA;
 
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));

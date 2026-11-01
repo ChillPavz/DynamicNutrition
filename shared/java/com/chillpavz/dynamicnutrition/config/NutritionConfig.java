@@ -153,6 +153,9 @@ public final class NutritionConfig {
      */
     public static volatile int revision;
 
+    /** Whether a food in hand marks where it would take the strip and the bars. */
+    public static boolean mealPreviewEnabled = true;
+
     /** Whether a status change is announced on the action bar. */
     public static boolean announceStatusChanges = true;
 

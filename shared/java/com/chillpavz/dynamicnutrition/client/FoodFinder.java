@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 
 import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.DynamicNutrition;
+import com.chillpavz.dynamicnutrition.config.NutritionConfig;
 import com.chillpavz.dynamicnutrition.nutrition.FoodRanking;
 import com.chillpavz.dynamicnutrition.nutrition.MealHistory;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
@@ -276,12 +277,15 @@ public final class FoodFinder {
         PlayerNutrition nutrition = nutrition();
         int index = 0;
         int hoveredChip = chipAt(mouseX, mouseY);
+        int hoveredRow = rowAt(mouseX, mouseY);
+        Player player = Minecraft.getInstance().player;
+        NutritionValues meal = hoveredRow >= 0 && player != null && NutritionConfig.mealPreviewEnabled
+                ? MealPreview.of(player, rows.get(hoveredRow).item()) : MealPreview.held(player);
         for (Nutrient n : Nutrients.all()) {
-            drawChip(paint, n, index, nutrition, hoveredChip == index);
+            drawChip(paint, n, index, nutrition, hoveredChip == index, meal.get(n));
             index++;
         }
 
-        int hoveredRow = rowAt(mouseX, mouseY);
         for (int i = 0; i < visibleRows && scroll + i < rows.size(); i++) {
             drawRow(paint, font, rows.get(scroll + i), listY + i * ROW_H, scroll + i == hoveredRow);
         }
@@ -300,7 +304,8 @@ public final class FoodFinder {
         }
     }
 
-    private void drawChip(Painter paint, Nutrient n, int index, PlayerNutrition nutrition, boolean hovered) {
+    private void drawChip(Painter paint, Nutrient n, int index, PlayerNutrition nutrition, boolean hovered,
+                          int gain) {
         int x = chipX(index);
         if (n == nutrient) {
             paint.fill(x, chipsY, x + CHIP, chipsY + CHIP, SELECTED);
@@ -312,6 +317,11 @@ public final class FoodFinder {
         int filled = Math.round((CHIP - 2) * Math.min(level, PlayerNutrition.MAX) / PlayerNutrition.MAX);
         paint.fill(x + 1, chipsY + CHIP - 3, x + CHIP - 1, chipsY + CHIP - 1, PIP_TRACK);
         paint.fill(x + 1, chipsY + CHIP - 3, x + 1 + filled, chipsY + CHIP - 1, colour(n));
+        if (gain > 0 && level < PlayerNutrition.MAX) {
+            // One white line where the meal would land.
+            int tip = x + 1 + Math.round((CHIP - 3) * Math.min(level + gain, PlayerNutrition.MAX) / PlayerNutrition.MAX);
+            paint.fill(tip, chipsY + CHIP - 3, tip + 1, chipsY + CHIP - 1, 0xFFFFFFFF);
+        }
     }
 
     private void drawRow(Painter paint, Font font, Row row, int y, boolean hovered) {

@@ -83,6 +83,7 @@ public class NutritionScreen extends Screen {
     private static final int MARK_LOW = 0xFFE05A5A;
     private static final int MARK_TARGET = 0xFF6ADE6A;
     private static final int MARK_PASSED = 0xFFFFFFFF;
+    private static final int MEAL_GHOST = 0x70FFFFFF;
 
     private final Screen parent;
     private int left;
@@ -207,6 +208,14 @@ public class NutritionScreen extends Screen {
         if (filled > 0) {
             GuiBlit.texture(gfx, BARS, x, y, 0, fillV, filled, BAR_H,
                     BARS_TEX_W, BARS_TEX_H);
+        }
+
+        // The held meal: a pale run to where it would land. The value is the one the bar shows, so
+        // the two line up.
+        int gain = this.minecraft == null ? 0 : MealPreview.held(this.minecraft.player).get(nutrient);
+        if (gain > 0) {
+            int land = Math.round(BAR_W * Math.min(value + gain, PlayerNutrition.MAX) / PlayerNutrition.MAX);
+            gfx.fill(x + filled, y + 1, x + land, y + BAR_H - 1, MEAL_GHOST);
         }
 
         // The two thresholds, marked AFTER the fill so a mark the player has passed is still there.

@@ -92,6 +92,7 @@ public final class NutritionEvents {
         // Every tick, not every second: after milk the client must get the effects back at once,
         // not a second later. A set lookup that is empty almost always.
         NutrientEffects.resendIfRefused(player);
+        PlayerActivity.tick(player);
         float satiety = Satiety.onTick(player, player.getFoodData().getSaturationLevel());
         if (satiety != 0.0F) {
             FoodData food = player.getFoodData();
