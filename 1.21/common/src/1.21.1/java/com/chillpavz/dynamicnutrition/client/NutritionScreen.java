@@ -42,8 +42,9 @@ import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
  */
 public class NutritionScreen extends Screen {
 
+    /** A plain texture, because a sprite's nine slice draws once per tile on this band. */
     private static final ResourceLocation PANEL =
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "panel");
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/sprites/panel.png");
 
     /** The panel sprite's size and nine slice border. These MUST match panel.png.mcmeta. */
     private static final int PANEL_SPRITE = 8;
