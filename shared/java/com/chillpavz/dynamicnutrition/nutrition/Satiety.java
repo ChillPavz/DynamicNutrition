@@ -56,6 +56,11 @@ public final class Satiety {
                 + others) / total;
     }
 
+    /** The multiplier a meal's factor comes to at the current setting. */
+    public static float scaled(float factor) {
+        return 1.0F + (factor - 1.0F) * NutritionConfig.satietyPercent / 100.0F;
+    }
+
     /** A meal was eaten: its saturation is scaled on this player's next tick. */
     public static void onEaten(Object player, float factor) {
         if (NutritionConfig.satietyPercent > 0) {
@@ -78,8 +83,7 @@ public final class Satiety {
         if (factor == 1.0F || previous < 0.0F || gained <= 0.0F) {
             return 0.0F;
         }
-        float scaled = 1.0F + (factor - 1.0F) * NutritionConfig.satietyPercent / 100.0F;
-        float change = gained * (scaled - 1.0F);
+        float change = gained * (scaled(factor) - 1.0F);
         track.saturation = saturation + change;
         return change;
     }

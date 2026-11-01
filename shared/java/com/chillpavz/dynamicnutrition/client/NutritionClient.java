@@ -21,6 +21,7 @@ public final class NutritionClient {
     public static void acceptTable(NutritionSyncPayload payload) {
         DynamicNutrition.table().acceptSynced(payload.unpackValues(), payload.unpackOrigins());
         FoodTooltip.invalidate();
+        AppleSkinCompat.register();
         SyncedEffectSettings.accept(payload.effectsEnabled(), payload.effectPercents());
         Constants.LOG.debug("Client table now holds {} foods", payload.entries().size());
     }
