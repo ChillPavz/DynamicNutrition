@@ -31,8 +31,8 @@ final class IconButton extends Button {
 
     private static final int ARROW_H = 8;
     private static final int HELP_H = 9;
-    private static final int STAR_W = 11;
-    private static final int STAR_H = 10;
+    private static final int STAR_W = 9;
+    private static final int STAR_H = 9;
     private static final int ARROW_W = 10;
     private static final int HELP_W = 7;
     private static final Identifier ARROWS =

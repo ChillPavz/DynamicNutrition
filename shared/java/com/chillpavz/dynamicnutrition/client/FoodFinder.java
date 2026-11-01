@@ -54,7 +54,7 @@ public final class FoodFinder {
     }
 
     private record Row(Item item, ItemStack stack, Component name, String search, int[] values,
-                       float score) {
+                       float score, boolean harmful) {
     }
 
     private static final String KEY = "screen." + Constants.MOD_ID + ".finder.";
@@ -73,6 +73,7 @@ public final class FoodFinder {
     private static final int SCROLLBAR_W = 3;
 
     private static final int TEXT = 0xFF3F3F3F;
+    private static final int TEXT_HARMFUL = 0xFFB02020;
     private static final int HOVER = 0x30000000;
     private static final int SELECTED = 0x60FFFFFF;
     private static final int PIP_TRACK = 0x30000000;
@@ -214,7 +215,8 @@ public final class FoodFinder {
             }
             float multiplier = nutrition == null ? 1.0F : MealHistory.multiplier(nutrition.meals(), item);
             rows.add(new Row(item, stack, name, lower, amounts,
-                    FoodRanking.score(current, targets, amounts, multiplier, PlayerNutrition.MAX)));
+                    FoodRanking.score(current, targets, amounts, multiplier, PlayerNutrition.MAX),
+                    FoodHarm.isHarmful(stack)));
         }
         rows.sort(comparator(all));
         scroll = Math.min(scroll, maxScroll());
@@ -339,7 +341,7 @@ public final class FoodFinder {
         int nameX = left + PAD + ICON + GAP;
         int room = pipX - amountW - GAP - nameX;
         paint.text(Component.literal(font.plainSubstrByWidth(row.name().getString(), room)), nameX,
-                y + (ROW_H - font.lineHeight) / 2, TEXT);
+                y + (ROW_H - font.lineHeight) / 2, row.harmful() ? TEXT_HARMFUL : TEXT);
     }
 
     /** A food's bar is full here, about the most one food gives of one nutrient in the vanilla table. */
