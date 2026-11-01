@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 
 import com.chillpavz.dynamicnutrition.Constants;
@@ -17,7 +18,9 @@ import com.chillpavz.dynamicnutrition.network.NutritionSync;
 import com.chillpavz.dynamicnutrition.nutrition.MealHistory;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.player.NutrientStatus;
+import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
+import com.chillpavz.dynamicnutrition.nutrition.Satiety;
 import com.chillpavz.dynamicnutrition.platform.Services;
 import com.chillpavz.dynamicnutrition.player.PlayerNutrition;
 
@@ -55,6 +58,10 @@ public final class NutritionEvents {
         float multiplier = MealHistory.multiplier(nutrition.meals(), stack.getItem());
         NutritionValues effective = values.scaled(multiplier);
         nutrition.consume(effective);
+        if (!hungerRemoved()) {
+            Satiety.onEaten(player, Satiety.factor(values.get(Nutrients.CARBOHYDRATES),
+                    values.get(Nutrients.PROTEIN), values.get(Nutrients.FAT), values.total()));
+        }
         nutrition.rememberMeal(MealHistory.key(stack.getItem()));
         // Always dirty: the meal history changed even when every value was already at its ceiling,
         // and the client needs it to show the right number on the next tooltip.
@@ -68,6 +75,12 @@ public final class NutritionEvents {
                 multiplier, nutrition);
     }
 
+    /** With a mod that takes the hunger bar away there is no fullness left for a meal to change. */
+    private static boolean hungerRemoved() {
+        return Services.PLATFORM.isModLoaded("hunger_remover")
+                || Services.PLATFORM.isModLoaded("nohunger");
+    }
+
     /**
      * Server tick for one player. Charges any drop in food-plus-saturation to the nutrient levels.
      *
@@ -79,6 +92,12 @@ public final class NutritionEvents {
         // Every tick, not every second: after milk the client must get the effects back at once,
         // not a second later. A set lookup that is empty almost always.
         NutrientEffects.resendIfRefused(player);
+        float satiety = Satiety.onTick(player, player.getFoodData().getSaturationLevel());
+        if (satiety != 0.0F) {
+            FoodData food = player.getFoodData();
+            food.setSaturation(Math.max(0.0F, Math.min(food.getSaturationLevel() + satiety,
+                    food.getFoodLevel())));
+        }
         if (player.tickCount % DECAY_INTERVAL_TICKS != 0) {
             return;
         }

@@ -146,4 +146,16 @@ public class ClothConfigData implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
     public int miningFatiguePercent = 50;
+
+    // ---------------------------------------------------------------- hunger
+
+    @ConfigEntry.Category("hunger")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
+    public int hungerDrainPercent = 100;
+
+    @ConfigEntry.Category("hunger")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int satietyPercent = 100;
 }

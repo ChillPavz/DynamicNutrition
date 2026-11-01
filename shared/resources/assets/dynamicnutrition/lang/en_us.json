@@ -96,5 +96,10 @@
   "text.autoconfig.dynamicnutrition.category.hud": "HUD",
   "text.autoconfig.dynamicnutrition.category.inventory": "Inventory",
   "text.autoconfig.dynamicnutrition.category.variety": "Variety",
-  "text.autoconfig.dynamicnutrition.category.effects": "Effects"
+  "text.autoconfig.dynamicnutrition.category.effects": "Effects",
+  "text.autoconfig.dynamicnutrition.category.hunger": "Hunger",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Hunger drain speed",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "How fast the hunger bar empties, as a percentage of normal. 100 is vanilla, 50 is half as fast, 200 is twice as fast.",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent": "Diet affects fullness",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "How much a meal's makeup changes how long it keeps you full. Protein and fat last longer, carbs run out sooner. 100 is the full effect, 0 turns it off."
 }

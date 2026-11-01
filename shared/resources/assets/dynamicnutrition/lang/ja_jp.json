@@ -96,5 +96,10 @@
   "text.autoconfig.dynamicnutrition.category.hud": "HUD",
   "text.autoconfig.dynamicnutrition.category.inventory": "インベントリ",
   "text.autoconfig.dynamicnutrition.category.variety": "多様性",
-  "text.autoconfig.dynamicnutrition.category.effects": "効果"
+  "text.autoconfig.dynamicnutrition.category.effects": "効果",
+  "text.autoconfig.dynamicnutrition.category.hunger": "空腹",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "空腹の進行速度",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "満腹度ゲージが減る速さを通常に対する割合で指定します。100はバニラ、50は半分の速さ、200は2倍の速さです。",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent": "食事が満腹感に影響",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "食事の内容が満腹の持続時間に与える影響の強さです。タンパク質と脂質は長持ちし、炭水化物は早く切れます。100で最大、0でオフになります。"
 }

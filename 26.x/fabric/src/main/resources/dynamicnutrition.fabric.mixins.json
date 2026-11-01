@@ -4,6 +4,7 @@
   "package": "com.chillpavz.dynamicnutrition.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "FoodDataMixin",
     "ItemStackMixin",
     "LivingEntityResistanceMixin"
   ],

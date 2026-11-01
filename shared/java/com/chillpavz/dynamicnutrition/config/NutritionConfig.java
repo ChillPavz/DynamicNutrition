@@ -156,6 +156,14 @@ public final class NutritionConfig {
     /** Whether a status change is announced on the action bar. */
     public static boolean announceStatusChanges = true;
 
+    // ---------------------------------------------------------------- hunger
+
+    /** How fast the hunger bar empties, as a percentage of vanilla. Scales exhaustion. */
+    public static int hungerDrainPercent = 100;
+
+    /** How far a meal's makeup changes its saturation, 0 to 100. 0 is vanilla. */
+    public static int satietyPercent = 100;
+
     private NutritionConfig() {
     }
 }

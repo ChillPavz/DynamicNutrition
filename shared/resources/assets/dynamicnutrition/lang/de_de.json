@@ -96,5 +96,10 @@
   "text.autoconfig.dynamicnutrition.category.hud": "HUD",
   "text.autoconfig.dynamicnutrition.category.inventory": "Inventar",
   "text.autoconfig.dynamicnutrition.category.variety": "Abwechslung",
-  "text.autoconfig.dynamicnutrition.category.effects": "Effekte"
+  "text.autoconfig.dynamicnutrition.category.effects": "Effekte",
+  "text.autoconfig.dynamicnutrition.category.hunger": "Hunger",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Hungergeschwindigkeit",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "Wie schnell sich die Hungerleiste leert, in Prozent des Normalwerts. 100 ist Vanilla, 50 halb so schnell, 200 doppelt so schnell.",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent": "Ernährung beeinflusst Sättigung",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Wie stark die Zusammensetzung einer Mahlzeit bestimmt, wie lange sie sättigt. Eiweiß und Fett halten länger vor, Kohlenhydrate kürzer. 100 ist die volle Wirkung, 0 schaltet sie aus."
 }

@@ -96,5 +96,10 @@
   "text.autoconfig.dynamicnutrition.category.hud": "HUD",
   "text.autoconfig.dynamicnutrition.category.inventory": "Inventario",
   "text.autoconfig.dynamicnutrition.category.variety": "Variedad",
-  "text.autoconfig.dynamicnutrition.category.effects": "Efectos"
+  "text.autoconfig.dynamicnutrition.category.effects": "Efectos",
+  "text.autoconfig.dynamicnutrition.category.hunger": "Hambre",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Velocidad del hambre",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "La rapidez con la que se vacía la barra de hambre, en porcentaje de lo normal. 100 es vanilla, 50 es la mitad de rápido, 200 es el doble.",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent": "La dieta afecta a la saciedad",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Cuánto cambia la composición de una comida el tiempo que te mantiene lleno. Las proteínas y las grasas duran más, los carbohidratos menos. 100 es el efecto completo, 0 lo desactiva."
 }

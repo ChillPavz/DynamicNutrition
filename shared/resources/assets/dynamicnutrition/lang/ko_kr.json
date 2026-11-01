@@ -96,5 +96,10 @@
   "text.autoconfig.dynamicnutrition.category.hud": "HUD",
   "text.autoconfig.dynamicnutrition.category.inventory": "인벤토리",
   "text.autoconfig.dynamicnutrition.category.variety": "다양성",
-  "text.autoconfig.dynamicnutrition.category.effects": "효과"
+  "text.autoconfig.dynamicnutrition.category.effects": "효과",
+  "text.autoconfig.dynamicnutrition.category.hunger": "허기",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "허기 감소 속도",
+  "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "허기 막대가 줄어드는 속도를 기본값의 백분율로 나타냅니다. 100은 바닐라, 50은 절반 속도, 200은 두 배 속도입니다.",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent": "식단이 포만감에 영향",
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "식사의 구성이 포만감 지속 시간에 미치는 영향입니다. 단백질과 지방은 더 오래가고 탄수화물은 빨리 사라집니다. 100은 최대 효과, 0은 끕니다."
 }
