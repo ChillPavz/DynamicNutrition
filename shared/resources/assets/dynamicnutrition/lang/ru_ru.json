@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Скорость голода",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "Как быстро пустеет шкала голода, в процентах от обычного. 100 как в ванили, 50 вдвое медленнее, 200 вдвое быстрее.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "Рацион влияет на сытость",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Насколько состав еды меняет время сытости. Белки и жиры насыщают дольше, углеводы меньше. 100 полный эффект, 0 отключает его."
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Насколько состав еды меняет время сытости. Белки и жиры насыщают дольше, углеводы меньше. 100 полный эффект, 0 отключает его.",
+  "screen.dynamicnutrition.finder.title": "Поиск еды",
+  "screen.dynamicnutrition.finder.search": "Поиск",
+  "screen.dynamicnutrition.finder.best": "Лучшее для меня",
+  "screen.dynamicnutrition.finder.none": "Ничего не найдено",
+  "screen.dynamicnutrition.finder.hint": "Нажмите, чтобы найти еду",
+  "screen.dynamicnutrition.finder.suggest": "Что мне съесть?"
 }

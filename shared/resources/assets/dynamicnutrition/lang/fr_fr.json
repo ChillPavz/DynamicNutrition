@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Vitesse de la faim",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "La vitesse à laquelle la barre de faim se vide, en pourcentage de la normale. 100 correspond au jeu de base, 50 à deux fois moins vite, 200 à deux fois plus vite.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "Le régime influence la satiété",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "À quel point la composition d'un repas change sa durée de satiété. Les protéines et les lipides tiennent plus longtemps, les glucides moins. 100 est l'effet complet, 0 le désactive."
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "À quel point la composition d'un repas change sa durée de satiété. Les protéines et les lipides tiennent plus longtemps, les glucides moins. 100 est l'effet complet, 0 le désactive.",
+  "screen.dynamicnutrition.finder.title": "Recherche d'aliments",
+  "screen.dynamicnutrition.finder.search": "Rechercher",
+  "screen.dynamicnutrition.finder.best": "Le mieux pour moi",
+  "screen.dynamicnutrition.finder.none": "Aucun résultat",
+  "screen.dynamicnutrition.finder.hint": "Cliquez pour trouver des aliments",
+  "screen.dynamicnutrition.finder.suggest": "Que devrais-je manger ?"
 }

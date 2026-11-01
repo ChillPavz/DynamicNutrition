@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Velocidade da fome",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "A rapidez com que a barra de fome esvazia, em porcentagem do normal. 100 é o vanilla, 50 é metade da velocidade, 200 é o dobro.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "A dieta afeta a saciedade",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "O quanto a composição de uma refeição muda o tempo que ela mantém você saciado. Proteínas e gorduras duram mais, carboidratos menos. 100 é o efeito completo, 0 desativa."
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "O quanto a composição de uma refeição muda o tempo que ela mantém você saciado. Proteínas e gorduras duram mais, carboidratos menos. 100 é o efeito completo, 0 desativa.",
+  "screen.dynamicnutrition.finder.title": "Buscador de comida",
+  "screen.dynamicnutrition.finder.search": "Buscar",
+  "screen.dynamicnutrition.finder.best": "Melhor para mim",
+  "screen.dynamicnutrition.finder.none": "Nada encontrado",
+  "screen.dynamicnutrition.finder.hint": "Clique para achar comidas com isto",
+  "screen.dynamicnutrition.finder.suggest": "O que devo comer?"
 }

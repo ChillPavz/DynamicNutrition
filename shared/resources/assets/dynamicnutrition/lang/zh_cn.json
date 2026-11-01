@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "饥饿消耗速度",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "饥饿条下降的速度,以正常速度的百分比表示。100 为原版,50 为一半速度,200 为两倍速度。",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "饮食影响饱腹感",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "食物的营养构成对饱腹时间的影响程度。蛋白质和脂肪更持久,碳水化合物消耗更快。100 为完整效果,0 为关闭。"
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "食物的营养构成对饱腹时间的影响程度。蛋白质和脂肪更持久,碳水化合物消耗更快。100 为完整效果,0 为关闭。",
+  "screen.dynamicnutrition.finder.title": "食物查找",
+  "screen.dynamicnutrition.finder.search": "搜索",
+  "screen.dynamicnutrition.finder.best": "最适合我",
+  "screen.dynamicnutrition.finder.none": "没有匹配项",
+  "screen.dynamicnutrition.finder.hint": "点击查找含此营养的食物",
+  "screen.dynamicnutrition.finder.suggest": "我该吃什么?"
 }

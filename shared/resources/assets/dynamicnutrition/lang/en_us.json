@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Hunger drain speed",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "How fast the hunger bar empties, as a percentage of normal. 100 is vanilla, 50 is half as fast, 200 is twice as fast.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "Diet affects fullness",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "How much a meal's makeup changes how long it keeps you full. Protein and fat last longer, carbs run out sooner. 100 is the full effect, 0 turns it off."
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "How much a meal's makeup changes how long it keeps you full. Protein and fat last longer, carbs run out sooner. 100 is the full effect, 0 turns it off.",
+  "screen.dynamicnutrition.finder.title": "Food finder",
+  "screen.dynamicnutrition.finder.search": "Search",
+  "screen.dynamicnutrition.finder.best": "Best for me",
+  "screen.dynamicnutrition.finder.none": "Nothing matches",
+  "screen.dynamicnutrition.finder.hint": "Click to find foods with this",
+  "screen.dynamicnutrition.finder.suggest": "What should I eat?"
 }

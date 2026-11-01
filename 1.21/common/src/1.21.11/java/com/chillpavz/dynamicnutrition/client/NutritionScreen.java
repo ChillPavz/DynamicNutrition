@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -52,14 +50,7 @@ public class NutritionScreen extends Screen {
     private static final int PANEL_BORDER = 3;
     private static final Identifier BARS =
             Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/bars.png");
-    private static final Identifier ARROWS =
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/arrows.png");
 
-    /** The back arrow sheet: two 10x8 arrows side by side, normal then hover, with a 1px gap. */
-    private static final int ARROW_W = 10;
-    private static final int ARROW_H = 8;
-    private static final int ARROWS_TEX_W = 21;
-    private static final int ARROWS_TEX_H = 8;
 
     // TEN segments of ten pixels plus a one pixel end cap. Ten because a nutrient runs 0 to 100, so
     // one segment is worth ten points and a player can read the value off the bar; the sheet is
@@ -78,6 +69,9 @@ public class NutritionScreen extends Screen {
     /** Vanilla's own dark label colour on a light panel. */
     private static final int TEXT = 0xFF3F3F3F;
     private static final int TEXT_WARN = 0xFF9B2622;
+    private static final int ROW_HOVER = 0x30000000;
+    private static final Component FIND_HINT =
+            Component.translatable("screen." + Constants.MOD_ID + ".finder.hint");
 
     /**
      * Threshold ticks: red for the low line, green for the target, and WHITE once the value is past
@@ -128,41 +122,14 @@ public class NutritionScreen extends Screen {
 
         // Top left, with the SAME margin above it as to its left, which is the panel's own content
         // inset so the arrow sits on the same grid as everything else.
-        addRenderableWidget(new BackButton(left + PAD, top + PAD, b -> this.onClose()));
-    }
-
-    /**
-     * The back arrow.
-     *
-     * <p>Icon only, so it overrides {@code renderContents} and does not call
-     * {@code renderDefaultSprite}: {@code renderWidget} is final on
-     * {@code AbstractButton}, and a bevelled button frame around a ten by eight arrow would leave no
-     * room for the arrow. Vanilla's own recipe book button is built the same way.
-     *
-     * <p>It is shown whether or not there is a parent screen. With one it goes back to the
-     * inventory, without one it closes to the world, and both are what a player means by "back".
-     */
-    private static final class BackButton extends Button {
-
-        private BackButton(int x, int y, Button.OnPress onPress) {
-            super(x, y, ARROW_W, ARROW_H, Component.translatable("gui.back"), onPress,
-                    DEFAULT_NARRATION);
-            setTooltip(Tooltip.create(Component.translatable("gui.back")));
-        }
-
-        @Override
-        protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY,
-                                       float partialTick) {
-            // The hover arrow is the second one on the sheet. Both keep the dark outline, so
-            // contrast never drops on hover; only the interior lights up.
-            int u = isHoveredOrFocused() ? ARROW_W + 1 : 0;
-            GuiBlit.texture(gfx, ARROWS, getX(), getY(), u, 0,
-                    ARROW_W, ARROW_H, ARROWS_TEX_W, ARROWS_TEX_H);
-        }
+        addRenderableWidget(IconButton.back(left + PAD, top + PAD, b -> this.onClose()));
+        addRenderableWidget(IconButton.help(left + panelW - PAD, top + PAD,
+                Component.translatable("screen." + Constants.MOD_ID + ".finder.suggest"),
+                b -> openFinder(null)));
     }
 
     private static Component valueText(int value) {
-        return Component.literal(value + " / " + (int) PlayerNutrition.MAX);
+        return Component.literal(Math.round(value * 100.0F / PlayerNutrition.MAX) + "%");
     }
 
     @Override
@@ -196,6 +163,12 @@ public class NutritionScreen extends Screen {
             int value = nutrition == null ? 0 : nutrition.display(nutrient);
             NutrientStatus status = nutrition == null
                     ? NutrientStatus.SAFE : nutrition.status(nutrient);
+
+            if (mouseX >= left + PAD && mouseX < barX - GAP && mouseY >= rowY && mouseY < rowY + ROW_H) {
+                gfx.fill(left + PAD, rowY, barX - GAP, rowY + ROW_H, ROW_HOVER);
+                gfx.setTooltipForNextFrame(this.font, List.of(FIND_HINT), java.util.Optional.empty(),
+                        mouseX, mouseY);
+            }
 
             drawBar(gfx, index, nutrient, barX, barY, value);
 
@@ -300,9 +273,34 @@ public class NutritionScreen extends Screen {
                 : ItemStack.EMPTY;
     }
 
+    /** The row under the mouse's icon or label, or -1. */
+    private int findRowAt(double mouseX, double mouseY) {
+        int y = top + PAD + this.font.lineHeight + GAP;
+        if (mouseX < left + PAD || mouseX >= barX - GAP || mouseY < y) {
+            return -1;
+        }
+        int row = ((int) mouseY - y) / ROW_H;
+        return row < Nutrients.count() ? row : -1;
+    }
+
+    private void openFinder(Nutrient nutrient) {
+        if (this.minecraft != null) {
+            this.minecraft.setScreenAndShow(new FoodFinderScreen(this, nutrient));
+        }
+    }
+
+    private boolean clickRow(double mouseX, double mouseY) {
+        int row = findRowAt(mouseX, mouseY);
+        if (row < 0) {
+            return false;
+        }
+        openFinder(List.copyOf(Nutrients.all()).get(row));
+        return true;
+    }
+
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return super.mouseClicked(event, doubleClick);
+        return clickRow(event.x(), event.y()) || super.mouseClicked(event, doubleClick);
     }
 
     @Override

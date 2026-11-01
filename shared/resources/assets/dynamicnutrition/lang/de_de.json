@@ -101,5 +101,11 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent": "Hungergeschwindigkeit",
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "Wie schnell sich die Hungerleiste leert, in Prozent des Normalwerts. 100 ist Vanilla, 50 halb so schnell, 200 doppelt so schnell.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "Ernährung beeinflusst Sättigung",
-  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Wie stark die Zusammensetzung einer Mahlzeit bestimmt, wie lange sie sättigt. Eiweiß und Fett halten länger vor, Kohlenhydrate kürzer. 100 ist die volle Wirkung, 0 schaltet sie aus."
+  "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "Wie stark die Zusammensetzung einer Mahlzeit bestimmt, wie lange sie sättigt. Eiweiß und Fett halten länger vor, Kohlenhydrate kürzer. 100 ist die volle Wirkung, 0 schaltet sie aus.",
+  "screen.dynamicnutrition.finder.title": "Nahrungsfinder",
+  "screen.dynamicnutrition.finder.search": "Suchen",
+  "screen.dynamicnutrition.finder.best": "Am besten für mich",
+  "screen.dynamicnutrition.finder.none": "Keine Treffer",
+  "screen.dynamicnutrition.finder.hint": "Klicken, um passende Nahrung zu finden",
+  "screen.dynamicnutrition.finder.suggest": "Was soll ich essen?"
 }
