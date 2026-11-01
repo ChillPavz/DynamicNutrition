@@ -164,6 +164,9 @@ public final class NutritionConfig {
     /** How far a meal's makeup changes its saturation, 0 to 100. 0 is vanilla. */
     public static int satietyPercent = 100;
 
+    /** How far running, fighting and the cold steer decay onto one nutrient, 0 to 100. 0 is even. */
+    public static int activityDecayPercent = 100;
+
     private NutritionConfig() {
     }
 }

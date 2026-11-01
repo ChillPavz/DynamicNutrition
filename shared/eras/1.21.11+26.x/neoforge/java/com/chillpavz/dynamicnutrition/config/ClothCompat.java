@@ -119,6 +119,7 @@ public final class ClothCompat {
         NutritionConfig.announceStatusChanges = data.announceStatusChanges;
         NutritionConfig.hungerDrainPercent = Math.max(10, Math.min(200, data.hungerDrainPercent));
         NutritionConfig.satietyPercent = Math.max(0, Math.min(100, data.satietyPercent));
+        NutritionConfig.activityDecayPercent = Math.max(0, Math.min(100, data.activityDecayPercent));
         // Last, so the server resends the effect settings to everyone after the new values are in.
         NutritionConfig.revision++;
     }

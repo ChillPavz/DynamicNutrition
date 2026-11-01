@@ -102,6 +102,8 @@
   "text.autoconfig.dynamicnutrition.option.hungerDrainPercent.@Tooltip": "How fast the hunger bar empties, as a percentage of normal. 100 is vanilla, 50 is half as fast, 200 is twice as fast.",
   "text.autoconfig.dynamicnutrition.option.satietyPercent": "Diet affects fullness",
   "text.autoconfig.dynamicnutrition.option.satietyPercent.@Tooltip": "How much a meal's makeup changes how long it keeps you full. Protein and fat last longer, carbs run out sooner. 100 is the full effect, 0 turns it off.",
+  "text.autoconfig.dynamicnutrition.option.activityDecayPercent": "Activity affects nutrients",
+  "text.autoconfig.dynamicnutrition.option.activityDecayPercent.@Tooltip": "What you do decides which nutrient pays for the food you burn: running uses carbs, fighting uses protein, the cold uses fat. The total stays the same. 100 is the full effect, 0 turns it off.",
   "screen.dynamicnutrition.finder.title": "Food finder",
   "screen.dynamicnutrition.finder.search": "Search",
   "screen.dynamicnutrition.finder.best": "Best for me",

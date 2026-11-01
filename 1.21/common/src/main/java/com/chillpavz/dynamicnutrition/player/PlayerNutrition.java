@@ -14,6 +14,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
+import com.chillpavz.dynamicnutrition.nutrition.ActivityDecay;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
@@ -249,7 +250,7 @@ public final class PlayerNutrition {
      * @param foodPointsLost how far food-plus-saturation fell since the last check, always positive
      * @return true if anything changed
      */
-    public boolean decay(float foodPointsLost) {
+    public boolean decay(float foodPointsLost, int activity) {
         if (foodPointsLost <= 0) {
             return false;
         }
@@ -260,7 +261,8 @@ public final class PlayerNutrition {
                 continue;
             }
             float levelFactor = DECAY_FLOOR + (1.0F - DECAY_FLOOR) * (current / MAX);
-            float loss = foodPointsLost * DECAY_RATE * nutrient.decayRate() * levelFactor;
+            float loss = foodPointsLost * DECAY_RATE * nutrient.decayRate() * levelFactor
+                    * ActivityDecay.multiplier(nutrient, activity);
             changed |= set(nutrient, current - loss);
         }
         return changed;

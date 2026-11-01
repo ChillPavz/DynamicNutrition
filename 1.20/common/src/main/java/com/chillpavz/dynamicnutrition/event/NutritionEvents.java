@@ -116,7 +116,7 @@ public final class NutritionEvents {
         float foodPoints = player.getFoodData().getFoodLevel()
                 + player.getFoodData().getSaturationLevel();
         float dropped = nutrition.takeFoodPointDrop(foodPoints);
-        if (dropped > 0 && nutrition.decay(dropped)) {
+        if (dropped > 0 && nutrition.decay(dropped, PlayerActivity.of(player))) {
             Services.STORAGE.markDirty(player);
         }
         updateStatus(player, nutrition);

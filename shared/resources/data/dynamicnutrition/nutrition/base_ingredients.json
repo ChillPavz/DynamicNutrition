@@ -32,6 +32,212 @@
     "protein": 11,
     "vitamins": 2
   },
+  "coffee_delight:cap_arabic_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_black_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_cappuccino": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_coco": {
+    "carbohydrates": 12,
+    "fat": 8,
+    "minerals": 12,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_double_espresso_coffee": {
+    "carbohydrates": 1,
+    "minerals": 11,
+    "protein": 1,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_iced_cappuccino": {
+    "carbohydrates": 5,
+    "fat": 6,
+    "minerals": 10,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_iced_coco": {
+    "carbohydrates": 14,
+    "fat": 9,
+    "minerals": 14,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_iced_latte_coffee": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_iced_macchiato": {
+    "carbohydrates": 16,
+    "fat": 12,
+    "minerals": 15,
+    "protein": 6,
+    "vitamins": 2
+  },
+  "coffee_delight:cap_iced_moka": {
+    "carbohydrates": 13,
+    "fat": 10,
+    "minerals": 12,
+    "protein": 5,
+    "vitamins": 2
+  },
+  "coffee_delight:cap_iced_usa_coffee": {
+    "minerals": 8,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_latte_coffee": {
+    "carbohydrates": 3,
+    "fat": 4,
+    "minerals": 8,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_macchiato": {
+    "carbohydrates": 15,
+    "fat": 11,
+    "minerals": 14,
+    "protein": 5,
+    "vitamins": 2
+  },
+  "coffee_delight:cap_milk_coffee": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_moka_coffee": {
+    "carbohydrates": 12,
+    "fat": 8,
+    "minerals": 10,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_turkey_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:cap_usa_coffee": {
+    "minerals": 6,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_arabic_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_black_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_cappuccino": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_coco": {
+    "carbohydrates": 12,
+    "fat": 8,
+    "minerals": 12,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_double_espresso_coffee": {
+    "carbohydrates": 1,
+    "minerals": 11,
+    "protein": 1,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_iced_cappuccino": {
+    "carbohydrates": 5,
+    "fat": 6,
+    "minerals": 10,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_iced_coco": {
+    "carbohydrates": 14,
+    "fat": 9,
+    "minerals": 14,
+    "protein": 6,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_iced_latte_coffee": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_iced_macchiato": {
+    "carbohydrates": 16,
+    "fat": 12,
+    "minerals": 15,
+    "protein": 6,
+    "vitamins": 2
+  },
+  "coffee_delight:mag_iced_moka": {
+    "carbohydrates": 13,
+    "fat": 10,
+    "minerals": 12,
+    "protein": 5,
+    "vitamins": 2
+  },
+  "coffee_delight:mag_iced_usa_coffee": {
+    "minerals": 8,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_latte_coffee": {
+    "carbohydrates": 3,
+    "fat": 4,
+    "minerals": 8,
+    "protein": 3,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_macchiato": {
+    "carbohydrates": 15,
+    "fat": 11,
+    "minerals": 14,
+    "protein": 5,
+    "vitamins": 2
+  },
+  "coffee_delight:mag_milk_coffee": {
+    "carbohydrates": 4,
+    "fat": 5,
+    "minerals": 9,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_moka_coffee": {
+    "carbohydrates": 12,
+    "fat": 8,
+    "minerals": 10,
+    "protein": 4,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_turkey_coffee": {
+    "minerals": 5,
+    "vitamins": 1
+  },
+  "coffee_delight:mag_usa_coffee": {
+    "minerals": 6,
+    "vitamins": 1
+  },
   "collectorsreap:portobello": {
     "carbohydrates": 1,
     "minerals": 4,
@@ -176,6 +382,35 @@
     "carbohydrates": 13,
     "fat": 8,
     "vitamins": 1
+  },
+  "crockpot:avaj": {
+    "minerals": 4,
+    "vitamins": 1
+  },
+  "crockpot:breakfast_skillet": {
+    "carbohydrates": 11,
+    "fat": 13,
+    "minerals": 8,
+    "protein": 13,
+    "vitamins": 4
+  },
+  "crockpot:jammy_preserves": {
+    "carbohydrates": 20,
+    "minerals": 2,
+    "vitamins": 2
+  },
+  "crockpot:surf_n_turf": {
+    "carbohydrates": 1,
+    "fat": 11,
+    "minerals": 10,
+    "protein": 23,
+    "vitamins": 2
+  },
+  "crockpot:veg_stinger": {
+    "carbohydrates": 5,
+    "minerals": 6,
+    "protein": 1,
+    "vitamins": 14
   },
   "croptopia:almond": {
     "carbohydrates": 2,
