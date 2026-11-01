@@ -18,6 +18,7 @@ import com.chillpavz.dynamicnutrition.network.NutritionSync;
 import com.chillpavz.dynamicnutrition.nutrition.MealHistory;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.player.NutrientStatus;
+import com.chillpavz.dynamicnutrition.nutrition.Ketosis;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
 import com.chillpavz.dynamicnutrition.nutrition.Satiety;
@@ -59,8 +60,9 @@ public final class NutritionEvents {
         NutritionValues effective = values.scaled(multiplier);
         nutrition.consume(effective);
         if (!hungerRemoved()) {
-            Satiety.onEaten(player, Satiety.factor(values.get(Nutrients.CARBOHYDRATES),
-                    values.get(Nutrients.PROTEIN), values.get(Nutrients.FAT), values.total()));
+            float satiety = Satiety.factor(values.get(Nutrients.CARBOHYDRATES),
+                    values.get(Nutrients.PROTEIN), values.get(Nutrients.FAT), values.total());
+            Satiety.onEaten(player, nutrition.inKetosis() ? satiety * Ketosis.SATIETY : satiety);
         }
         nutrition.rememberMeal(MealHistory.key(stack.getItem()));
         // Always dirty: the meal history changed even when every value was already at its ceiling,
@@ -117,6 +119,14 @@ public final class NutritionEvents {
         float foodPoints = player.getFoodData().getFoodLevel()
                 + player.getFoodData().getSaturationLevel();
         float dropped = nutrition.takeFoodPointDrop(foodPoints);
+        if (nutrition.tickKetosis()) {
+            Services.STORAGE.markDirty(player);
+            if (NutritionConfig.announceStatusChanges) {
+                Component message = Component.translatable("status." + Constants.MOD_ID + ".ketosis."
+                        + (nutrition.inKetosis() ? "enter" : "exit"));
+                player.sendSystemMessage(message, true);
+            }
+        }
         if (dropped > 0 && nutrition.decay(dropped, PlayerActivity.of(player))) {
             Services.STORAGE.markDirty(player);
         }

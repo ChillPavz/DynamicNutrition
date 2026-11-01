@@ -379,6 +379,11 @@ public final class NutrientEffects {
         for (Nutrient nutrient : Nutrients.all()) {
             NutrientStatus status = NutrientStatus.of(nutrient, nutrition.get(nutrient),
                     nutrition.heldStatus(nutrient));
+            // A body running on fat is not short of fuel, so low carbohydrates cost nothing here.
+            if (nutrition.inKetosis() && nutrient == Nutrients.CARBOHYDRATES
+                    && status == NutrientStatus.MALNOURISHED) {
+                status = NutrientStatus.SAFE;
+            }
             changed |= nutrition.setHeldStatus(nutrient, status);
             NutrientStatus held = nutrition.heldStatus(nutrient);
             for (boolean above : new boolean[] {true, false}) {

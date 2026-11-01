@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
+import com.chillpavz.dynamicnutrition.Constants;
 import com.chillpavz.dynamicnutrition.nutrition.ActivityDecay;
 
 /**
@@ -29,17 +30,33 @@ final class PlayerActivity {
 
     private static final Map<ServerPlayer, Integer> LAST_SWING = new WeakHashMap<>();
 
+    private static boolean broken;
+
     private PlayerActivity() {
     }
 
     /** Once a tick: a swing lasts a few ticks, and the decay check only looks once a second. */
     static void tick(ServerPlayer player) {
-        if (player.swinging) {
+        if (SwingCheck.swinging(player)) {
             LAST_SWING.put(player, player.tickCount);
         }
     }
 
+    /** Never throws: a game version that moved something costs this feature, not the server. */
     static int of(ServerPlayer player) {
+        if (broken) {
+            return 0;
+        }
+        try {
+            return read(player);
+        } catch (RuntimeException | LinkageError e) {
+            broken = true;
+            Constants.LOG.error("Could not read what the player is doing, so decay stays even", e);
+            return 0;
+        }
+    }
+
+    private static int read(ServerPlayer player) {
         int activity = 0;
         int now = player.tickCount;
         boolean fighting = recent(now, player.getLastHurtMobTimestamp())
@@ -60,15 +77,12 @@ final class PlayerActivity {
         return activity | climate(player);
     }
 
-    /** Tough As Nails knows the body's temperature, armour included, so it decides when present. */
+    /** A survival mod knows the body's temperature, clothing included, so it decides when present. */
     private static int climate(ServerPlayer player) {
-        String body = TemperatureCompat.level(player);
+        Integer body = TemperatureCompat.body(player);
         if (body != null) {
-            return switch (body) {
-                case "ICY", "COLD" -> ActivityDecay.COLD;
-                case "HOT" -> ActivityDecay.HOT;
-                default -> 0;
-            };
+            return body == TemperatureCompat.COLD ? ActivityDecay.COLD
+                    : body == TemperatureCompat.HOT ? ActivityDecay.HOT : 0;
         }
         if (player.getTicksFrozen() > 0) {
             return ActivityDecay.COLD;

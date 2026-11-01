@@ -119,6 +119,7 @@ public final class ClothCompat {
         NutritionConfig.miningFatiguePercent = data.miningFatiguePercent;
         NutritionConfig.announceStatusChanges = data.announceStatusChanges;
         NutritionConfig.mealPreviewEnabled = data.mealPreviewEnabled;
+        NutritionConfig.ketosisEnabled = data.ketosisEnabled;
         NutritionConfig.hungerDrainPercent = Math.max(10, Math.min(200, data.hungerDrainPercent));
         NutritionConfig.satietyPercent = Math.max(0, Math.min(100, data.satietyPercent));
         NutritionConfig.activityDecayPercent = Math.max(0, Math.min(100, data.activityDecayPercent));

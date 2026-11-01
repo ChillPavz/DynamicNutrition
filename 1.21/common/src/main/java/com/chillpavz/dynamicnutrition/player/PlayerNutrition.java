@@ -15,6 +15,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import com.chillpavz.dynamicnutrition.nutrition.ActivityDecay;
+import com.chillpavz.dynamicnutrition.nutrition.Ketosis;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrient;
 import com.chillpavz.dynamicnutrition.nutrition.Nutrients;
 import com.chillpavz.dynamicnutrition.nutrition.NutritionValues;
@@ -87,7 +88,9 @@ public final class PlayerNutrition {
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("effect_status", Map.of())
                     .forGetter(p -> new LinkedHashMap<>(p.effectStatus)),
             Codec.INT.optionalFieldOf("effect_format", 0)
-                    .forGetter(p -> p.effectFormat)
+                    .forGetter(p -> p.effectFormat),
+            Codec.INT.optionalFieldOf("ketosis_seconds", 0)
+                    .forGetter(p -> p.ketosisSeconds)
     ).apply(i, PlayerNutrition::new));
 
     public static final Codec<PlayerNutrition> CODEC = MAP_CODEC.codec();
@@ -103,6 +106,9 @@ public final class PlayerNutrition {
      * directly would need an access widener for no real gain.
      */
     private float savedFoodPoints;
+
+    /** Seconds spent on the way into ketosis. See {@link Ketosis}. */
+    private int ketosisSeconds;
 
     /**
      * The status this player was last told about, persisted.
@@ -168,12 +174,14 @@ public final class PlayerNutrition {
     private int effectFormat;
 
     public PlayerNutrition() {
-        this(Map.of(), 0.0F, NutrientStatus.SAFE.name(), 0, false, List.of(), 0, Map.of(), 0);
+        this(Map.of(), 0.0F, NutrientStatus.SAFE.name(), 0, false, List.of(), 0, Map.of(), 0, 0);
     }
 
     private PlayerNutrition(Map<String, Float> stored, float savedFoodPoints, String lastStatus,
                             int sustainedTicks, boolean wasMalnourished, List<String> meals,
-                            int mealRevision, Map<String, String> effectStatus, int effectFormat) {
+                            int mealRevision, Map<String, String> effectStatus, int effectFormat,
+                            int ketosisSeconds) {
+        this.ketosisSeconds = ketosisSeconds;
         this.effectStatus.putAll(effectStatus);
         this.effectFormat = effectFormat;
         this.savedFoodPoints = savedFoodPoints;
@@ -244,6 +252,18 @@ public final class PlayerNutrition {
         return changed;
     }
 
+    public boolean inKetosis() {
+        return Ketosis.active(ketosisSeconds);
+    }
+
+    /** One second of {@link Ketosis}. Returns true when the player has just entered or left it. */
+    public boolean tickKetosis() {
+        boolean before = inKetosis();
+        ketosisSeconds = Ketosis.next(ketosisSeconds, get(Nutrients.CARBOHYDRATES),
+                Nutrients.CARBOHYDRATES.malnourishedBelow(), get(Nutrients.FAT), Nutrients.FAT.malnourishedBelow());
+        return before != inKetosis();
+    }
+
     /**
      * Charge a drop in the player's food and saturation to their nutrient levels.
      *
@@ -251,6 +271,7 @@ public final class PlayerNutrition {
      * @return true if anything changed
      */
     public boolean decay(float foodPointsLost, int activity) {
+        int steered = inKetosis() ? activity | ActivityDecay.KETOSIS : activity;
         if (foodPointsLost <= 0) {
             return false;
         }
@@ -262,7 +283,7 @@ public final class PlayerNutrition {
             }
             float levelFactor = DECAY_FLOOR + (1.0F - DECAY_FLOOR) * (current / MAX);
             float loss = foodPointsLost * DECAY_RATE * nutrient.decayRate() * levelFactor
-                    * ActivityDecay.multiplier(nutrient, activity);
+                    * ActivityDecay.multiplier(nutrient, steered);
             changed |= set(nutrient, current - loss);
         }
         return changed;
@@ -343,6 +364,7 @@ public final class PlayerNutrition {
         this.effectStatus.clear();
         this.effectStatus.putAll(other.effectStatus);
         this.effectFormat = other.effectFormat;
+        this.ketosisSeconds = other.ketosisSeconds;
     }
 
     // ---------------------------------------------------------------- status

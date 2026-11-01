@@ -25,6 +25,7 @@ public final class ActivityDecay {
     public static final int SWIMMING = 16;
     public static final int LABOUR = 32;
     public static final int HEALING = 64;
+    public static final int KETOSIS = 128;
 
     private ActivityDecay() {
     }
@@ -46,7 +47,17 @@ public final class ActivityDecay {
         } else if (nutrient == Nutrients.MINERALS) {
             multiplier = factor(activity, LABOUR, 3.0F) * factor(activity, HOT, 1.5F);
         }
-        return 1.0F + (multiplier - 1.0F) * NutritionConfig.activityDecayPercent / 100.0F;
+        float scaled = 1.0F + (multiplier - 1.0F) * NutritionConfig.activityDecayPercent / 100.0F;
+        // Ketosis is its own setting: it holds with activity decay switched off.
+        if ((activity & KETOSIS) != 0) {
+            if (nutrient == Nutrients.CARBOHYDRATES) {
+                return scaled * 0.25F;
+            }
+            if (nutrient == Nutrients.FAT) {
+                return scaled * 2.5F;
+            }
+        }
+        return scaled;
     }
 
     /** This nutrient's share of decay for that activity, scaled so the total stays what it was. */

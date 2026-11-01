@@ -170,6 +170,9 @@ public final class NutritionConfig {
     /** How far running, fighting and the cold steer decay onto one nutrient, 0 to 100. 0 is even. */
     public static int activityDecayPercent = 100;
 
+    /** Whether a long run short of carbohydrates turns the body to fat. See {@code Ketosis}. */
+    public static boolean ketosisEnabled = true;
+
     private NutritionConfig() {
     }
 }

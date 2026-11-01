@@ -52,7 +52,7 @@ public final class NutritionHud {
     private static final int SECTION_PITCH = 11;
     private static final int SECTION_X0 = 1;
     private static final int TEX_W = 56;
-    private static final int TEX_H = 30;
+    private static final int TEX_H = 35;
 
     /** Vanilla's own right-hand HUD column: the food bar's right edge. */
     private static final int BAR_RIGHT_FROM_CENTRE = 91;
@@ -197,21 +197,18 @@ public final class NutritionHud {
             }
             int gain = meal.get(nutrient);
             if (gain > 0) {
-                // White from the fill to where this meal would land, in the bright, dark, bright
-                // rows every colour on this strip has, so it reads as one more colour.
+                // The sheet's white block, clipped like a fill, so it carries the shading every colour
+                // on this strip has, column by column.
                 float land = Math.min(nutrition.get(nutrient) + gain, PlayerNutrition.MAX);
-                int from = left + sectionX + filled;
-                int to = left + sectionX + Math.round(SECTION_W * land / PlayerNutrition.MAX);
-                gfx.fill(from, y + 1, to, y + 2, MEAL_BRIGHT);
-                gfx.fill(from, y + 2, to, y + 3, MEAL_DARK);
-                gfx.fill(from, y + 3, to, y + 4, MEAL_BRIGHT);
+                int to = Math.round(SECTION_W * land / PlayerNutrition.MAX);
+                if (to > filled) {
+                    GuiBlit.texture(gfx, STRIP, left + sectionX + filled, y, sectionX + filled,
+                            (Nutrients.count() + 1) * STRIP_H, to - filled, STRIP_H, TEX_W, TEX_H);
+                }
             }
             index++;
         }
     }
-
-    private static final int MEAL_BRIGHT = 0xFFFFFFFF;
-    private static final int MEAL_DARK = 0xFFAAAAAA;
 
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));

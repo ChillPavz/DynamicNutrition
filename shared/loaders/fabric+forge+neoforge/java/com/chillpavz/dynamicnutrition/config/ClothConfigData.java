@@ -167,4 +167,8 @@ public class ClothConfigData implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
     public int activityDecayPercent = 100;
+
+    @ConfigEntry.Category("hunger")
+    @ConfigEntry.Gui.Tooltip
+    public boolean ketosisEnabled = true;
 }

@@ -67,8 +67,13 @@ public class NutritionScreen extends Screen {
 
     /** Vanilla's own dark label colour on a light panel. */
     private static final int TEXT = 0xFF3F3F3F;
-    private static final int TEXT_WARN = 0xFF9B2622;
+    /** The status colours are the nutrients' own: protein's red, vitamins' green, fat's yellow. */
+    private static final int TEXT_WARN = 0xFFB20000;
+    private static final int TEXT_ABOVE = 0xFF00E500;
     private static final int ROW_HOVER = 0x30000000;
+    private static final int TEXT_KETOSIS = 0xFFF2F200;
+    private static final Component KETOSIS_TIP =
+            Component.translatable("screen." + Constants.MOD_ID + ".ketosis");
     private static final Component FIND_HINT =
             Component.translatable("screen." + Constants.MOD_ID + ".finder.hint");
 
@@ -128,6 +133,19 @@ public class NutritionScreen extends Screen {
                 b -> openFinder(null)));
     }
 
+    private static int valueColour(PlayerNutrition nutrition, Nutrient nutrient, NutrientStatus status) {
+        if (ketosis(nutrition, nutrient)) {
+            return TEXT_KETOSIS;
+        }
+        return status == NutrientStatus.MALNOURISHED ? TEXT_WARN
+                : status == NutrientStatus.ON_TARGET ? TEXT_ABOVE : TEXT;
+    }
+
+    /** Ketosis shows on the fat row: the number turns yellow and says why when hovered. */
+    private static boolean ketosis(PlayerNutrition nutrition, Nutrient nutrient) {
+        return nutrition != null && nutrient == Nutrients.FAT && nutrition.inKetosis();
+    }
+
     private static Component valueText(int value) {
         return Component.literal(Math.round(value * 100.0F / PlayerNutrition.MAX) + "%");
     }
@@ -179,8 +197,14 @@ public class NutritionScreen extends Screen {
             // Right-aligned against the measured width, which is what makes the forced-unicode font
             // a non-event rather than the visible dislocation it otherwise causes.
             int vx = valueX + (this.font.width(valueText(100)) - this.font.width(valueLabel));
+            int valueColour = valueColour(nutrition, nutrient, status);
+            // Only yellow needs the shadow to read on the light panel.
             gfx.drawString(this.font, valueLabel, vx, rowY + (ROW_H - this.font.lineHeight) / 2,
-                    status == NutrientStatus.MALNOURISHED ? TEXT_WARN : TEXT, false);
+                    valueColour, valueColour == TEXT_KETOSIS);
+            if (ketosis(nutrition, nutrient) && mouseX >= vx && mouseX < vx + this.font.width(valueLabel)
+                    && mouseY >= rowY && mouseY < rowY + ROW_H) {
+                setTooltipForNextRenderPass(KETOSIS_TIP);
+            }
 
             if (mouseX >= barX && mouseX < barX + BAR_W && mouseY >= barY && mouseY < barY + BAR_H) {
                 List<Component> tip = tooltipFor(nutrient);

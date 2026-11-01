@@ -36,6 +36,7 @@ public final class DynamicNutrition {
      * which is what turns it into a multi-minute hang on first join.
      */
     public static void onServerStarted(net.minecraft.server.MinecraftServer server) {
+        com.chillpavz.dynamicnutrition.event.TemperatureCompat.find();
         TABLE.prewarm(server.overworld());
     }
 
